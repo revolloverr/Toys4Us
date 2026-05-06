@@ -1,0 +1,28 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}{{ product.name }} - {{ trans('app.title') }}{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12 col-md-6 mb-4">
+        <img src="{{ product.image_url }}" class="img-fluid rounded shadow-sm" alt="{{ product.name }}" style="width:100%;max-height:400px;object-fit:cover;">
+    </div>
+    <div class="col-12 col-md-6">
+        <h2 class="fw-bold text-purple">{{ product.name }}</h2>
+        <p class="text-muted">{{ product.description }}</p>
+        <div class="mb-4">
+            <span class="display-6 fw-bold text-purple">${{ product.price|number_format(2) }}</span>
+        </div>
+        <form action="{{ base_path }}/cart/add/{{ product.id }}" method="POST">
+            <button type="submit" class="btn btn-purple btn-lg w-100 mb-3">
+                🛒 {{ trans('products.add_to_cart') }}
+            </button>
+        </form>
+        <a href="{{ base_path }}/products" class="btn btn-outline-secondary w-100">
+            {{ trans('products.back') }}
+        </a>
+    </div>
+</div>
+
+{% endblock %}

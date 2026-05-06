@@ -1,0 +1,70 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}{{ trans('cart.title') }} - {{ trans('app.title') }}{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="h4 text-purple fw-bold">{{ trans('cart.title') }}</h2>
+    </div>
+</div>
+
+{% if cart is empty %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center py-5">
+            <p class="text-muted mb-3">{{ trans('cart.empty') }}</p>
+            <a href="{{ base_path }}/products" class="btn btn-purple">
+                {{ trans('cart.continue_shopping') }}
+            </a>
+        </div>
+    </div>
+{% else %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{{ trans('cart.product') }}</th>
+                            <th class="text-center">{{ trans('cart.qty') }}</th>
+                            <th class="text-end">{{ trans('cart.price') }}</th>
+                            <th class="text-end">{{ trans('cart.total') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set grandTotal = 0 %}
+                        {% for item in cart %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td class="text-center">{{ item.qty }}</td>
+                                <td class="text-end">${{ item.price|number_format(2) }}</td>
+                                <td class="text-end fw-bold">${{ (item.price * item.qty)|number_format(2) }}</td>
+                            </tr>
+                            {% set grandTotal = grandTotal + (item.price * item.qty) %}
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold h5">{{ trans('cart.grand_total') }}:</td>
+                            <td class="text-end fw-bold h5 text-purple">${{ grandTotal|number_format(2) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{{ base_path }}/products" class="btn btn-outline-secondary">
+            {{ trans('cart.continue_shopping') }}
+        </a>
+        <form action="{{ base_path }}/cart/checkout" method="POST">
+            <button type="submit" class="btn btn-purple btn-lg">
+                {{ trans('cart.checkout') }}
+            </button>
+        </form>
+    </div>
+{% endif %}
+
+{% endblock %}

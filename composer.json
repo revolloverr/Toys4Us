@@ -1,0 +1,25 @@
+{
+    "name": "lab/todo-app-lab10",
+    "description": "PHP Lab 10 — i18n and OTP Authentication",
+    "require": {
+        "slim/slim": "^4.0",
+        "slim/psr7": "^1.0",
+        "php-di/php-di": "^7.0",
+        "twig/twig": "^3.0",
+        "gabordemooij/redbean": "^5.7",
+        "symfony/translation": "^8.0",
+        "robthree/twofactorauth": "^3.0",
+        "bacon/bacon-qr-code": "^3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.4.0"
+        }
+    }
+}

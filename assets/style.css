@@ -1,0 +1,107 @@
+/* ── Theme: White + Blueish-Purple ── */
+:root {
+    --purple: #7c3aed;
+    --purple-dark: #6d28d9;
+    --purple-light: #ede9fe;
+    --purple-soft: #f5f3ff;
+    --blue-purple: #6366f1;
+    --white: #ffffff;
+    --gray-50: #fafafa;
+    --gray-100: #f4f4f5;
+    --gray-200: #e4e4e7;
+    --gray-300: #d4d4d8;
+    --gray-400: #a1a1aa;
+    --gray-500: #71717a;
+    --gray-600: #52525b;
+    --gray-700: #3f3f46;
+    --gray-800: #27272a;
+    --gray-900: #18181b;
+}
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-800);
+    min-height: 100vh;
+}
+
+/* ── Bootstrap-style purple btn (since we can't modify bootstrap easily) ── */
+.btn-purple {
+    background-color: var(--purple) !important;
+    border-color: var(--purple) !important;
+    color: var(--white) !important;
+}
+.btn-purple:hover {
+    background-color: var(--purple-dark) !important;
+    border-color: var(--purple-dark) !important;
+    color: var(--white) !important;
+}
+.btn-outline-purple {
+    color: var(--purple) !important;
+    border-color: var(--purple) !important;
+    background: transparent !important;
+}
+.btn-outline-purple:hover {
+    background-color: var(--purple) !important;
+    color: var(--white) !important;
+}
+
+.bg-purple {
+    background-color: var(--purple) !important;
+}
+
+.text-purple {
+    color: var(--purple) !important;
+}
+
+/* ── Header ── */
+header {
+    margin-bottom: 2rem;
+}
+
+/* ── Card overrides ── */
+.card {
+    background: var(--white);
+    border-radius: 12px;
+}
+
+/* ── Language switcher ── */
+.lang-switcher a {
+    transition: background 0.15s;
+}
+.lang-switcher a:hover {
+    background: var(--purple-light);
+}
+
+/* ── Auth form overrides ── */
+.auth-form .form-control:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+}
+
+/* ── Table overrides ── */
+.table thead.table-light th {
+    background-color: var(--purple-soft) !important;
+    color: var(--purple-dark) !important;
+    font-weight: 600;
+}
+
+/* ── Alert overrides ── */
+.alert-danger {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+/* ── Footer ── */
+footer {
+    color: var(--gray-400);
+}
+
+/* ── Miscellaneous ── */
+a {
+    transition: color 0.15s;
+}
