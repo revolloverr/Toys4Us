@@ -1,0 +1,16 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}{{ trans('about.title') }}{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="h4 text-purple fw-bold mb-3">{{ trans('about.heading') }}</h2>
+        <div class="card shadow-sm border-0 p-4">
+            <p class="card-text">{{ trans('about.content') }}</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

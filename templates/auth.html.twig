@@ -1,0 +1,78 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}{{ trans('auth.title') }}{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-5">
+
+        {# ── Step: login — username entry form ─────────────────────────────────── #}
+        {% if step == 'login' %}
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h2 class="h4 text-purple fw-bold mb-3">{{ trans('auth.title') }}</h2>
+                <form class="auth-form" action="{{ base_path }}/auth/request" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">{{ trans('auth.username_label') }}</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="username"
+                            name="username"
+                            placeholder="{{ trans('auth.username_ph') }}"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn btn-purple w-100">{{ trans('auth.request_otp') }}</button>
+                </form>
+            </div>
+        </div>
+
+        {# ── Step: otp_display — show the TOTP QR code ─────────────────────────── #}
+        {% elseif step == 'otp_display' %}
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center p-4">
+                <h2 class="h4 text-purple fw-bold mb-3">{{ trans('auth.otp_sent') }}</h2>
+                <img src="{{ qr_code }}" alt="TOTP QR code" class="img-fluid mb-3" style="max-width:200px;">
+                <p class="text-muted small mb-4">{{ trans('auth.otp_note') }}</p>
+                <a href="{{ base_path }}/auth/verify" class="btn btn-purple">{{ trans('auth.continue') }}</a>
+            </div>
+        </div>
+
+        {# ── Step: verify — OTP entry form ──────────────────────────────────────── #}
+        {% elseif step == 'verify' %}
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h2 class="h4 text-purple fw-bold mb-3">{{ trans('auth.verify_title') }}</h2>
+
+                {% if error is defined %}
+                    <div class="alert alert-danger py-2 small">{{ trans(error) }}</div>
+                {% endif %}
+
+                <form class="auth-form" action="{{ base_path }}/auth/verify" method="POST">
+                    <div class="mb-3">
+                        <label for="code" class="form-label">{{ trans('auth.otp_label') }}</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="code"
+                            name="code"
+                            placeholder="{{ trans('auth.otp_ph') }}"
+                            maxlength="6"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn btn-purple w-100">{{ trans('auth.verify') }}</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

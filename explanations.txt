@@ -1,0 +1,346 @@
+/*
+
+Thorough Explanation of README.md - Lab 10
+Introduction & Important Notes
+This lab teaches two critical features that will appear in your final project and exam:
+
+Language switching (i18n) - Making your app support multiple languages
+OTP authentication - Two-factor authentication using TOTP
+Key Point: The goal is understanding why each piece works, not just completing the code. You're free to use different libraries in your final project, but these are chosen for their simplicity.
+
+Overview - Three Parts
+Part	Feature	What You'll Learn
+1	Language switcher (EN/FR)	Symfony Translation, PHP sessions, Twig functions
+2	OTP service	TOTP algorithm, robthree/twofactorauth library
+3	Auth flow + protected routes	Controllers, invokable middleware, Slim route groups
+Each part builds on the previous one - Parts 2 & 3 only work once Part 1 (sessions) is enabled.
+
+Lab 8 Middleware Recap
+The project includes three middleware classes from Lab 8 that run on every request:
+
+
+Request → SecurityHeadersMiddleware → MaintenanceMiddleware → LoggerMiddleware → Route
+Response ← SecurityHeadersMiddleware ← MaintenanceMiddleware ← LoggerMiddleware ← Route
+Middleware	Purpose	Pattern
+LoggerMiddleware	Logs each request to var/app.log	Closure
+MaintenanceMiddleware	Returns 503 when maintenance flag exists	Invokable class
+SecurityHeadersMiddleware	Adds security headers to responses	PSR-15 interface
+In Part 3, you'll add AuthMiddleware using the same invokable pattern as MaintenanceMiddleware to protect /todos routes.
+
+Project Structure
+
+todo-app-lab10/
+├── index.php                    # Bootstrap file (DB, Twig, i18n, DI, middleware, routes)
+├── src/
+│   ├── Controllers/
+│   │   ├── TodoController.php   # Pre-filled (don't modify)
+│   │   └── AuthController.php   # You'll implement requestOtp() and verifyOtp()
+│   ├── Middleware/
+│   │   ├── MaintenanceMiddleware.php      # From Lab 8
+│   │   ├── SecurityHeadersMiddleware.php  # From Lab 8
+│   │   └── AuthMiddleware.php             # You'll implement __invoke()
+│   ├── Models/
+│   │   └── TodoModel.php        # Pre-filled (don't modify)
+│   └── Services/
+│       └── OtpService.php       # You'll implement generate() and verify()
+├── templates/
+│   ├── layout.html.twig         # Base layout with language switcher
+│   ├── todos.html.twig          # Todo list page
+│   └── auth.html.twig           # Login/OTP display/OTP entry
+├── translations/
+│   ├── messages.en.php          # English catalog (reference)
+│   └── messages.fr.php          # You'll fill in French translations
+├── var/
+│   ├── todos.db                 # SQLite database (auto-created)
+│   └── app.log                  # Request log from middleware
+└── composer.json
+Setup Instructions
+1. Install Dependencies
+The required libraries aren't in composer.json yet. Run from htdocs/todo-app-lab10:
+
+
+..\composer.bat require robthree/twofactorauth bacon/bacon-qr-code symfony/translation
+This adds:
+
+robthree/twofactorauth - TOTP library
+bacon/bacon-qr-code - QR code generation
+symfony/translation - Translation system
+Then install all dependencies:
+
+
+..\composer.bat install
+2. Open the App
+Visit: http://localhost/todo-app-lab10/todos
+
+Reading index.php - 11 Sections
+The bootstrap file is organized into numbered sections:
+
+DATABASE - RedBeanPHP + SQLite (unchanged from Lab 8)
+TEMPLATE ENGINE - Twig setup
+I18N - Symfony Translator wiring (your work in Part 1)
+DI CONTAINER - PHP-DI wires controllers (your work in Part 3)
+APPLICATION - Slim app creation
+MIDDLEWARE - Logger, Maintenance, SecurityHeaders (already done)
+HTML ROUTES - /todos routes (your work in Part 3 - route group)
+LANGUAGE ROUTE - /lang/{locale} (your work in Part 1)
+AUTH ROUTES - /auth/* routes (pre-filled)
+DEBUG ROUTE - /otp-test (remove when you reach Part 3)
+RUN - $app->run()
+⚠️ Do NOT modify sections 1, 2, 5, 6, 9, 11
+
+Part 1 - Language Switcher (i18n)
+What is i18n?
+Internationalisation (i18n = 18 letters between 'i' and 'n') means writing your app so user-visible strings can be swapped for different languages at runtime without changing logic.
+
+Standard Pattern:
+
+Replace hardcoded strings with translation keys ('app.title', 'todo.add', etc.)
+Provide one catalog file per language mapping keys to translations
+At runtime, read user's preferred language from session and look up keys in the right catalog
+The app uses Symfony Translation for steps 2-3. Template calls like {{ trans('some.key') }} go through the Translator object.
+
+PHP Sessions Reminder
+Sessions carry three pieces of state:
+
+$_SESSION['lang'] - Active UI language ('en' or 'fr')
+$_SESSION['totp_secret'] - TOTP secret during login setup (Parts 2 & 3)
+$_SESSION['authenticated'] - Whether user verified TOTP (Part 3)
+Important: session_start() must be called before any output and before $_SESSION is accessed.
+
+Step 1 - Enable Sessions
+Uncomment session_start(); near the top of index.php.
+
+Step 2 - Wire Symfony Translator
+In section 3 of index.php, uncomment and complete four blocks:
+
+
+// Step 2a — Set default locale
+$translator = new Translator('en');
+
+// Step 2b — Add ArrayLoader
+$translator->addLoader('array', new ArrayLoader());
+
+// Step 2c — Add translation resources
+$translator->addResource('array', require __DIR__ . '/translations/messages.en.php', 'en');
+$translator->addResource('array', require __DIR__ . '/translations/messages.fr.php', 'fr');
+
+// Step 2d — Add trans() function to Twig
+$twig->addFunction(new TwigFunction('trans', function (string $key, array $params = []) use ($translator) {
+    $locale = $_SESSION['lang'] ?? 'en';
+    return $translator->trans($key, $params, null, $locale);
+}));
+Step 3 - Implement Language Route
+In section 8, implement /lang/{locale}:
+
+
+$app->get('/lang/{locale}', function (Request $request, Response $response, array $args) use ($basePath) {
+    $allowed = ['en', 'fr'];
+    
+    if (in_array($args['locale'], $allowed)) {
+        $_SESSION['lang'] = $args['locale'];
+    }
+    return $response->withHeader('Location', $basePath . '/todos')->withStatus(302);
+});
+Step 4 - Translate French Catalog
+Open translations/messages.fr.php and replace every '___' with French translations from the comments. Rules:
+
+Keep keys exactly as they are
+Don't change 'app.lang.en', 'app.lang.fr', 'app.footer' (already filled)
+In 'todo.task_count', must contain %count% (replaced at runtime)
+Verify Part 1
+Visit app - text should be in English
+Click FR link in top-right - page reloads in French
+Click EN to switch back
+Add a todo - verify task count updates correctly in both languages
+Part 2 - OTP Service (TOTP)
+What is TOTP?
+TOTP (Time-based One-Time Password, RFC 6238) is the algorithm behind Google Authenticator and Authy. Both server and app independently compute the same 6-digit code from:
+
+A secret - random Base32 string exchanged during setup
+The current time - rounded to 30-second windows
+Both sides use same inputs + algorithm → same result without network exchange.
+
+Setup Flow:
+
+
+Server generates secret → renders QR code → user scans with authenticator app
+        ↓                                              ↓
+   stores secret in session              app shows new 6-digit code every 30s
+        ↓
+   user submits code → server verifies → authenticated
+QR codes are rendered as inline SVG data URIs using bacon/bacon-qr-code - no external services needed.
+
+Step 1 - Implement OtpService::generate()
+In src/Services/OtpService.php:
+
+
+public function generate(string $label): string
+{
+    $secret = $this->tfa->createSecret();                    // generate new Base32 secret
+    $_SESSION['totp_secret'] = $secret;                     // store in session
+    
+    return $this->tfa->getQRCodeImageAsDataUri($label, $secret); // return QR code data URI
+}
+Step 2 - Implement OtpService::verify()
+
+public function verify(string $input): bool
+{
+    $secret = $_SESSION['totp_secret'] ?? null;
+    
+    if (is_null($secret)) {
+        return false;  // guard: no secret in session
+    }
+    
+    return $this->tfa->verifyCode($secret, $input);  // verify submitted code
+}
+Verify Part 2
+Visit http://localhost/todo-app-lab10/otp-test to see:
+
+
+Secret           : JBSWY3DPEHPK3PXP
+Current code     : 483921
+verify(correct)  : true ✓
+verify('000000') : false ✗
+Note: This implementation uses "register every time" approach. For your final project, consider implementing "register once, enter code forever" with a database.
+
+Part 3 - Auth Flow
+Overview
+Full authentication flow:
+
+
+GET  /auth          → show username form
+POST /auth/request  → generate OTP, display QR code
+GET  /auth/verify   → show OTP entry form
+POST /auth/verify   → check OTP → redirect to /todos or show error
+POST /auth/logout   → destroy session → redirect to /auth
+/todos routes are protected by AuthMiddleware checking $_SESSION['authenticated'].
+
+Step 1 - Implement AuthMiddleware::__invoke()
+In src/Middleware/AuthMiddleware.php:
+
+
+public function __invoke(Request $request, RequestHandler $handler): Response
+{
+    if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
+        return $this->responseFactory->createResponse(302)
+            ->withHeader('Location', $this->basePath . '/auth');
+    }
+    
+    return $handler->handle($request);
+}
+Step 2 - Implement AuthController::requestOtp()
+In src/Controllers/AuthController.php:
+
+
+public function requestOtp(Request $request, Response $response): Response
+{
+    $data = (array) $request->getParsedBody();
+    $username = trim($data['username'] ?? '');
+    
+    if (empty($username)) {
+        return $response->withHeader('Location', $this->basePath . '/auth')->withStatus(302);
+    }
+    
+    $_SESSION['username'] = $username;
+    $qrCodeUri = $this->otpService->generate($username);
+    
+    $html = $this->twig->render('auth.html.twig', [
+        'step' => 'otp_display',
+        'qr_code' => $qrCodeUri,
+        'base_path' => $this->basePath,
+        'app_lang' => $_SESSION['lang'] ?? 'en',
+    ]);
+    $response->getBody()->write($html);
+    return $response;
+}
+Step 3 - Implement AuthController::verifyOtp()
+
+public function verifyOtp(Request $request, Response $response): Response
+{
+    $data = (array) $request->getParsedBody();
+    $code = trim($data['code'] ?? '');
+    
+    if ($this->otpService->verify($code)) {
+        $this->otpService->invalidate();
+        $_SESSION['authenticated'] = true;
+        return $response->withHeader('Location', $this->basePath . '/todos')->withStatus(302);
+    } else {
+        $html = $this->twig->render('auth.html.twig', [
+            'step' => 'verify',
+            'error' => 'auth.error_invalid',
+            'base_path' => $this->basePath,
+            'app_lang' => $_SESSION['lang'] ?? 'en',
+        ]);
+        $response->getBody()->write($html);
+        return $response;
+    }
+}
+Step 4a - Register AuthController in DI Container
+In section 4 of index.php:
+
+
+$container->set(AuthController::class, fn() => new AuthController(
+    $twig,              // Twig environment
+    new OtpService(),   // OtpService instance
+    $basePath           // basePath string
+));
+Step 4b - Replace Flat Routes with Route Group
+In section 7 of index.php, replace four flat /todos routes with:
+
+
+$app->group('/todos', function (\Slim\Routing\RouteCollectorProxy $group) {
+    $group->get('',              [TodoController::class, 'index']);
+    $group->post('',             [TodoController::class, 'store']);
+    $group->post('/{id}/toggle', [TodoController::class, 'toggle']);
+    $group->post('/{id}/delete', [TodoController::class, 'destroy']);
+})->add(new AuthMiddleware(
+    responseFactory: $app->getResponseFactory(),
+    basePath:        $basePath,
+));
+Verify Part 3
+Visit /todos - redirected to /auth
+Enter username, click Send Code
+QR code appears - scan with authenticator app
+Click Continue to verification, enter 6-digit code
+Redirected to todo list
+Click Log out - back at login screen
+Try wrong code - see error message in current language
+Reflection - Request Flow
+For an authenticated /todos request:
+
+
+Request
+  → SecurityHeadersMiddleware   (add headers on response)
+  → MaintenanceMiddleware        (503 if flag present)
+  → LoggerMiddleware             (record timing on response)
+  → AuthMiddleware               (check authentication)
+  → TodoController::index()      (build HTML)
+Response ←─────────────────────────────────────
+For an unauthenticated /todos request:
+
+
+Request
+  → SecurityHeadersMiddleware
+  → MaintenanceMiddleware
+  → LoggerMiddleware
+  → AuthMiddleware               (detects not authenticated)
+    ↳ returns 302 → /auth        (short-circuits, controller never runs)
+Response ←─────────────────────────────────────
+/auth/* routes are outside the group, so AuthMiddleware never runs for them - unauthenticated users can always reach the login page.
+
+Submission
+Submit a PDF only with written answers to 7 reflection questions (Q1-Q7). One or two paragraphs per question - focus on explaining concepts, not copying code.
+
+Do NOT submit your code. Keep the project in your Wampoon htdocs folder as-is. The teacher may ask for a live demo to validate your grade.
+
+Key Concepts Summary
+i18n - Separating text from logic using translation keys and catalogs
+Sessions - Persisting user state (language, authentication) across requests
+TOTP - Time-based one-time passwords using shared secrets and current time
+Middleware - Processing requests before they reach controllers
+Route Groups - Applying middleware to multiple routes at once
+Dependency Injection - Wiring controllers with their dependencies
+Invokable Classes - Single-method classes used as middleware
+This lab combines multiple advanced PHP concepts into a working authentication system with internationalization support.
+
+*/
