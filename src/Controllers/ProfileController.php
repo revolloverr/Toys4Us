@@ -46,17 +46,19 @@ class ProfileController
         }
 
         $data  = (array) $request->getParsedBody();
-        $name  = trim($data['name'] ?? '');
+        $firstName = trim($data['first_name'] ?? '');
+        $lastName = trim($data['last_name'] ?? '');
+        $name = $firstName . ' ' . $lastName;
         $email = trim($data['email'] ?? '');
         $phone = trim($data['phone'] ?? '');
 
-        if (empty($name) || empty($email)) {
+        if (empty($firstName) || empty($lastName) || empty($email)) {
             $user = $this->userModel->load((int) $_SESSION['user']['id']);
             $html = $this->twig->render('profile.html.twig', [
                 'base_path' => $this->basePath,
                 'app_lang'  => $_SESSION['lang'] ?? 'en',
                 'user'      => $user,
-                'error'     => 'Name and email are required.',
+                'error'     => 'First name, Last name and Email are required.',
             ]);
             $response->getBody()->write($html);
             return $response;
