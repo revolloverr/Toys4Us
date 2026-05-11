@@ -9,11 +9,13 @@ use App\Controllers\AuthController;
 use App\Controllers\CheckoutController;
 use App\Controllers\ProductsController;
 use App\Controllers\ProfileController;
+use App\Controllers\PlushController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\MaintenanceMiddleware;
 use App\Middleware\SecurityHeadersMiddleware;
 use App\Models\ProductModel;
 use App\Services\OtpService;
+
 
 
 use Dotenv\Dotenv;
@@ -74,6 +76,7 @@ $twig   = new Environment($loader, [
 ]);
 
 $twig->addGlobal('session', $_SESSION);
+$twig->addGlobal('app_cart', $_SESSION['cart'] ?? []);
 
 // ─── 3. I18N — symfony/translation ───────────────────────────────────────────
 
@@ -100,6 +103,8 @@ $container->set(CheckoutController::class, fn() => new CheckoutController($twig,
 $container->set(AuthController::class, fn() => new AuthController($twig, $basePath));
 
 $container->set(ProfileController::class, fn() => new ProfileController($twig, $basePath));
+
+$container->set(PlushController::class, fn() => new PlushController($twig, $basePath));
 
 // ─── 5. APPLICATION ───────────────────────────────────────────────────────────
 
@@ -159,15 +164,8 @@ $app->get('/', function (Request $request, Response $response) use ($twig, $base
 });
 
 // Build a Toy page
-$app->get('/build', function (Request $request, Response $response) use ($twig, $basePath) {
-    $html = $twig->render('build.html.twig', [
-        'app_lang' => $_SESSION['lang'] ?? 'en',
-        'app_cart' => $_SESSION['cart'] ?? [],
-        'base_path' => $basePath,
-    ]);
-    $response->getBody()->write($html);
-    return $response;
-});
+$app->get('/build',  [PlushController::class, 'index']);
+$app->post('/build', [PlushController::class, 'save']);
 
 // About Us page
 $app->get('/about', function (Request $request, Response $response) use ($twig, $basePath) {
@@ -197,7 +195,9 @@ $app->get('/lang/{locale}', function (Request $request, Response $response, arra
     if (in_array($args['locale'], $allowed)) {
         $_SESSION['lang'] = $args['locale'];
     }
-    return $response->withHeader('Location', $basePath . '/products')->withStatus(302);
+    // get the old page we were on
+    $referer = $_SERVER['HTTP_REFERER'] ?? '/';
+    return $response->withHeader('Location', $referer)->withStatus(302);
 });
 
 // ─── 9. AUTH ROUTES ───────────────────────────────────────────────────────────
@@ -214,6 +214,7 @@ $app->get('/profile',                  [ProfileController::class, 'index']);
 $app->post('/profile/edit',            [ProfileController::class, 'update']);
 $app->post('/profile/change-password', [ProfileController::class, 'changePassword']);
 $app->post('/profile/delete',          [ProfileController::class, 'delete']);
+
 
 // ─── 11. RUN ──────────────────────────────────────────────────────────────────
 

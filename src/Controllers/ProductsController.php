@@ -35,17 +35,35 @@ class ProductsController
      */
     public function index(Request $request, Response $response): Response
     {
-        $products = $this->model->findAll();
+        $params     = $request->getQueryParams();
+        $categorySlug = $params['category'] ?? null;
+        $minPrice   = isset($params['min_price']) && $params['min_price'] !== '' ? (float) $params['min_price'] : null;
+        $maxPrice   = isset($params['max_price']) && $params['max_price'] !== '' ? (float) $params['max_price'] : null;
+        $minRating  = isset($params['min_rating']) && $params['min_rating'] !== '' ? (float) $params['min_rating'] : null;
+
+        // Resolve category slug to ID
+        $categoryId = null;
+        if ($categorySlug) {
+            $cat = \RedBeanPHP\R::findOne('category', 'slug = ?', [$categorySlug]);
+            if ($cat) $categoryId = (int) $cat->id;
+        }
+
+        $products   = $this->model->findFiltered($categoryId, $minPrice, $maxPrice, $minRating);
+        $categories = \RedBeanPHP\R::findAll('category');
 
         $html = $this->twig->render('products.html.twig', [
-            'products'           => $products,
-            'base_path'          => $this->basePath,
-            'app_lang'           => $_SESSION['lang'] ?? 'en',
-            'app_authenticated'  => $_SESSION['authenticated'] ?? false,
+            'base_path'  => $this->basePath,
+            'app_lang'   => $_SESSION['lang'] ?? 'en',
+            'products'   => $products,
+            'categories' => $categories,
+            'filters'    => [
+                'category'   => $categorySlug,
+                'min_price'  => $minPrice,
+                'max_price'  => $maxPrice,
+                'min_rating' => $minRating,
+            ],
         ]);
-
         $response->getBody()->write($html);
-
         return $response;
     }
 
@@ -67,5 +85,32 @@ class ProductsController
         $response->getBody()->write($html);
 
         return $response;
+    }
+
+
+    public function findFiltered(?int $categoryId, ?float $minPrice, ?float $maxPrice, ?float $minRating): array
+    {
+        $conditions = ['1=1'];
+        $bindings   = [];
+
+        if ($categoryId !== null) {
+            $conditions[] = 'category_id = ?';
+            $bindings[]   = $categoryId;
+        }
+        if ($minPrice !== null) {
+            $conditions[] = 'price >= ?';
+            $bindings[]   = $minPrice;
+        }
+        if ($maxPrice !== null) {
+            $conditions[] = 'price <= ?';
+            $bindings[]   = $maxPrice;
+        }
+        if ($minRating !== null) {
+            $conditions[] = 'rating >= ?';
+            $bindings[]   = $minRating;
+        }
+
+        $sql = implode(' AND ', $conditions) . ' ORDER BY id ASC';
+        return R::find('product', $sql, $bindings);
     }
 }
