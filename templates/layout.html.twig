@@ -59,12 +59,24 @@
                             {% endif %}
                         </a>
                     </li>
+                       
+
+
                     {% if session.user is defined %}
                         <li class="nav-item">
                             <a href="{{ base_path }}/profile" class="btn btn-outline-light me-1">
                                 {{ session.user.name }}
                             </a>
                         </li>
+
+                        {% if session.user is defined and session.user.role == 'admin' %}
+                            <li class="nav-item">
+                                <a href="{{ base_path }}/admin" class="btn btn-warning btn-sm">
+                                    ⚙️ Admin
+                                </a>
+                            </li>
+                        {% endif %}  
+
                         <li class="nav-item">
                             <form action="{{ base_path }}/logout" method="POST" class="m-0">
                                 <button type="submit" class="btn btn-outline-light">{{trans('app.logout')}}</button>
@@ -72,7 +84,7 @@
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a href="{{ base_path }}/login" class="btn btn-outline-light">{{trans('app.logout')}}</a>
+                            <a href="{{ base_path }}/login" class="btn btn-outline-light">{{trans('app.signin')}}</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -124,4 +136,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

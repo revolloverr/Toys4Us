@@ -10,9 +10,13 @@ use App\Controllers\CheckoutController;
 use App\Controllers\ProductsController;
 use App\Controllers\ProfileController;
 use App\Controllers\PlushController;
+use App\Controllers\AdminController;
+
 use App\Middleware\AuthMiddleware;
 use App\Middleware\MaintenanceMiddleware;
+use App\Middleware\AdminMiddleware;
 use App\Middleware\SecurityHeadersMiddleware;
+
 use App\Models\ProductModel;
 use App\Services\OtpService;
 
@@ -75,8 +79,13 @@ $twig   = new Environment($loader, [
     'auto_reload' => true,
 ]);
 
+
 $twig->addGlobal('session', $_SESSION);
 $twig->addGlobal('app_cart', $_SESSION['cart'] ?? []);
+
+$basePath = '/Toys4Us';
+
+$twig->addGlobal('base_path', $basePath);
 
 // ─── 3. I18N — symfony/translation ───────────────────────────────────────────
 
@@ -92,7 +101,7 @@ $twig->addFunction(new TwigFunction('trans', function (string $key, array $param
 
 // ─── 4. DEPENDENCY INJECTION CONTAINER ───────────────────────────────────────
 
-$basePath = '/Toys4Us';
+
 
 $container = new \DI\Container();
 $container->set(Environment::class, $twig);
@@ -105,6 +114,8 @@ $container->set(AuthController::class, fn() => new AuthController($twig, $basePa
 $container->set(ProfileController::class, fn() => new ProfileController($twig, $basePath));
 
 $container->set(PlushController::class, fn() => new PlushController($twig, $basePath));
+
+$container->set(AdminController::class, fn() => new AdminController($twig));
 
 // ─── 5. APPLICATION ───────────────────────────────────────────────────────────
 
@@ -215,6 +226,39 @@ $app->post('/profile/edit',            [ProfileController::class, 'update']);
 $app->post('/profile/change-password', [ProfileController::class, 'changePassword']);
 $app->post('/profile/delete',          [ProfileController::class, 'delete']);
 
+// Admin routes — protected by AdminMiddleware
+$app->group('/admin', function ($group) {
+    $group->get('',                      [AdminController::class, 'index']);
+
+    // Products CRUD
+    $group->get('/products',             [AdminController::class, 'products']);
+    $group->post('/products/store',      [AdminController::class, 'storeProduct']);
+    $group->post('/products/update',     [AdminController::class, 'updateProduct']);
+    $group->post('/products/delete',     [AdminController::class, 'deleteProduct']);
+
+    // Categories CRUD
+    $group->get('/categories',           [AdminController::class, 'categories']);
+    $group->post('/categories/store',    [AdminController::class, 'storeCategory']);
+    $group->post('/categories/update',   [AdminController::class, 'updateCategory']);
+    $group->post('/categories/delete',   [AdminController::class, 'deleteCategory']);
+
+    // Plush Bases CRUD
+    $group->get('/bases',                [AdminController::class, 'bases']);
+    $group->post('/bases/store',         [AdminController::class, 'storeBase']);
+    $group->post('/bases/update',        [AdminController::class, 'updateBase']);
+    $group->post('/bases/delete',        [AdminController::class, 'deleteBase']);
+
+    // Plush Accessories CRUD
+    $group->get('/accessories',          [AdminController::class, 'accessories']);
+    $group->post('/accessories/store',   [AdminController::class, 'storeAccessory']);
+    $group->post('/accessories/update',  [AdminController::class, 'updateAccessory']);
+    $group->post('/accessories/delete',  [AdminController::class, 'deleteAccessory']);
+
+    // Admin User Manager
+    $group->get('/users', [AdminController::class, 'users']);
+    $group->post('/users/update', [AdminController::class, 'updateUser']);
+
+})->add(new AdminMiddleware());
 
 // ─── 11. RUN ──────────────────────────────────────────────────────────────────
 

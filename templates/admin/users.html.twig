@@ -1,0 +1,124 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <h2 class="h4 text-purple fw-bold mb-4">
+        Users
+    </h2>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for user in users %}
+
+                            {% set isCurrentUser = session.user.id == user.id %}
+
+                            <tr>
+
+                                <form action="{{ base_path }}/admin/users/update" method="POST">
+
+                                    <input type="hidden" name="id" value="{{ user.id }}">
+
+                                    <td>
+                                        {{ user.id }}
+                                    </td>
+
+                                    <td>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            class="form-control"
+                                            value="{{ user.name }}"
+                                            required
+                                            {{ isCurrentUser ? 'disabled' : '' }}
+                                        >
+                                    </td>
+
+                                    <td>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            class="form-control"
+                                            value="{{ user.email }}"
+                                            required
+                                            {{ isCurrentUser ? 'disabled' : '' }}
+                                        >
+                                    </td>
+
+                                    <td>
+                                        <select
+                                            name="role"
+                                            class="form-select"
+                                            {{ isCurrentUser ? 'disabled' : '' }}
+                                        >
+
+                                            <option
+                                                value="user"
+                                                {{ user.role == 'user' ? 'selected' : '' }}
+                                            >
+                                                User
+                                            </option>
+
+                                            <option
+                                                value="admin"
+                                                {{ user.role == 'admin' ? 'selected' : '' }}
+                                            >
+                                                Admin
+                                            </option>
+
+                                        </select>
+                                    </td>
+
+                                    <td>
+
+                                        {% if isCurrentUser %}
+
+                                            <span class="badge bg-secondary">
+                                                Current User
+                                            </span>
+
+                                        {% else %}
+
+                                            <button type="submit" class="btn btn-purple btn-sm">
+                                                Save
+                                            </button>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </form>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
