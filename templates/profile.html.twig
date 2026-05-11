@@ -1,0 +1,152 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-7">
+
+        <h2 class="h4 text-purple fw-bold mb-4">My Profile</h2>
+
+        {% if error is defined %}
+            <div class="alert alert-danger py-2 small mb-3">{{ error }}</div>
+        {% endif %}
+
+        {% if app.request.query.get('updated') == '1' %}
+            <div class="alert alert-success py-2 small mb-3">Changes saved successfully.</div>
+        {% endif %}
+
+        {# ── Tabs ─────────────────────────────────────────────────────────── #}
+        <ul class="nav nav-tabs mb-4" id="profileTabs">
+            <li class="nav-item">
+                <a class="nav-link {{ active_tab is not defined or active_tab == 'account' ? 'active' : '' }}"
+                   href="#account" data-bs-toggle="tab">Account</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ active_tab is defined and active_tab == 'security' ? 'active' : '' }}"
+                   href="#security" data-bs-toggle="tab">Security</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            {# ── Account Tab ──────────────────────────────────────────────── #}
+            <div class="tab-pane fade {{ active_tab is not defined or active_tab == 'account' ? 'show active' : '' }}" id="account">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Account Details</h5>
+                        <form action="{{ base_path }}/profile/edit" method="POST">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">First Name</label>
+                                    {% set nameParts = user.name|split(' ', 2) %}
+                                    <input type="text" class="form-control" name="first_name"
+                                           value="{{ nameParts[0] ?? '' }}" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" name="last_name"
+                                           value="{{ nameParts[1] ?? '' }}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email"
+                                       value="{{ user.email }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone <span class="text-muted small">(optional)</span></label>
+                                <input type="tel" class="form-control" name="phone"
+                                       value="{{ user.phone ?? '' }}" placeholder="+1 (514) 555-1234">
+                            </div>
+                            <button type="submit" class="btn btn-purple">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Security Tab ─────────────────────────────────────────────── #}
+            <div class="tab-pane fade {{ active_tab is defined and active_tab == 'security' ? 'show active' : '' }}" id="security">
+
+                {# Change Password #}
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Change Password</h5>
+                        <form action="{{ base_path }}/profile/change-password" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Current Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="current_password"
+                                           id="current_password" required>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePassword('current_password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="new_password"
+                                           id="new_password" required>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePassword('new_password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="confirm_password"
+                                           id="confirm_password" required>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePassword('confirm_password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-purple">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+
+                {# Delete Account #}
+                <div class="card border-danger shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold text-danger mb-2">Delete Account</h5>
+                        <p class="text-muted small mb-3">
+                            Your account will be scheduled for deletion in 14 days.
+                            If you log back in before then, the deletion will be cancelled.
+                        </p>
+                        <button type="button" class="btn btn-outline-danger"
+                                data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            Delete My Account | Not working yet
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+function togglePassword(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
+
+{% endblock %}

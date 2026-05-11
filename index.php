@@ -8,43 +8,66 @@ session_start();
 use App\Controllers\AuthController;
 use App\Controllers\CheckoutController;
 use App\Controllers\ProductsController;
+use App\Controllers\ProfileController;
+use App\Controllers\PlushController;
+use App\Controllers\AdminController;
+
 use App\Middleware\AuthMiddleware;
 use App\Middleware\MaintenanceMiddleware;
+use App\Middleware\AdminMiddleware;
 use App\Middleware\SecurityHeadersMiddleware;
+
 use App\Models\ProductModel;
 use App\Services\OtpService;
+
+
+
+use Dotenv\Dotenv;
+
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+
 use RedBeanPHP\R;
+
 use Slim\Factory\AppFactory;
+
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
+
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 
 require __DIR__ . '/vendor/autoload.php';
 
+
+
 // ─── 1. DATABASE ──────────────────────────────────────────────────────────────
 
-$dbPath = __DIR__ . '/var/toys4us.db';
-R::setup('sqlite:' . $dbPath);
-R::freeze(false);
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+R::setup(
+    'mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $_ENV['DB_NAME'],
+    $_ENV['DB_USER'],
+    $_ENV['DB_PASS']
+);
+R::freeze(true);
 
 $model = new ProductModel();
 
 if (R::count('product') === 0) {
     $toys = [
-        ['name' => 'LEGO Star Wars Set', 'description' => 'Build your own starship with 800+ pieces', 'price' => 59.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=LEGO'],
-        ['name' => 'Remote Control Car', 'description' => 'Fast RC buggy with rechargeable battery', 'price' => 34.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=RC+Car'],
-        ['name' => 'Teddy Bear', 'description' => 'Soft plush bear, 18 inches tall', 'price' => 24.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Teddy+Bear'],
-        ['name' => 'Board Game Set', 'description' => 'Classic family board game collection', 'price' => 29.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Board+Game'],
-        ['name' => 'Art & Craft Kit', 'description' => '200-piece art set for creative kids', 'price' => 19.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Art+Kit'],
-        ['name' => 'Puzzle 1000pc', 'description' => 'Beautiful landscape jigsaw puzzle', 'price' => 14.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Puzzle'],
+        ['name' => 'LEGO Star Wars Set', 'description' => 'Build your own starship with 800+ pieces', 'price' => 59.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=LEGO'],
+        ['name' => 'Remote Control Car', 'description' => 'Fast RC buggy with rechargeable battery', 'price' => 34.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=RC+Car'],
+        ['name' => 'Teddy Bear', 'description' => 'Soft plush bear, 18 inches tall', 'price' => 24.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Teddy+Bear'],
+        ['name' => 'Board Game Set', 'description' => 'Classic family board game collection', 'price' => 29.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Board+Game'],
+        ['name' => 'Art & Craft Kit', 'description' => '200-piece art set for creative kids', 'price' => 19.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Art+Kit'],
+        ['name' => 'Puzzle 1000pc', 'description' => 'Beautiful landscape jigsaw puzzle', 'price' => 14.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Puzzle'],
     ];
     foreach ($toys as $toy) {
-        $model->create($toy['name'], $toy['description'], $toy['price'], $toy['image_url']);
+        $model->create($toy['name'], $toy['description'], $toy['price'], $toy['image']);
     }
 }
 
@@ -55,6 +78,14 @@ $twig   = new Environment($loader, [
     'cache'       => false,
     'auto_reload' => true,
 ]);
+
+
+$twig->addGlobal('session', $_SESSION);
+$twig->addGlobal('app_cart', $_SESSION['cart'] ?? []);
+
+$basePath = '/Toys4Us';
+
+$twig->addGlobal('base_path', $basePath);
 
 // ─── 3. I18N — symfony/translation ───────────────────────────────────────────
 
@@ -70,7 +101,7 @@ $twig->addFunction(new TwigFunction('trans', function (string $key, array $param
 
 // ─── 4. DEPENDENCY INJECTION CONTAINER ───────────────────────────────────────
 
-$basePath = '/Toys4Us';
+
 
 $container = new \DI\Container();
 $container->set(Environment::class, $twig);
@@ -78,11 +109,13 @@ $container->set(ProductModel::class, $model);
 $container->set(ProductsController::class, fn() => new ProductsController($twig, $model, $basePath));
 $container->set(CheckoutController::class, fn() => new CheckoutController($twig, $model, $basePath));
 
-$container->set(AuthController::class, fn() => new AuthController(
-    $twig,
-    new OtpService(),
-    $basePath
-));
+$container->set(AuthController::class, fn() => new AuthController($twig, $basePath));
+
+$container->set(ProfileController::class, fn() => new ProfileController($twig, $basePath));
+
+$container->set(PlushController::class, fn() => new PlushController($twig, $basePath));
+
+$container->set(AdminController::class, fn() => new AdminController($twig));
 
 // ─── 5. APPLICATION ───────────────────────────────────────────────────────────
 
@@ -142,15 +175,8 @@ $app->get('/', function (Request $request, Response $response) use ($twig, $base
 });
 
 // Build a Toy page
-$app->get('/build', function (Request $request, Response $response) use ($twig, $basePath) {
-    $html = $twig->render('build.html.twig', [
-        'app_lang' => $_SESSION['lang'] ?? 'en',
-        'app_cart' => $_SESSION['cart'] ?? [],
-        'base_path' => $basePath,
-    ]);
-    $response->getBody()->write($html);
-    return $response;
-});
+$app->get('/build',  [PlushController::class, 'index']);
+$app->post('/build', [PlushController::class, 'save']);
 
 // About Us page
 $app->get('/about', function (Request $request, Response $response) use ($twig, $basePath) {
@@ -180,17 +206,60 @@ $app->get('/lang/{locale}', function (Request $request, Response $response, arra
     if (in_array($args['locale'], $allowed)) {
         $_SESSION['lang'] = $args['locale'];
     }
-    return $response->withHeader('Location', $basePath . '/products')->withStatus(302);
+    // get the old page we were on
+    $referer = $_SERVER['HTTP_REFERER'] ?? '/';
+    return $response->withHeader('Location', $referer)->withStatus(302);
 });
 
 // ─── 9. AUTH ROUTES ───────────────────────────────────────────────────────────
 
-$app->get('/auth',          [AuthController::class, 'showForm']);
-$app->post('/auth/request', [AuthController::class, 'requestOtp']);
-$app->get('/auth/verify',   [AuthController::class, 'showVerify']);
-$app->post('/auth/verify',  [AuthController::class, 'verifyOtp']);
-$app->post('/auth/logout',  [AuthController::class, 'logout']);
+$app->get('/login',      [AuthController::class, 'showLogin']);
+$app->get('/register',   [AuthController::class, 'showRegister']);
+$app->post('/login',     [AuthController::class, 'login']);
+$app->post('/register',  [AuthController::class, 'register']);
+$app->post('/logout',    [AuthController::class, 'logout']);
 
-// ─── 10. RUN ──────────────────────────────────────────────────────────────────
+// ─── 10. PROFILE ROUTES ───────────────────────────────────────────────────────────
+
+$app->get('/profile',                  [ProfileController::class, 'index']);
+$app->post('/profile/edit',            [ProfileController::class, 'update']);
+$app->post('/profile/change-password', [ProfileController::class, 'changePassword']);
+$app->post('/profile/delete',          [ProfileController::class, 'delete']);
+
+// Admin routes — protected by AdminMiddleware
+$app->group('/admin', function ($group) {
+    $group->get('',                      [AdminController::class, 'index']);
+
+    // Products CRUD
+    $group->get('/products',             [AdminController::class, 'products']);
+    $group->post('/products/store',      [AdminController::class, 'storeProduct']);
+    $group->post('/products/update',     [AdminController::class, 'updateProduct']);
+    $group->post('/products/delete',     [AdminController::class, 'deleteProduct']);
+
+    // Categories CRUD
+    $group->get('/categories',           [AdminController::class, 'categories']);
+    $group->post('/categories/store',    [AdminController::class, 'storeCategory']);
+    $group->post('/categories/update',   [AdminController::class, 'updateCategory']);
+    $group->post('/categories/delete',   [AdminController::class, 'deleteCategory']);
+
+    // Plush Bases CRUD
+    $group->get('/bases',                [AdminController::class, 'bases']);
+    $group->post('/bases/store',         [AdminController::class, 'storeBase']);
+    $group->post('/bases/update',        [AdminController::class, 'updateBase']);
+    $group->post('/bases/delete',        [AdminController::class, 'deleteBase']);
+
+    // Plush Accessories CRUD
+    $group->get('/accessories',          [AdminController::class, 'accessories']);
+    $group->post('/accessories/store',   [AdminController::class, 'storeAccessory']);
+    $group->post('/accessories/update',  [AdminController::class, 'updateAccessory']);
+    $group->post('/accessories/delete',  [AdminController::class, 'deleteAccessory']);
+
+    // Admin User Manager
+    $group->get('/users', [AdminController::class, 'users']);
+    $group->post('/users/update', [AdminController::class, 'updateUser']);
+
+})->add(new AdminMiddleware());
+
+// ─── 11. RUN ──────────────────────────────────────────────────────────────────
 
 $app->run();

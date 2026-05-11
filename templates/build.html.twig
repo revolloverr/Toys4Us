@@ -1,16 +1,288 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}{{ trans('build.title') }}{% endblock %}
+{% block title %}Build a Plush{% endblock %}
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <h2 class="h4 text-purple fw-bold mb-3">{{ trans('build.heading') }}</h2>
-        <div class="card shadow-sm border-0 p-4">
-            <p class="card-text">{{ trans('build.content') }}</p>
+<h2 class="h4 text-purple fw-bold mb-4">Build Your Plush</h2>
+
+<div class="row g-4">
+
+    {# ── Left: Plush Preview ───────────────────────────────────────────────── #}
+    <div class="col-12 col-md-5 text-center">
+        <div class="position-relative d-inline-block" style="width:380px; height:380px;">
+            {# Base image #}
+            <img id="base-img"
+                 src="{{ base_path }}/{{ bases|first.image_path }}"
+                 alt="Plush Base"
+                 class="position-absolute top-0 start-0 w-100 h-100"
+                 style="object-fit:contain;">
+            {# Facewear overlay #}
+            <img id="overlay-facewear"
+                 src=""
+                 alt=""
+                 class="position-absolute top-0 start-0 w-100 h-100 d-none"
+                 style="object-fit:contain;">
+            {# Bodywear overlay #}
+            <img id="overlay-bodywear"
+                 src=""
+                 alt=""
+                 class="position-absolute top-0 start-0 w-100 h-100 d-none"
+                 style="object-fit:contain;">
+            {# Shoes overlay #}
+            <img id="overlay-shoes"
+                 src=""
+                 alt=""
+                 class="position-absolute top-0 start-0 w-100 h-100 d-none"
+                 style="object-fit:contain;">
+        </div>
+
+        {# Base selector #}
+        {# Base Type selector #}
+        <div class="d-flex align-items-center justify-content-center gap-3 mt-3">
+            <button class="btn btn-outline-purple btn-sm" onclick="cycleSpecies(-1)">&#8249;</button>
+            <span id="species-name" class="fw-bold text-purple" style="min-width:80px; text-align:center;">{{ bases|first.species|capitalize }}</span>
+            <button class="btn btn-outline-purple btn-sm" onclick="cycleSpecies(1)">&#8250;</button>
+        </div>
+        <p class="text-muted small text-center mb-1">Type</p>
+
+        {# Color selector #}
+        <div class="d-flex align-items-center justify-content-center gap-3">
+            <button class="btn btn-outline-purple btn-sm" onclick="cycleColor(-1)">&#8249;</button>
+            <span id="color-name" class="fw-bold text-purple" style="min-width:80px; text-align:center;">{{ bases|first.color|capitalize }}</span>
+            <button class="btn btn-outline-purple btn-sm" onclick="cycleColor(1)">&#8250;</button>
+        </div>
+        <p class="text-muted small text-center mb-1">Color</p>
+        <p class="text-muted small text-center">Base Price: $<span id="base-price">{{ bases|first.base_price }}</span></p>
+
+        <div class="d-flex justify-content-center gap-2 mt-2">
+            <button class="btn btn-outline-secondary btn-sm" onclick="resizePreview(-20)">−</button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="resizePreview(0)">Reset</button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="resizePreview(20)">+</button>
         </div>
     </div>
+
+    {# ── Right: Accessories + Form ─────────────────────────────────────────── #}
+    <div class="col-12 col-md-7">
+
+        {# Facewear #}
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                <h6 class="fw-bold text-purple mb-2">Face Wear</h6>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('facewear', -1)">&#8249;</button>
+                    <span id="facewear-name" class="flex-grow-1 text-center">None</span>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('facewear', 1)">&#8250;</button>
+                </div>
+                <p class="text-muted small text-center mt-1 mb-0">+$<span id="facewear-price">0.00</span></p>
+            </div>
+        </div>
+
+        {# Bodywear #}
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                <h6 class="fw-bold text-purple mb-2">Body Wear</h6>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('bodywear', -1)">&#8249;</button>
+                    <span id="bodywear-name" class="flex-grow-1 text-center">None</span>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('bodywear', 1)">&#8250;</button>
+                </div>
+                <p class="text-muted small text-center mt-1 mb-0">+$<span id="bodywear-price">0.00</span></p>
+            </div>
+        </div>
+
+        {# Shoes #}
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                <h6 class="fw-bold text-purple mb-2">Shoes</h6>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('shoes', -1)">&#8249;</button>
+                    <span id="shoes-name" class="flex-grow-1 text-center">None</span>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('shoes', 1)">&#8250;</button>
+                </div>
+                <p class="text-muted small text-center mt-1 mb-0">+$<span id="shoes-price">0.00</span></p>
+            </div>
+        </div>
+
+        {# Name + TTS #}
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                <h6 class="fw-bold text-purple mb-2">Name Your Plush</h6>
+                <input type="text" id="plush-name-input" class="form-control mb-2"
+                       placeholder="e.g. Mr. Snuggles" maxlength="50">
+
+                <h6 class="fw-bold text-purple mb-2 mt-3">Voice Message</h6>
+                <div class="input-group mb-2">
+                    <input type="text" id="tts-text" class="form-control"
+                           placeholder="Type a message your plush will say..." maxlength="200">
+                    <button class="btn btn-outline-purple" type="button" onclick="previewTTS()">
+                        🔊 Preview
+                    </button>
+                </div>
+                <p class="text-muted small">Uses your device's text-to-speech. No extra cost.</p>
+            </div>
+        </div>
+
+        {# Total + Actions #}
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold">Total:</span>
+                    <span class="fw-bold text-purple fs-5">$<span id="total-price">{{ bases|first.base_price }}</span></span>
+                </div>
+                <form id="build-form" action="{{ base_path }}/build" method="POST">
+                    <input type="hidden" name="base_id" id="form-base-id" value="{{ bases|first.id }}">
+                    <input type="hidden" name="plush_name" id="form-plush-name" value="My Plush">
+                    <input type="hidden" name="accessory_ids[]" id="form-facewear-id" value="">
+                    <input type="hidden" name="accessory_ids[]" id="form-bodywear-id" value="">
+                    <input type="hidden" name="accessory_ids[]" id="form-shoes-id" value="">
+                    <div class="d-flex gap-2">
+                        <button type="submit" name="action" value="cart"
+                                class="btn btn-outline-purple flex-fill">
+                            🛒 Add to Cart
+                        </button>
+                        <button type="submit" name="action" value="buy"
+                                class="btn btn-purple flex-fill">
+                            ⚡ Buy Now
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
 </div>
+
+{# ── JavaScript ────────────────────────────────────────────────────────────── #}
+<script>
+const basePath = "{{ base_path }}";
+
+const bases = [
+    {% for base in bases %}
+    {
+        id:      {{ base.id }},
+        name:    "{{ base.name }}",
+        species: "{{ base.species }}",
+        color:   "{{ base.color }}",
+        image:   "{{ base_path }}/{{ base.image_path }}",
+        price:   {{ base.base_price }}
+    }{{ not loop.last ? ',' : '' }}
+    {% endfor %}
+];
+
+
+
+const accessories = {
+    facewear: [
+        { id: 0, name: 'None', image: '', price: 0 },
+        {% for acc in accessories.facewear %}
+        { id: {{ acc.id }}, name: "{{ acc.name }}", image: "{{ base_path }}/{{ acc.image_path }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
+        {% endfor %}
+    ],
+    bodywear: [
+        { id: 0, name: 'None', image: '', price: 0 },
+        {% for acc in accessories.bodywear %}
+        { id: {{ acc.id }}, name: "{{ acc.name }}", image: "{{ base_path }}/{{ acc.image_path }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
+        {% endfor %}
+    ],
+    shoes: [
+        { id: 0, name: 'None', image: '', price: 0 },
+        {% for acc in accessories.shoes %}
+        { id: {{ acc.id }}, name: "{{ acc.name }}", image: "{{ base_path }}/{{ acc.image_path }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
+        {% endfor %}
+    ]
+};
+
+const speciesList = {{ species|json_encode|raw }};
+let speciesIndex = 0;
+let colorIndex   = 0;
+const accIndex = { facewear: 0, bodywear: 0, shoes: 0 };
+
+function getCurrentBase() {
+    const currentSpecies = speciesList[speciesIndex];
+    const colorsForSpecies = bases.filter(b => b.species === currentSpecies);
+    return colorsForSpecies[colorIndex % colorsForSpecies.length];
+}
+
+function cycleSpecies(dir) {
+    speciesIndex = (speciesIndex + dir + speciesList.length) % speciesList.length;
+    colorIndex   = 0; // reset color when species changes
+    updateBase();
+}
+
+function cycleColor(dir) {
+    const currentSpecies    = speciesList[speciesIndex];
+    const colorsForSpecies  = bases.filter(b => b.species === currentSpecies);
+    colorIndex = (colorIndex + dir + colorsForSpecies.length) % colorsForSpecies.length;
+    updateBase();
+}
+
+function updateTotal() {
+    const base  = getCurrentBase().price;
+    const fw    = accessories.facewear[accIndex.facewear].price;
+    const bw    = accessories.bodywear[accIndex.bodywear].price;
+    const sh    = accessories.shoes[accIndex.shoes].price;
+    document.getElementById('total-price').textContent = (base + fw + bw + sh).toFixed(2);
+}
+
+function updateBase() {
+    const base = getCurrentBase();
+    document.getElementById('base-img').src            = base.image;
+    document.getElementById('species-name').textContent = base.species.charAt(0).toUpperCase() + base.species.slice(1);
+    document.getElementById('color-name').textContent   = base.color.charAt(0).toUpperCase() + base.color.slice(1);
+    document.getElementById('base-price').textContent   = base.price.toFixed(2);
+    document.getElementById('form-base-id').value       = base.id;
+    updateTotal();
+}
+
+function cycleAccessory(category, dir) {
+    const list = accessories[category];
+    accIndex[category] = (accIndex[category] + dir + list.length) % list.length;
+    const acc  = list[accIndex[category]];
+
+    document.getElementById(`${category}-name`).textContent  = acc.name;
+    document.getElementById(`${category}-price`).textContent = acc.price.toFixed(2);
+    document.getElementById(`form-${category}-id`).value     = acc.id || '';
+
+    const overlay = document.getElementById(`overlay-${category}`);
+    if (acc.image) {
+        overlay.src = acc.image;
+        overlay.classList.remove('d-none');
+    } else {
+        overlay.src = '';
+        overlay.classList.add('d-none');
+    }
+
+    updateTotal();
+}
+
+// Sync plush name to hidden form field
+document.getElementById('plush-name-input').addEventListener('input', function() {
+    document.getElementById('form-plush-name').value = this.value || 'My Plush';
+});
+
+// TTS preview using Web Speech API
+function previewTTS() {
+    const text = document.getElementById('tts-text').value.trim();
+    if (!text) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = '{{ app_lang ?? "en" }}' === 'fr' ? 'fr-FR' : 'en-US';
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+}
+
+let previewSize = 380;
+
+function resizePreview(delta) {
+    if (delta === 0) {
+        previewSize = 380;
+    } else {
+        previewSize = Math.min(500, Math.max(150, previewSize + delta));
+    }
+    const container = document.querySelector('.position-relative.d-inline-block');
+    container.style.width  = previewSize + 'px';
+    container.style.height = previewSize + 'px';
+}
+</script>
 
 {% endblock %}
