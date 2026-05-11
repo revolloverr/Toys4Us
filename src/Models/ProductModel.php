@@ -21,13 +21,13 @@ class ProductModel
         return R::findAll('product', 'ORDER BY id ASC');
     }
 
-    public function create(string $name, string $description, float $price, string $imageUrl = ''): void
+    public function create(string $name, string $description, float $price, string $image = ''): void
     {
         $product           = R::dispense('product');
         $product->name     = $name;
         $product->description = $description;
         $product->price    = $price;
-        $product->image_url = $imageUrl;
+        $product->image = $image;
         R::store($product);
     }
 

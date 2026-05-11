@@ -13,13 +13,20 @@ use App\Middleware\MaintenanceMiddleware;
 use App\Middleware\SecurityHeadersMiddleware;
 use App\Models\ProductModel;
 use App\Services\OtpService;
+
+use Dotenv\Dotenv;
+
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+
 use RedBeanPHP\R;
+
 use Slim\Factory\AppFactory;
+
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
+
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
@@ -28,23 +35,29 @@ require __DIR__ . '/vendor/autoload.php';
 
 // ─── 1. DATABASE ──────────────────────────────────────────────────────────────
 
-$dbPath = __DIR__ . '/var/toys4us.db';
-R::setup('sqlite:' . $dbPath);
-R::freeze(false);
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+R::setup(
+    'mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $_ENV['DB_NAME'],
+    $_ENV['DB_USER'],
+    $_ENV['DB_PASS']
+);
+R::freeze(true);
 
 $model = new ProductModel();
 
 if (R::count('product') === 0) {
     $toys = [
-        ['name' => 'LEGO Star Wars Set', 'description' => 'Build your own starship with 800+ pieces', 'price' => 59.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=LEGO'],
-        ['name' => 'Remote Control Car', 'description' => 'Fast RC buggy with rechargeable battery', 'price' => 34.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=RC+Car'],
-        ['name' => 'Teddy Bear', 'description' => 'Soft plush bear, 18 inches tall', 'price' => 24.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Teddy+Bear'],
-        ['name' => 'Board Game Set', 'description' => 'Classic family board game collection', 'price' => 29.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Board+Game'],
-        ['name' => 'Art & Craft Kit', 'description' => '200-piece art set for creative kids', 'price' => 19.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Art+Kit'],
-        ['name' => 'Puzzle 1000pc', 'description' => 'Beautiful landscape jigsaw puzzle', 'price' => 14.99, 'image_url' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Puzzle'],
+        ['name' => 'LEGO Star Wars Set', 'description' => 'Build your own starship with 800+ pieces', 'price' => 59.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=LEGO'],
+        ['name' => 'Remote Control Car', 'description' => 'Fast RC buggy with rechargeable battery', 'price' => 34.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=RC+Car'],
+        ['name' => 'Teddy Bear', 'description' => 'Soft plush bear, 18 inches tall', 'price' => 24.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Teddy+Bear'],
+        ['name' => 'Board Game Set', 'description' => 'Classic family board game collection', 'price' => 29.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Board+Game'],
+        ['name' => 'Art & Craft Kit', 'description' => '200-piece art set for creative kids', 'price' => 19.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Art+Kit'],
+        ['name' => 'Puzzle 1000pc', 'description' => 'Beautiful landscape jigsaw puzzle', 'price' => 14.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Puzzle'],
     ];
     foreach ($toys as $toy) {
-        $model->create($toy['name'], $toy['description'], $toy['price'], $toy['image_url']);
+        $model->create($toy['name'], $toy['description'], $toy['price'], $toy['image']);
     }
 }
 
