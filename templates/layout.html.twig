@@ -67,12 +67,12 @@
                         </li>
                         <li class="nav-item">
                             <form action="{{ base_path }}/logout" method="POST" class="m-0">
-                                <button type="submit" class="btn btn-outline-light">Sign Out</button>
+                                <button type="submit" class="btn btn-outline-light">{{trans('app.logout')}}</button>
                             </form>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a href="{{ base_path }}/login" class="btn btn-outline-light">Sign In</a>
+                            <a href="{{ base_path }}/login" class="btn btn-outline-light">{{trans('app.signin')}}</a>
                         </li>
                     {% endif %}
                 </ul>

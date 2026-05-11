@@ -11,6 +11,7 @@ return [
     'app.footer'           => 'Toys4Us - eCommerce Lab10 - Hiver 2026',
     'app.lang.en'          => 'EN',
     'app.lang.fr'          => 'FR',
+    'app.signin' => 'Se connecter',
     'app.logout'           => 'Se déconnecter',
     'app.cart'             => 'Panier',
     'nav.home'             => 'Accueil',

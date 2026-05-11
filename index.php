@@ -8,11 +8,13 @@ session_start();
 use App\Controllers\AuthController;
 use App\Controllers\CheckoutController;
 use App\Controllers\ProductsController;
+use App\Controllers\ProfileController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\MaintenanceMiddleware;
 use App\Middleware\SecurityHeadersMiddleware;
 use App\Models\ProductModel;
 use App\Services\OtpService;
+
 
 use Dotenv\Dotenv;
 
@@ -96,6 +98,8 @@ $container->set(ProductsController::class, fn() => new ProductsController($twig,
 $container->set(CheckoutController::class, fn() => new CheckoutController($twig, $model, $basePath));
 
 $container->set(AuthController::class, fn() => new AuthController($twig, $basePath));
+
+$container->set(ProfileController::class, fn() => new ProfileController($twig, $basePath));
 
 // ─── 5. APPLICATION ───────────────────────────────────────────────────────────
 
@@ -204,6 +208,13 @@ $app->post('/login',     [AuthController::class, 'login']);
 $app->post('/register',  [AuthController::class, 'register']);
 $app->post('/logout',    [AuthController::class, 'logout']);
 
-// ─── 10. RUN ──────────────────────────────────────────────────────────────────
+// ─── 10. PROFILE ROUTES ───────────────────────────────────────────────────────────
+
+$app->get('/profile',                  [ProfileController::class, 'index']);
+$app->post('/profile/edit',            [ProfileController::class, 'update']);
+$app->post('/profile/change-password', [ProfileController::class, 'changePassword']);
+$app->post('/profile/delete',          [ProfileController::class, 'delete']);
+
+// ─── 11. RUN ──────────────────────────────────────────────────────────────────
 
 $app->run();
