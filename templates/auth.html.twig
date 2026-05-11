@@ -1,78 +1,103 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}{{ trans('auth.title') }}{% endblock %}
+{% block title %}{{ step == 'register' ? 'Register' : 'Sign In' }}{% endblock %}
 
 {% block content %}
 
 <div class="row justify-content-center">
     <div class="col-12 col-md-6 col-lg-5">
 
-        {# ── Step: login — username entry form ─────────────────────────────────── #}
+        {% if error is defined %}
+            <div class="alert alert-danger py-2 small mb-3">{{ error }}</div>
+        {% endif %}
+
+        {# log in #}
         {% if step == 'login' %}
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
-                <h2 class="h4 text-purple fw-bold mb-3">{{ trans('auth.title') }}</h2>
-                <form class="auth-form" action="{{ base_path }}/auth/request" method="POST">
+                <h2 class="h4 text-purple fw-bold mb-3">Sign In</h2>
+                <form action="{{ base_path }}/login" method="POST">
                     <div class="mb-3">
-                        <label for="username" class="form-label">{{ trans('auth.username_label') }}</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="username"
-                            name="username"
-                            placeholder="{{ trans('auth.username_ph') }}"
-                            autocomplete="username"
-                            required
-                        >
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
                     </div>
-                    <button type="submit" class="btn btn-purple w-100">{{ trans('auth.request_otp') }}</button>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" placeholder="Enter your password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', this)"><i class="bi bi-eye"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-purple w-100">Sign In</button>
                 </form>
+                <p class="text-center text-muted small mt-3">
+                    Don't have an account? <a href="{{ base_path }}/register">Register</a>
+                </p>
             </div>
         </div>
 
-        {# ── Step: otp_display — show the TOTP QR code ─────────────────────────── #}
-        {% elseif step == 'otp_display' %}
-        <div class="card shadow-sm border-0">
-            <div class="card-body text-center p-4">
-                <h2 class="h4 text-purple fw-bold mb-3">{{ trans('auth.otp_sent') }}</h2>
-                <img src="{{ qr_code }}" alt="TOTP QR code" class="img-fluid mb-3" style="max-width:200px;">
-                <p class="text-muted small mb-4">{{ trans('auth.otp_note') }}</p>
-                <a href="{{ base_path }}/auth/verify" class="btn btn-purple">{{ trans('auth.continue') }}</a>
-            </div>
-        </div>
-
-        {# ── Step: verify — OTP entry form ──────────────────────────────────────── #}
-        {% elseif step == 'verify' %}
+        {# register an account #}
+        {% elseif step == 'register' %}
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
-                <h2 class="h4 text-purple fw-bold mb-3">{{ trans('auth.verify_title') }}</h2>
-
-                {% if error is defined %}
-                    <div class="alert alert-danger py-2 small">{{ trans(error) }}</div>
-                {% endif %}
-
-                <form class="auth-form" action="{{ base_path }}/auth/verify" method="POST">
-                    <div class="mb-3">
-                        <label for="code" class="form-label">{{ trans('auth.otp_label') }}</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="code"
-                            name="code"
-                            placeholder="{{ trans('auth.otp_ph') }}"
-                            maxlength="6"
-                            inputmode="numeric"
-                            autocomplete="one-time-code"
-                            required
-                        >
+                <h2 class="h4 text-purple fw-bold mb-3">Create Account</h2>
+                <form action="{{ base_path }}/register" method="POST">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" placeholder="John" id="first_name" name="first_name" required autocomplete="given-name">
+                        </div>
+                        <div class="col-6">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" placeholder="Doe" id="last_name" name="last_name" required autocomplete="family-name">
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-purple w-100">{{ trans('auth.verify') }}</button>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" placeholder="example@gmail.com" id="email" name="email" required autocomplete="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_email" class="form-label">Confirm Email</label>
+                        <input type="email" class="form-control" placeholder="Confirm your email" id="confirm_email" name="confirm_email" required autocomplete="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" placeholder="Enter password" id="password" name="password" required autocomplete="new-password">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', this)"><i class="bi bi-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" placeholder="Confirm password" id="confirm_password" name="confirm_password" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm_password', this)"><i class="bi bi-eye"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-purple w-100">Create Account</button>
                 </form>
+                <p class="text-center text-muted small mt-3">
+                    Already have an account? <a href="{{ base_path }}/login">Sign In</a>
+                </p>
             </div>
         </div>
         {% endif %}
 
     </div>
 </div>
+
+<script>
+function togglePassword(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
 
 {% endblock %}

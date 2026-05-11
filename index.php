@@ -33,6 +33,8 @@ use Twig\TwigFunction;
 
 require __DIR__ . '/vendor/autoload.php';
 
+
+
 // ─── 1. DATABASE ──────────────────────────────────────────────────────────────
 
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__);
@@ -69,6 +71,8 @@ $twig   = new Environment($loader, [
     'auto_reload' => true,
 ]);
 
+$twig->addGlobal('session', $_SESSION);
+
 // ─── 3. I18N — symfony/translation ───────────────────────────────────────────
 
 $translator = new Translator('en');
@@ -91,11 +95,7 @@ $container->set(ProductModel::class, $model);
 $container->set(ProductsController::class, fn() => new ProductsController($twig, $model, $basePath));
 $container->set(CheckoutController::class, fn() => new CheckoutController($twig, $model, $basePath));
 
-$container->set(AuthController::class, fn() => new AuthController(
-    $twig,
-    new OtpService(),
-    $basePath
-));
+$container->set(AuthController::class, fn() => new AuthController($twig, $basePath));
 
 // ─── 5. APPLICATION ───────────────────────────────────────────────────────────
 
@@ -198,11 +198,11 @@ $app->get('/lang/{locale}', function (Request $request, Response $response, arra
 
 // ─── 9. AUTH ROUTES ───────────────────────────────────────────────────────────
 
-$app->get('/auth',          [AuthController::class, 'showForm']);
-$app->post('/auth/request', [AuthController::class, 'requestOtp']);
-$app->get('/auth/verify',   [AuthController::class, 'showVerify']);
-$app->post('/auth/verify',  [AuthController::class, 'verifyOtp']);
-$app->post('/auth/logout',  [AuthController::class, 'logout']);
+$app->get('/login',      [AuthController::class, 'showLogin']);
+$app->get('/register',   [AuthController::class, 'showRegister']);
+$app->post('/login',     [AuthController::class, 'login']);
+$app->post('/register',  [AuthController::class, 'register']);
+$app->post('/logout',    [AuthController::class, 'logout']);
 
 // ─── 10. RUN ──────────────────────────────────────────────────────────────────
 
