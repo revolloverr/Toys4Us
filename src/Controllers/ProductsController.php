@@ -35,23 +35,22 @@ class ProductsController
      */
     public function index(Request $request, Response $response): Response
     {
-        $params     = $request->getQueryParams();
+        $params       = $request->getQueryParams();
         $categorySlug = $params['category'] ?? null;
-        $minPrice   = isset($params['min_price']) && $params['min_price'] !== '' ? (float) $params['min_price'] : null;
-        $maxPrice   = isset($params['max_price']) && $params['max_price'] !== '' ? (float) $params['max_price'] : null;
-        $minRating  = isset($params['min_rating']) && $params['min_rating'] !== '' ? (float) $params['min_rating'] : null;
-        
-        $search     = $params['search'] ?? null;
-        $products   = $this->model->findFiltered($categoryId, $minPrice, $maxPrice, $minRating, $search);
+        $minPrice     = isset($params['min_price']) && $params['min_price'] !== '' ? (float) $params['min_price'] : null;
+        $maxPrice     = isset($params['max_price']) && $params['max_price'] !== '' ? (float) $params['max_price'] : null;
+        $minRating    = isset($params['min_rating']) && $params['min_rating'] !== '' ? (float) $params['min_rating'] : null;
+        $search       = isset($params['search']) && $params['search'] !== '' ? $params['search'] : null;
 
-        // Resolve category slug to ID
+        // Resolve category slug to ID FIRST
         $categoryId = null;
         if ($categorySlug) {
             $cat = \RedBeanPHP\R::findOne('category', 'slug = ?', [$categorySlug]);
             if ($cat) $categoryId = (int) $cat->id;
         }
 
-        $products   = $this->model->findFiltered($categoryId, $minPrice, $maxPrice, $minRating);
+        
+        $products   = $this->model->findFiltered($categoryId, $minPrice, $maxPrice, $minRating, $search);
         $categories = \RedBeanPHP\R::findAll('category');
 
         $html = $this->twig->render('products.html.twig', [
@@ -59,7 +58,7 @@ class ProductsController
             'app_lang'   => $_SESSION['lang'] ?? 'en',
             'products'   => $products,
             'categories' => $categories,
-            'filters' => [
+            'filters'    => [
                 'category'   => $categorySlug,
                 'min_price'  => $minPrice,
                 'max_price'  => $maxPrice,
