@@ -53,7 +53,7 @@
                     </button>
                 </form>
 
-                {% if qr_code is not defined %}
+                {% if qr_code is not defined and (has_totp is not defined or not has_totp) %}
                 <div class="text-center mt-3">
                     <form action="{{ base_path }}/totp/skip" method="POST" class="d-inline">
                         <button type="submit" class="btn btn-link text-muted small">{{ trans('auth.otp_skip_setup') }}</button>
