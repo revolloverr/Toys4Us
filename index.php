@@ -72,6 +72,7 @@ if (R::count('product') === 0) {
 }
 
 // ─── 2. TEMPLATE ENGINE ───────────────────────────────────────────────────────
+$basePath = '';
 
 $loader = new FilesystemLoader(__DIR__ . '/templates');
 $twig   = new Environment($loader, [
@@ -83,7 +84,7 @@ $twig   = new Environment($loader, [
 $twig->addGlobal('session', $_SESSION);
 $twig->addGlobal('app_cart', $_SESSION['cart'] ?? []);
 
-$basePath = '/Toys4Us';
+
 
 $twig->addGlobal('base_path', $basePath);
 
