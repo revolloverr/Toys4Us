@@ -16,7 +16,7 @@
         </div>
         <form action="{{ base_path }}/cart/add/{{ product.id }}" method="POST">
             <button type="submit" class="btn btn-purple btn-lg w-100 mb-3">
-                🛒 {{ trans('products.add_to_cart') }}
+                <i class="bi bi-cart me-1"></i>{{ trans('products.add_to_cart') }}
             </button>
         </form>
         <a href="{{ base_path }}/products" class="btn btn-outline-secondary w-100">

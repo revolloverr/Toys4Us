@@ -115,12 +115,12 @@
                 {# ── Two-Factor Authentication (TOTP) ── #}
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">🔐 Two-Factor Authentication (TOTP)</h5>
+                        <h5 class="fw-bold mb-3">Two-Factor Authentication (TOTP)</h5>
 
                         {% if user.totp_secret is not empty and totp_pending_setup is not defined %}
                             {# TOTP is already enabled #}
                             <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-success me-2">✅ Enabled</span>
+                                <span class="badge bg-success me-2">Enabled</span>
                                 <span class="text-muted small">Your account is protected with 2FA.</span>
                             </div>
                             <form action="{{ base_path }}/profile/totp/disable" method="POST" class="d-inline">
@@ -171,7 +171,7 @@
                                 Use an authenticator app like Google Authenticator or Authy.
                             </p>
                             <form action="{{ base_path }}/profile/totp/setup" method="POST">
-                                <button type="submit" class="btn btn-purple btn-sm">🔐 Enable 2FA</button>
+                                <button type="submit" class="btn btn-purple btn-sm">Enable 2FA</button>
                             </form>
                         {% endif %}
                     </div>

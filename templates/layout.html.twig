@@ -47,7 +47,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{ base_path }}/cart" class="btn btn-outline-light position-relative">
-                            🛒 {{ trans('app.cart') }}
+                            <i class="bi bi-cart me-1"></i>{{ trans('app.cart') }}
                             {% set cartCount = 0 %}
                             {% if app_cart is defined and app_cart is not empty %}
                                 {% set cartCount = app_cart|length %}
@@ -72,7 +72,7 @@
                         {% if session.user is defined and session.user.role == 'admin' %}
                             <li class="nav-item">
                                 <a href="{{ base_path }}/admin" class="btn btn-warning btn-sm">
-                                    ⚙️ Admin
+                                    <i class="bi bi-gear me-1"></i>Admin
                                 </a>
                             </li>
                         {% endif %}  
@@ -114,18 +114,18 @@
                 <!-- Contact Info -->
                 <div class="col-12 col-md-4">
                     <h6 class="fw-bold mb-3">{{ trans('app.title') }}</h6>
-                    <p class="mb-1 small">📧 <a href="mailto:toys4us@example.com" class="text-white text-decoration-none">{{ trans('footer.contact_email') }}</a></p>
-                    <p class="mb-0 small">📞 {{ trans('footer.contact_phone') }}</p>
+                    <p class="mb-1 small"><i class="bi bi-envelope me-1"></i><a href="mailto:toys4us@example.com" class="text-white text-decoration-none">{{ trans('footer.contact_email') }}</a></p>
+                    <p class="mb-0 small"><i class="bi bi-telephone me-1"></i>{{ trans('footer.contact_phone') }}</p>
                 </div>
                 <!-- Social Media Icons -->
                 <div class="col-12 col-md-4">
                     <h6 class="fw-bold mb-3">{{ trans('footer.follow_us') }}</h6>
                     <div class="d-flex gap-3 fs-4">
-                        <a href="#" class="text-white text-decoration-none" title="Facebook">📘</a>
-                        <a href="#" class="text-white text-decoration-none" title="Twitter / X">🐦</a>
-                        <a href="#" class="text-white text-decoration-none" title="Instagram">📸</a>
-                        <a href="#" class="text-white text-decoration-none" title="TikTok">🎵</a>
-                        <a href="#" class="text-white text-decoration-none" title="YouTube">▶️</a>
+                        <a href="#" class="text-white text-decoration-none" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white text-decoration-none" title="Twitter / X"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="text-white text-decoration-none" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white text-decoration-none" title="TikTok"><i class="bi bi-tiktok"></i></a>
+                        <a href="#" class="text-white text-decoration-none" title="YouTube"><i class="bi bi-youtube"></i></a>
                     </div>
                 </div>
             </div>
