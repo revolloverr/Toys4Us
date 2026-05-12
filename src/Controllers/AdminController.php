@@ -13,12 +13,14 @@ class AdminController
 {
     public function __construct(
         private Environment $twig,
+        private string $basePath,
     ) {}
 
     // GET /admin
     public function index(Request $request, Response $response): Response
     {
         $html = $this->twig->render('admin/index.html.twig', [
+            'base_path'  => $this->basePath,
             'app_lang' => $_SESSION['lang'] ?? 'en',
             'counts'   => [
                 'products'    => R::count('product'),
@@ -39,6 +41,7 @@ class AdminController
     public function products(Request $request, Response $response): Response
     {
         $html = $this->twig->render('admin/products.html.twig', [
+            'base_path'  => $this->basePath,
             'products'   => R::findAll('product', 'ORDER BY id DESC'),
             'categories' => R::findAll('category'),
         ]);
@@ -65,7 +68,7 @@ class AdminController
         R::store($product);
 
         return $response
-            ->withHeader('Location', '/admin/products')
+            ->withHeader('Location', $this->basePath . '/admin/products')
             ->withStatus(302);
     }
 
@@ -88,7 +91,7 @@ class AdminController
         }
 
         return $response
-            ->withHeader('Location', '/admin/products')
+            ->withHeader('Location', $this->basePath . '/admin/products')
             ->withStatus(302);
     }
 
@@ -103,7 +106,7 @@ class AdminController
         }
 
         return $response
-            ->withHeader('Location', '/admin/products')
+            ->withHeader('Location', $this->basePath . '/admin/products')
             ->withStatus(302);
     }
 
@@ -112,6 +115,7 @@ class AdminController
     public function categories(Request $request, Response $response): Response
     {
         $html = $this->twig->render('admin/categories.html.twig', [
+            'base_path'  => $this->basePath,
             'categories' => R::findAll('category', 'ORDER BY id DESC'),
         ]);
 
@@ -132,7 +136,7 @@ class AdminController
         R::store($cat);
 
         return $response
-            ->withHeader('Location', '/admin/categories')
+            ->withHeader('Location', $this->basePath . '/admin/categories')
             ->withStatus(302);
     }
 
@@ -151,7 +155,7 @@ class AdminController
         }
 
         return $response
-            ->withHeader('Location', '/admin/categories')
+            ->withHeader('Location', $this->basePath . '/admin/categories')
             ->withStatus(302);
     }
 
@@ -166,7 +170,7 @@ class AdminController
         }
 
         return $response
-            ->withHeader('Location', '/admin/categories')
+            ->withHeader('Location', $this->basePath . '/admin/categories')
             ->withStatus(302);
     }
 
@@ -175,6 +179,7 @@ class AdminController
     public function bases(Request $request, Response $response): Response
     {
         $html = $this->twig->render('admin/bases.html.twig', [
+            'base_path'  => $this->basePath,
             'bases'     => R::findAll('plush_base', 'ORDER BY species, sort_order'),
         ]);
         $response->getBody()->write($html);
@@ -194,7 +199,7 @@ class AdminController
         $base->is_active  = 1;
         R::store($base);
 
-        return $response->withHeader('Location', $basePath . '/admin/bases')->withStatus(302);
+        return $response->withHeader('Location', $this->basePath . '/admin/bases')->withStatus(302);
     }
 
     public function updateBase(Request $request, Response $response): Response
@@ -212,7 +217,7 @@ class AdminController
             R::store($base);
         }
 
-        return $response->withHeader('Location', $basePath . '/admin/bases')->withStatus(302);
+        return $response->withHeader('Location', $this->basePath . '/admin/bases')->withStatus(302);
     }
 
     public function deleteBase(Request $request, Response $response): Response
@@ -221,7 +226,7 @@ class AdminController
         $base = R::load('plush_base', (int) ($data['id'] ?? 0));
         if ($base->id) R::trash($base);
 
-        return $response->withHeader('Location', $basePath . '/admin/bases')->withStatus(302);
+        return $response->withHeader('Location', $this->basePath . '/admin/bases')->withStatus(302);
     }
 
     // ── PLUSH ACCESSORIES ────────────────────────────────────────────────────
@@ -229,6 +234,7 @@ class AdminController
     public function accessories(Request $request, Response $response): Response
     {
         $html = $this->twig->render('admin/accessories.html.twig', [
+            'base_path'  => $this->basePath,
             'accessories' => R::findAll('plush_accessory', 'ORDER BY category, id'),
         ]);
         $response->getBody()->write($html);
@@ -276,13 +282,32 @@ class AdminController
 
     public function users(Request $request, Response $response): Response
     {
+        $search = trim($request->getQueryParams()['search'] ?? '');
+        
+        if ($search) {
+            $users = R::find('user', 'name LIKE ? OR email LIKE ? ORDER BY id DESC', 
+                ["%$search%", "%$search%"]);
+        } else {
+            $users = R::findAll('user', 'ORDER BY id DESC');
+        }
+
         $html = $this->twig->render('admin/users.html.twig', [
-            'users' => R::findAll('user', 'ORDER BY id DESC'),
+            'base_path' => $this->basePath,
+            'users'     => $users,
+            'search'    => $search,
         ]);
-
         $response->getBody()->write($html);
-
         return $response;
+    }
+
+    public function deleteUser(Request $request, Response $response): Response
+    {
+        $data = (array) $request->getParsedBody();
+        $user = R::load('user', (int) ($data['id'] ?? 0));
+        if ($user->id && $user->id !== (int) $_SESSION['user']['id']) {
+            R::trash($user);
+        }
+        return $response->withHeader('Location', $this->basePath . '/admin/users')->withStatus(302);
     }
 
     public function updateUser(Request $request, Response $response): Response
@@ -315,7 +340,7 @@ class AdminController
         }
 
         return $response
-            ->withHeader('Location', '/Toys4Us/admin/users')
+            ->withHeader('Location', $this->basePath . '/admin/users')
             ->withStatus(302);
     }
 }

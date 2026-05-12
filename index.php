@@ -115,7 +115,7 @@ $container->set(ProfileController::class, fn() => new ProfileController($twig, $
 
 $container->set(PlushController::class, fn() => new PlushController($twig, $basePath));
 
-$container->set(AdminController::class, fn() => new AdminController($twig));
+$container->set(AdminController::class, fn() => new AdminController($twig, $basePath));
 
 // ─── 5. APPLICATION ───────────────────────────────────────────────────────────
 
@@ -255,8 +255,9 @@ $app->group('/admin', function ($group) {
     $group->post('/accessories/delete',  [AdminController::class, 'deleteAccessory']);
 
     // Admin User Manager
-    $group->get('/users', [AdminController::class, 'users']);
-    $group->post('/users/update', [AdminController::class, 'updateUser']);
+    $group->get('/users',              [AdminController::class, 'users']);
+    $group->post('/users/update',      [AdminController::class, 'updateUser']);
+    $group->post('/users/delete',      [AdminController::class, 'deleteUser']);
 
 })->add(new AdminMiddleware());
 

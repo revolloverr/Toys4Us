@@ -4,121 +4,94 @@
 
 {% block content %}
 
-<div class="container py-5">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 text-purple fw-bold mb-0">Users</h2>
+    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">← Back to Admin</a>
+</div>
 
-    <h2 class="h4 text-purple fw-bold mb-4">
-        Users
-    </h2>
+{# ── Search ───────────────────────────────────────────────────────────────── #}
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ base_path }}/admin/users" class="d-flex gap-2">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Search by name or email..."
+                   value="{{ search ?? '' }}">
+            <button type="submit" class="btn btn-purple">Search</button>
+            {% if search is defined and search %}
+                <a href="{{ base_path }}/admin/users" class="btn btn-outline-secondary">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-
-            <div class="table-responsive">
-                <table class="table align-middle">
-
-                    <thead>
+{# ── Table ────────────────────────────────────────────────────────────────── #}
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        {% set isCurrentUser = session.user.id == user.id %}
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
+                            <form action="{{ base_path }}/admin/users/update" method="POST">
+                                <input type="hidden" name="id" value="{{ user.id }}">
+                                <td>{{ user.id }}</td>
+                                <td>
+                                    <input type="text" name="name" class="form-control form-control-sm"
+                                           value="{{ user.name }}" required
+                                           {{ isCurrentUser ? 'disabled' : '' }}>
+                                </td>
+                                <td>
+                                    <input type="email" name="email" class="form-control form-control-sm"
+                                           value="{{ user.email }}" required
+                                           {{ isCurrentUser ? 'disabled' : '' }}>
+                                </td>
+                                <td>
+                                    <select name="role" class="form-select form-select-sm"
+                                            {{ isCurrentUser ? 'disabled' : '' }}>
+                                        <option value="user" {{ user.role == 'user' ? 'selected' : '' }}>User</option>
+                                        <option value="admin" {{ user.role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    {% if isCurrentUser %}
+                                        <span class="badge bg-secondary">Current User</span>
+                                    {% else %}
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-purple btn-sm">Save</button>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </form>
+
+                            {# Delete form — separate from update form #}
+                            {% if not isCurrentUser %}
+                            <td style="display:none"></td>
+                            <script>
+                                document.currentScript.closest('tr').querySelector('.d-flex').insertAdjacentHTML('beforeend', `
+                                    <form action="{{ base_path }}/admin/users/delete" method="POST" class="m-0"
+                                          onsubmit="return confirm('Delete {{ user.name }}? This cannot be undone.')">
+                                        <input type="hidden" name="id" value="{{ user.id }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                    </form>
+                                `);
+                            </script>
+                            {% endif %}
                         </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {% for user in users %}
-
-                            {% set isCurrentUser = session.user.id == user.id %}
-
-                            <tr>
-
-                                <form action="{{ base_path }}/admin/users/update" method="POST">
-
-                                    <input type="hidden" name="id" value="{{ user.id }}">
-
-                                    <td>
-                                        {{ user.id }}
-                                    </td>
-
-                                    <td>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            class="form-control"
-                                            value="{{ user.name }}"
-                                            required
-                                            {{ isCurrentUser ? 'disabled' : '' }}
-                                        >
-                                    </td>
-
-                                    <td>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            class="form-control"
-                                            value="{{ user.email }}"
-                                            required
-                                            {{ isCurrentUser ? 'disabled' : '' }}
-                                        >
-                                    </td>
-
-                                    <td>
-                                        <select
-                                            name="role"
-                                            class="form-select"
-                                            {{ isCurrentUser ? 'disabled' : '' }}
-                                        >
-
-                                            <option
-                                                value="user"
-                                                {{ user.role == 'user' ? 'selected' : '' }}
-                                            >
-                                                User
-                                            </option>
-
-                                            <option
-                                                value="admin"
-                                                {{ user.role == 'admin' ? 'selected' : '' }}
-                                            >
-                                                Admin
-                                            </option>
-
-                                        </select>
-                                    </td>
-
-                                    <td>
-
-                                        {% if isCurrentUser %}
-
-                                            <span class="badge bg-secondary">
-                                                Current User
-                                            </span>
-
-                                        {% else %}
-
-                                            <button type="submit" class="btn btn-purple btn-sm">
-                                                Save
-                                            </button>
-
-                                        {% endif %}
-
-                                    </td>
-
-                                </form>
-
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-            </div>
-
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-
 </div>
 
 {% endblock %}
