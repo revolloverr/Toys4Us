@@ -316,7 +316,7 @@ function previewTTS() {
     const text = document.getElementById('tts-text').value.trim();
     if (!text) return;
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = '{{ app_lang ?? "en" }}' === 'fr' ? 'fr-FR' : 'en-US';
+    utterance.lang = 'en-US';
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
 }
