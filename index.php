@@ -55,11 +55,26 @@ R::setup(
 );
 R::freeze(true);
 
-// Ensure the user table has the totp_secret column (migration)
-R::freeze(false);
-$columns = R::inspect('user');
-if (!isset($columns['totp_secret'])) {
-    R::exec('ALTER TABLE user ADD COLUMN totp_secret VARCHAR(255) DEFAULT NULL');
+
+// Ensure custom_plush table exists (for Build a Plush feature)
+$tables = R::inspect();
+if (!in_array('custom_plush', $tables)) {
+    R::exec('CREATE TABLE custom_plush (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT DEFAULT NULL,
+        base_id INT NOT NULL,
+        name VARCHAR(255) NOT NULL DEFAULT "My Plush",
+        total_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        voice_message_path VARCHAR(255) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+}
+if (!in_array('custom_plush_accessory', $tables)) {
+    R::exec('CREATE TABLE custom_plush_accessory (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        custom_plush_id INT NOT NULL,
+        accessory_id INT NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
 R::freeze(true);
 
