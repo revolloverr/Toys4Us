@@ -306,11 +306,24 @@ class AuthController
 
     private function renderTotpError(Response $response, string $error): Response
     {
+        $userId = $_SESSION['totp_user_id'] ?? null;
+        $qrCode = null;
+        $secret = null;
+
+        // If there's a pending setup, regenerate the QR code display
+        if (!empty($_SESSION['totp_pending_secret']) && $userId) {
+            $user   = $this->userModel->load((int) $userId);
+            $secret = $_SESSION['totp_pending_secret'];
+            $qrCode = $this->otpService->getQrCode((string) $userId, $secret);
+        }
+
         $html = $this->twig->render('totp-verify.html.twig', [
             'step'      => 'verify',
             'error'     => $error,
             'base_path' => $this->basePath,
             'app_lang'  => $_SESSION['lang'] ?? 'en',
+            'qr_code'   => $qrCode,
+            'secret'    => $secret,
         ]);
         $response->getBody()->write($html);
         return $response;
