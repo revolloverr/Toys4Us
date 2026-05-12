@@ -75,22 +75,23 @@ return [
     'cart.grand_total'      => 'Grand Total',
     'cart.checkout'         => 'Checkout',
 
-    // ── Auth — step 1: username entry ──────────────────────────────────────────
-    'auth.title'           => 'Sign In',
-    'auth.username_label'  => 'Username',
-    'auth.username_ph'     => 'Enter your username',
-    'auth.request_otp'     => 'Send Code',
+    // ── TOTP / 2FA ─────────────────────────────────────────────────────────────
+    'auth.title'               => 'Sign In',
+    'auth.username_label'      => 'Username',
+    'auth.username_ph'         => 'Enter your username',
+    'auth.request_otp'         => 'Send Code',
 
-    // ── Auth — step 2: TOTP setup ─────────────────────────────────────────────
-    'auth.otp_sent'        => 'Scan this code with your authenticator app',
-    'auth.otp_note'        => 'Open Google Authenticator, Authy, or any TOTP app and scan the QR code. Then click Continue.',
-    'auth.continue'        => 'Continue to verification',
-
-    // ── Auth — step 3: OTP entry ───────────────────────────────────────────────
-    'auth.verify_title'    => 'Enter Your Code',
-    'auth.otp_label'       => 'One-Time Password',
-    'auth.otp_ph'          => '6-digit code',
-    'auth.verify'          => 'Verify',
-    'auth.error_invalid'   => 'Invalid or expired code. Please try again.',
-    'auth.error_expired'   => 'Your code has expired. Please request a new one.',
+    'auth.otp_setup_title'     => 'Set Up Two-Factor Authentication',
+    'auth.otp_setup_instruction' => 'Scan this QR code with your authenticator app:',
+    'auth.otp_secret_label'    => 'Manual setup key',
+    'auth.otp_copy_secret'     => 'Copy secret key',
+    'auth.otp_setup_note'      => 'Open Google Authenticator, Authy, or any TOTP app and scan the QR code.',
+    'auth.verify_title'        => 'Verify Your Code',
+    'auth.otp_label'           => 'One-Time Password',
+    'auth.otp_ph'              => '6-digit code',
+    'auth.otp_enter_code'      => 'Enter the 6-digit code from your authenticator app.',
+    'auth.verify'              => 'Verify & Sign In',
+    'auth.setup_and_verify'    => 'Enable & Verify',
+    'auth.otp_skip_setup'      => 'Skip — I\'ll set this up later in my profile',
+    'auth.error_invalid'       => 'Invalid code. Please try again.',
 ];

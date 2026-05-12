@@ -112,6 +112,71 @@
                     </div>
                 </div>
 
+                {# ── Two-Factor Authentication (TOTP) ── #}
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">🔐 Two-Factor Authentication (TOTP)</h5>
+
+                        {% if user.totp_secret is not empty and totp_pending_setup is not defined %}
+                            {# TOTP is already enabled #}
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-success me-2">✅ Enabled</span>
+                                <span class="text-muted small">Your account is protected with 2FA.</span>
+                            </div>
+                            <form action="{{ base_path }}/profile/totp/disable" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to disable two-factor authentication?')">
+                                    Disable 2FA
+                                </button>
+                            </form>
+
+                        {% elseif totp_pending_setup is defined %}
+                            {# TOTP setup in progress — show QR and confirmation #}
+                            <p class="text-muted small mb-3">{{ trans('auth.otp_setup_instruction') }}</p>
+                            <div class="bg-purple-soft p-3 rounded d-inline-block mb-3 text-center w-100">
+                                <img src="{{ totp_qr_code }}" alt="TOTP QR Code" class="img-fluid" style="max-width: 200px;">
+                            </div>
+                            <p class="text-muted small mb-2"><strong>{{ trans('auth.otp_secret_label') }}:</strong></p>
+                            <div class="d-flex align-items-center mb-3">
+                                <code class="bg-light p-2 rounded border flex-grow-1" id="totpSetupSecret" style="font-size: 0.85rem; letter-spacing: 2px;">{{ totp_secret }}</code>
+                                <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copySecret()" title="{{ trans('auth.otp_copy_secret') }}">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                            <p class="text-muted small mb-3">{{ trans('auth.otp_setup_note') }} {{ trans('auth.otp_enter_code') }}</p>
+
+                            <form action="{{ base_path }}/profile/totp/confirm" method="POST">
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-7">
+                                        <label for="totp_code" class="form-label small">{{ trans('auth.otp_label') }}</label>
+                                        <input type="text" class="form-control" id="totp_code" name="totp_code"
+                                               inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                                               placeholder="{{ trans('auth.otp_ph') }}" required>
+                                    </div>
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-purple w-100">{{ trans('auth.setup_and_verify') }}</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="mt-2">
+                                <form action="{{ base_path }}/profile" method="GET" class="d-inline">
+                                    <button type="submit" class="btn btn-link btn-sm text-muted">Cancel</button>
+                                </form>
+                            </div>
+
+                        {% else %}
+                            {# TOTP not enabled — prompt to set up #}
+                            <p class="text-muted small mb-3">
+                                Add an extra layer of security by enabling two-factor authentication (TOTP).
+                                Use an authenticator app like Google Authenticator or Authy.
+                            </p>
+                            <form action="{{ base_path }}/profile/totp/setup" method="POST">
+                                <button type="submit" class="btn btn-purple btn-sm">🔐 Enable 2FA</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
                 {# Delete Account #}
                 <div class="card border-danger shadow-sm">
                     <div class="card-body p-4">
@@ -133,8 +198,6 @@
     </div>
 </div>
 
-
-
 <script>
 function togglePassword(fieldId, btn) {
     const input = document.getElementById(fieldId);
@@ -146,6 +209,18 @@ function togglePassword(fieldId, btn) {
         input.type = 'password';
         icon.classList.replace('bi-eye-slash', 'bi-eye');
     }
+}
+
+function copySecret() {
+    const el = document.getElementById('totpSetupSecret');
+    if (!el) return;
+    const text = el.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = el.nextElementSibling;
+        const icon = btn.querySelector('i');
+        icon.classList.replace('bi-clipboard', 'bi-check-lg');
+        setTimeout(() => icon.classList.replace('bi-check-lg', 'bi-clipboard'), 1500);
+    });
 }
 </script>
 

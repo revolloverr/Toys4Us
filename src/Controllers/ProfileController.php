@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Services\OtpService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Twig\Environment;
@@ -12,12 +13,14 @@ use Twig\Environment;
 class ProfileController
 {
     private UserModel $userModel;
+    private OtpService $otpService;
 
     public function __construct(
         private Environment $twig,
         private string $basePath,
     ) {
-        $this->userModel = new UserModel();
+        $this->userModel  = new UserModel();
+        $this->otpService = new OtpService();
     }
 
     // GET /profile
@@ -123,6 +126,83 @@ class ProfileController
         session_destroy();
 
         return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
+    }
+
+    // POST /profile/totp/setup
+    public function setupTotp(Request $request, Response $response): Response
+    {
+        if (!isset($_SESSION['user'])) {
+            return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
+        }
+
+        $user = $this->userModel->load((int) $_SESSION['user']['id']);
+
+        // Generate a new secret
+        $secret = $this->otpService->generateSecret();
+        $qrCode = $this->otpService->getQrCode((string) $user->id, $secret);
+
+        // Temporarily store the secret for verification
+        $_SESSION['totp_new_secret'] = $secret;
+
+        // Show a verification step — they must enter a code to confirm
+        $html = $this->twig->render('profile.html.twig', [
+            'base_path'          => $this->basePath,
+            'app_lang'           => $_SESSION['lang'] ?? 'en',
+            'user'               => $user,
+            'active_tab'         => 'security',
+            'totp_qr_code'       => $qrCode,
+            'totp_secret'        => $secret,
+            'totp_pending_setup' => true,
+        ]);
+        $response->getBody()->write($html);
+        return $response;
+    }
+
+    // POST /profile/totp/confirm
+    public function confirmTotp(Request $request, Response $response): Response
+    {
+        if (!isset($_SESSION['user'])) {
+            return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
+        }
+
+        $data = (array) $request->getParsedBody();
+        $code = trim($data['totp_code'] ?? '');
+        $pendingSecret = $_SESSION['totp_new_secret'] ?? null;
+
+        if (empty($code) || !preg_match('/^\d{6}$/', $code)) {
+            return $this->renderWithError($response, $this->userModel->load((int) $_SESSION['user']['id']), 'Please enter a valid 6-digit code.', 'security');
+        }
+
+        if (!$pendingSecret) {
+            return $this->renderWithError($response, $this->userModel->load((int) $_SESSION['user']['id']), 'Setup session expired. Please try again.', 'security');
+        }
+
+        if (!$this->otpService->verify($code, $pendingSecret)) {
+            return $this->renderWithError($response, $this->userModel->load((int) $_SESSION['user']['id']), 'Invalid code. Please try again.', 'security');
+        }
+
+        // Save the secret to the user
+        $user = $this->userModel->load((int) $_SESSION['user']['id']);
+        $user->totp_secret = $pendingSecret;
+        $this->userModel->save($user);
+
+        unset($_SESSION['totp_new_secret']);
+
+        return $response->withHeader('Location', $this->basePath . '/profile')->withStatus(302);
+    }
+
+    // POST /profile/totp/disable
+    public function disableTotp(Request $request, Response $response): Response
+    {
+        if (!isset($_SESSION['user'])) {
+            return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
+        }
+
+        $user = $this->userModel->load((int) $_SESSION['user']['id']);
+        $user->totp_secret = null;
+        $this->userModel->save($user);
+
+        return $response->withHeader('Location', $this->basePath . '/profile')->withStatus(302);
     }
 
     private function renderWithError(Response $response, mixed $user, string $error, string $tab): Response

@@ -121,6 +121,21 @@ html {
     height: 100%;
 }
 
+/* ── TOTP / 2FA ── */
+.bg-purple-soft {
+    background-color: var(--purple-soft) !important;
+    border: 2px dashed var(--purple);
+    border-radius: 12px;
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--gray-100);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    color: var(--purple-dark);
+}
+
 /* ── Miscellaneous ── */
 a {
     transition: color 0.15s;

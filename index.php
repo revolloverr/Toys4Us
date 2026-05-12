@@ -55,6 +55,14 @@ R::setup(
 );
 R::freeze(true);
 
+// Ensure the user table has the totp_secret column (migration)
+R::freeze(false);
+$columns = R::inspect('user');
+if (!isset($columns['totp_secret'])) {
+    R::exec('ALTER TABLE user ADD COLUMN totp_secret VARCHAR(255) DEFAULT NULL');
+}
+R::freeze(true);
+
 $model = new ProductModel();
 
 if (R::count('product') === 0) {
@@ -231,12 +239,22 @@ $app->post('/login',     [AuthController::class, 'login']);
 $app->post('/register',  [AuthController::class, 'register']);
 $app->post('/logout',    [AuthController::class, 'logout']);
 
+// TOTP 2FA verification routes (between password and full session)
+$app->get('/totp/verify',       [AuthController::class, 'showTotpVerify']);
+$app->post('/totp/verify',      [AuthController::class, 'verifyTotp']);
+$app->post('/totp/skip',        [AuthController::class, 'skipTotpSetup']);
+
 // ─── 10. PROFILE ROUTES ───────────────────────────────────────────────────────────
 
 $app->get('/profile',                  [ProfileController::class, 'index']);
 $app->post('/profile/edit',            [ProfileController::class, 'update']);
 $app->post('/profile/change-password', [ProfileController::class, 'changePassword']);
 $app->post('/profile/delete',          [ProfileController::class, 'delete']);
+
+// TOTP 2FA management in profile
+$app->post('/profile/totp/setup',      [ProfileController::class, 'setupTotp']);
+$app->post('/profile/totp/confirm',    [ProfileController::class, 'confirmTotp']);
+$app->post('/profile/totp/disable',    [ProfileController::class, 'disableTotp']);
 
 // Admin routes — protected by AdminMiddleware
 $app->group('/admin', function ($group) {

@@ -75,22 +75,23 @@ return [
     'cart.grand_total'      => 'Total Général',
     'cart.checkout'         => 'Commander',
 
-    // ── Auth — step 1: username entry ──────────────────────────────────────────
-    'auth.title'           => 'Se connecter',
-    'auth.username_label'  => 'Nom d\'utilisateur',
-    'auth.username_ph'     => 'Entrez votre nom d\'utilisateur',
-    'auth.request_otp'     => 'Envoyer le code',
+    // ── TOTP / 2FA ─────────────────────────────────────────────────────────────
+    'auth.title'               => 'Se connecter',
+    'auth.username_label'      => 'Nom d\'utilisateur',
+    'auth.username_ph'         => 'Entrez votre nom d\'utilisateur',
+    'auth.request_otp'         => 'Envoyer le code',
 
-    // ── Auth — step 2: TOTP setup ─────────────────────────────────────────────
-    'auth.otp_sent'        => 'Scannez ce code avec votre application d\'authentification',
-    'auth.otp_note'        => 'Ouvrez Google Authenticator, Authy, ou toute autre application TOTP et scannez le code QR. Puis cliquez sur Continuer.',
-    'auth.continue'        => 'Continuer vers la vérification',
-
-    // ── Auth — step 3: OTP entry ───────────────────────────────────────────────
-    'auth.verify_title'    => 'Entrez votre code',
-    'auth.otp_label'       => 'Mot de passe à usage unique',
-    'auth.otp_ph'          => 'Code à 6 chiffres',
-    'auth.verify'          => 'Vérifier',
-    'auth.error_invalid'   => 'Code invalide ou expiré. Veuillez réessayer.',
-    'auth.error_expired'   => 'Votre code a expiré. Veuillez en demander un nouveau.',
+    'auth.otp_setup_title'     => 'Configurer l\'authentification à deux facteurs',
+    'auth.otp_setup_instruction' => 'Scannez ce code QR avec votre application d\'authentification :',
+    'auth.otp_secret_label'    => 'Clé de configuration manuelle',
+    'auth.otp_copy_secret'     => 'Copier la clé secrète',
+    'auth.otp_setup_note'      => 'Ouvrez Google Authenticator, Authy, ou toute autre application TOTP et scannez le code QR.',
+    'auth.verify_title'        => 'Vérifiez votre code',
+    'auth.otp_label'           => 'Mot de passe à usage unique',
+    'auth.otp_ph'              => 'Code à 6 chiffres',
+    'auth.otp_enter_code'      => 'Entrez le code à 6 chiffres de votre application d\'authentification.',
+    'auth.verify'              => 'Vérifier et se connecter',
+    'auth.setup_and_verify'    => 'Activer et vérifier',
+    'auth.otp_skip_setup'      => 'Passer — je le configurerai plus tard dans mon profil',
+    'auth.error_invalid'       => 'Code invalide. Veuillez réessayer.',
 ];
