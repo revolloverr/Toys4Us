@@ -4,7 +4,14 @@
 
 {% block content %}
 
-<h2 class="h4 text-purple fw-bold mb-4">Build Your Plush</h2>
+<h2 class="h4 text-purple fw-bold mb-4">
+    {% if edit_plush_id is defined and edit_plush_id > 0 %}
+        <a href="{{ base_path }}/cart" class="btn btn-outline-purple btn-sm me-2"><i class="bi bi-arrow-left"></i></a>
+        Edit: {{ edit_plush.name }}
+    {% else %}
+        Build Your Plush
+    {% endif %}
+</h2>
 
 <div class="row g-4">
 
@@ -38,7 +45,6 @@
         </div>
 
         {# Base selector #}
-        {# Base Type selector #}
         <div class="d-flex align-items-center justify-content-center gap-3 mt-3">
             <button class="btn btn-outline-purple btn-sm" onclick="cycleSpecies(-1)">&#8249;</button>
             <span id="species-name" class="fw-bold text-purple" style="min-width:80px; text-align:center;">{{ bases|first.species|capitalize }}</span>
@@ -71,10 +77,10 @@
                 <h6 class="fw-bold text-purple mb-2">Face Wear</h6>
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('facewear', -1)">&#8249;</button>
-                    <span id="facewear-name" class="flex-grow-1 text-center">None</span>
+                    <span id="facewear-name" class="flex-grow-1 text-center">{{ edit_plush.accessories.facewear.name ?? 'None' }}</span>
                     <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('facewear', 1)">&#8250;</button>
                 </div>
-                <p class="text-muted small text-center mt-1 mb-0">+$<span id="facewear-price">0.00</span></p>
+                <p class="text-muted small text-center mt-1 mb-0">+$<span id="facewear-price">{{ edit_plush.accessories.facewear.price ?? '0.00' }}</span></p>
             </div>
         </div>
 
@@ -84,23 +90,23 @@
                 <h6 class="fw-bold text-purple mb-2">Body Wear</h6>
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('bodywear', -1)">&#8249;</button>
-                    <span id="bodywear-name" class="flex-grow-1 text-center">None</span>
+                    <span id="bodywear-name" class="flex-grow-1 text-center">{{ edit_plush.accessories.bodywear.name ?? 'None' }}</span>
                     <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('bodywear', 1)">&#8250;</button>
                 </div>
-                <p class="text-muted small text-center mt-1 mb-0">+$<span id="bodywear-price">0.00</span></p>
+                <p class="text-muted small text-center mt-1 mb-0">+$<span id="bodywear-price">{{ edit_plush.accessories.bodywear.price ?? '0.00' }}</span></p>
             </div>
         </div>
 
-        {# footwear #}
+        {# Footwear #}
         <div class="card shadow-sm border-0 mb-3">
             <div class="card-body">
                 <h6 class="fw-bold text-purple mb-2">Footwear</h6>
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('shoes', -1)">&#8249;</button>
-                    <span id="shoes-name" class="flex-grow-1 text-center">None</span>
+                    <span id="shoes-name" class="flex-grow-1 text-center">{{ edit_plush.accessories.shoes.name ?? 'None' }}</span>
                     <button class="btn btn-outline-secondary btn-sm" onclick="cycleAccessory('shoes', 1)">&#8250;</button>
                 </div>
-                <p class="text-muted small text-center mt-1 mb-0">+$<span id="shoes-price">0.00</span></p>
+                <p class="text-muted small text-center mt-1 mb-0">+$<span id="shoes-price">{{ edit_plush.accessories.shoes.price ?? '0.00' }}</span></p>
             </div>
         </div>
 
@@ -109,7 +115,8 @@
             <div class="card-body">
                 <h6 class="fw-bold text-purple mb-2">Name Your Plush</h6>
                 <input type="text" id="plush-name-input" class="form-control mb-2"
-                       placeholder="e.g. Mr. Snuggles" maxlength="50">
+                       placeholder="e.g. Mr. Snuggles" maxlength="50"
+                       value="{{ edit_plush.name ?? '' }}">
 
                 <h6 class="fw-bold text-purple mb-2 mt-3">Voice Message</h6>
                 <div class="input-group mb-2">
@@ -128,20 +135,20 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="fw-bold">Total:</span>
-                    <span class="fw-bold text-purple fs-5">$<span id="total-price">{{ bases|first.base_price }}</span></span>
+                    <span class="fw-bold text-purple fs-5">$<span id="total-price">{{ edit_plush.total_price ?? bases|first.base_price }}</span></span>
                 </div>
                 <form id="build-form" action="{{ base_path }}/build" method="POST">
-                    <input type="hidden" name="base_id" id="form-base-id" value="{{ bases|first.id }}">
-                    <input type="hidden" name="plush_name" id="form-plush-name" value="My Plush">
-                    <input type="hidden" name="accessory_ids[]" id="form-facewear-id" value="">
-                    <input type="hidden" name="accessory_ids[]" id="form-bodywear-id" value="">
-                    <input type="hidden" name="accessory_ids[]" id="form-shoes-id" value="">
-                    <div class="d-flex gap-2">
-                        <button type="submit" name="action" value="cart"
-                                class="btn btn-outline-purple flex-fill">
-                            <i class="bi bi-cart me-1"></i>Add to Cart
-                        </button>
-                    </div>
+                    <input type="hidden" name="base_id" id="form-base-id" value="{{ edit_plush.base_id ?? bases|first.id }}">
+                    <input type="hidden" name="plush_name" id="form-plush-name" value="{{ edit_plush.name ?? 'My Plush' }}">
+                    <input type="hidden" name="accessory_ids[]" id="form-facewear-id" value="{{ edit_plush.accessories.facewear.id ?? '' }}">
+                    <input type="hidden" name="accessory_ids[]" id="form-bodywear-id" value="{{ edit_plush.accessories.bodywear.id ?? '' }}">
+                    <input type="hidden" name="accessory_ids[]" id="form-shoes-id" value="{{ edit_plush.accessories.shoes.id ?? '' }}">
+                    {% if edit_plush_id is defined and edit_plush_id > 0 %}
+                        <input type="hidden" name="edit_plush_id" value="{{ edit_plush_id }}">
+                    {% endif %}
+                    <button type="submit" name="action" value="cart" class="btn btn-purple w-100">
+                        <i class="bi bi-check-lg me-1"></i>{{ edit_plush_id is defined and edit_plush_id > 0 ? 'Save Changes' : 'Add to Cart' }}
+                    </button>
                 </form>
             </div>
         </div>
@@ -166,8 +173,6 @@ const bases = [
     {% endfor %}
 ];
 
-
-
 const accessories = {
     facewear: [
         { id: 0, name: 'None', image: '', price: 0 },
@@ -190,9 +195,58 @@ const accessories = {
 };
 
 const speciesList = {{ species|json_encode|raw }};
+
+{# ── Edit mode: find and set initial indices ── #}
+{% if edit_plush_id is defined and edit_plush_id > 0 %}
+{% set edit_species = edit_plush.base_species %}
+{% set edit_color = edit_plush.base_color %}
+{% set edit_facewear_id = edit_plush.accessories.facewear.id ?? 0 %}
+{% set edit_bodywear_id = edit_plush.accessories.bodywear.id ?? 0 %}
+{% set edit_shoes_id = edit_plush.accessories.shoes.id ?? 0 %}
+{% endif %}
+
 let speciesIndex = 0;
 let colorIndex   = 0;
-const accIndex = { facewear: 0, bodywear: 0, shoes: 0 };
+const accIndex   = { facewear: 0, bodywear: 0, shoes: 0 };
+
+{# ── Set edit indices from server data ── #}
+{% if edit_plush_id is defined and edit_plush_id > 0 %}
+// Set species index
+speciesIndex = speciesList.indexOf("{{ edit_plush.base_species }}");
+if (speciesIndex < 0) speciesIndex = 0;
+// Set color index
+const initialColors = bases.filter(b => b.species === speciesList[speciesIndex]);
+for (let i = 0; i < initialColors.length; i++) {
+    if (initialColors[i].color === "{{ edit_plush.base_color }}") {
+        colorIndex = i;
+        break;
+    }
+}
+// Set accessory indices
+for (const [cat, list] of Object.entries(accessories)) {
+    {% if edit_facewear_id > 0 %}
+    if (cat === 'facewear') {
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].id === {{ edit_facewear_id }}) { accIndex.facewear = i; break; }
+        }
+    }
+    {% endif %}
+    {% if edit_bodywear_id > 0 %}
+    if (cat === 'bodywear') {
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].id === {{ edit_bodywear_id }}) { accIndex.bodywear = i; break; }
+        }
+    }
+    {% endif %}
+    {% if edit_shoes_id > 0 %}
+    if (cat === 'shoes') {
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].id === {{ edit_shoes_id }}) { accIndex.shoes = i; break; }
+        }
+    }
+    {% endif %}
+}
+{% endif %}
 
 function getCurrentBase() {
     const currentSpecies = speciesList[speciesIndex];
@@ -202,7 +256,7 @@ function getCurrentBase() {
 
 function cycleSpecies(dir) {
     speciesIndex = (speciesIndex + dir + speciesList.length) % speciesList.length;
-    colorIndex   = 0; // reset color when species changes
+    colorIndex   = 0;
     updateBase();
 }
 
@@ -223,7 +277,7 @@ function updateTotal() {
 
 function updateBase() {
     const base = getCurrentBase();
-    document.getElementById('base-img').src            = base.image;
+    document.getElementById('base-img').src             = base.image;
     document.getElementById('species-name').textContent = base.species.charAt(0).toUpperCase() + base.species.slice(1);
     document.getElementById('color-name').textContent   = base.color.charAt(0).toUpperCase() + base.color.slice(1);
     document.getElementById('base-price').textContent   = base.price.toFixed(2);
@@ -279,6 +333,24 @@ function resizePreview(delta) {
     container.style.width  = previewSize + 'px';
     container.style.height = previewSize + 'px';
 }
+
+// Initialise to edit plush if set
+{% if edit_plush_id is defined and edit_plush_id > 0 %}
+// Show accessories overlays for edit mode
+{% for cat in ['facewear', 'bodywear', 'shoes'] %}
+{% set acc = edit_plush.accessories[cat] %}
+{% if acc is not null %}
+(function() {
+    const overlay = document.getElementById('overlay-{{ cat }}');
+    if (overlay) {
+        overlay.src = '{{ base_path }}/{{ acc.image_path }}';
+        overlay.classList.remove('d-none');
+    }
+})();
+{% endif %}
+{% endfor %}
+updateBase();
+{% endif %}
 </script>
 
 {% endblock %}

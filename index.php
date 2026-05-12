@@ -195,8 +195,9 @@ $app->get('/', function (Request $request, Response $response) use ($twig, $base
 });
 
 // Build a Toy page
-$app->get('/build',  [PlushController::class, 'index']);
-$app->post('/build', [PlushController::class, 'save']);
+$app->get('/build',           [PlushController::class, 'index']);
+$app->get('/build/{plush_id}', [PlushController::class, 'edit']);
+$app->post('/build',          [PlushController::class, 'save']);
 
 // About Us page
 $app->get('/about', function (Request $request, Response $response) use ($twig, $basePath) {
@@ -216,6 +217,7 @@ $app->get('/products/{id}',       [ProductsController::class, 'show']);
 // Cart routes (no auth required to add to cart)
 $app->get('/cart',                [CheckoutController::class, 'showCart']);
 $app->post('/cart/add/{id}',      [CheckoutController::class, 'addToCart']);
+$app->post('/cart/remove/{key}',  [CheckoutController::class, 'removeFromCart']);
 $app->post('/cart/checkout',      [CheckoutController::class, 'checkout']);
 
 // ─── 8. LANGUAGE ROUTE ────────────────────────────────────────────────────────
