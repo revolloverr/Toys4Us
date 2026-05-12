@@ -1,8 +1,8 @@
-/* ── Theme: White + Blueish-Purple ── */
+/* ── Theme: Toys4Us — Purple Toy Store ── */
 :root {
     --purple: #7c3aed;
-    --purple-dark: #6d28d9;
-    --purple-light: #ede9fe;
+    --purple-dark: #5b21b6;
+    --purple-light: #ddd6fe;
     --purple-soft: #f5f3ff;
     --blue-purple: #6366f1;
     --white: #ffffff;
@@ -22,7 +22,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--gray-50);
     color: var(--gray-800);
     min-height: 100vh;
@@ -65,7 +65,8 @@ header {
 /* ── Card overrides ── */
 .card {
     background: var(--white);
-    border-radius: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
 }
 
 /* ── Language switcher ── */
@@ -76,8 +77,8 @@ header {
     background: var(--purple-light);
 }
 
-/* ── Auth form overrides ── */
-.auth-form .form-control:focus {
+/* ── Form overrides ── */
+.form-control:focus {
     border-color: var(--purple);
     box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
 }
@@ -124,19 +125,65 @@ html {
 /* ── TOTP / 2FA ── */
 .bg-purple-soft {
     background-color: var(--purple-soft) !important;
-    border: 2px dashed var(--purple);
-    border-radius: 12px;
+    border: 1px solid var(--purple-light);
+    border-radius: 8px;
 }
 
 code {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Fira Code', 'Courier New', monospace;
     background-color: var(--gray-100);
     padding: 0.2rem 0.4rem;
-    border-radius: 6px;
+    border-radius: 4px;
     color: var(--purple-dark);
+}
+
+/* ── Navbar tweaks ── */
+.navbar-brand {
+    letter-spacing: -0.02em;
+}
+
+/* ── Plush preview in cart ── */
+.plush-preview {
+    width: 72px;
+    height: 72px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: var(--white);
+}
+
+/* ── Badge overrides ── */
+.badge-purple {
+    background-color: var(--purple-soft);
+    color: var(--purple-dark);
+    font-weight: 600;
+}
+
+/* ── Section titles ── */
+.section-title {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--purple-dark);
+}
+
+/* ── Table tweaks ── */
+.table {
+    font-size: 0.95rem;
+}
+
+/* ── Product grid hover ── */
+.product-card {
+    transition: box-shadow 0.2s;
+}
+.product-card:hover {
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.12) !important;
 }
 
 /* ── Miscellaneous ── */
 a {
     transition: color 0.15s;
+}
+
+/* ── Footer tweaks ── */
+footer hr {
+    border-color: rgba(255,255,255,0.2);
 }
