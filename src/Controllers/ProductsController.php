@@ -40,6 +40,9 @@ class ProductsController
         $minPrice   = isset($params['min_price']) && $params['min_price'] !== '' ? (float) $params['min_price'] : null;
         $maxPrice   = isset($params['max_price']) && $params['max_price'] !== '' ? (float) $params['max_price'] : null;
         $minRating  = isset($params['min_rating']) && $params['min_rating'] !== '' ? (float) $params['min_rating'] : null;
+        
+        $search     = $params['search'] ?? null;
+        $products   = $this->model->findFiltered($categoryId, $minPrice, $maxPrice, $minRating, $search);
 
         // Resolve category slug to ID
         $categoryId = null;
@@ -56,11 +59,12 @@ class ProductsController
             'app_lang'   => $_SESSION['lang'] ?? 'en',
             'products'   => $products,
             'categories' => $categories,
-            'filters'    => [
+            'filters' => [
                 'category'   => $categorySlug,
                 'min_price'  => $minPrice,
                 'max_price'  => $maxPrice,
                 'min_rating' => $minRating,
+                'search'     => $search,
             ],
         ]);
         $response->getBody()->write($html);
