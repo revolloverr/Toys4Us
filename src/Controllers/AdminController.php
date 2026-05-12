@@ -252,7 +252,7 @@ class AdminController
         $acc->is_active   = 1;
         R::store($acc);
 
-        return $response->withHeader('Location', $basePath . '/admin/accessories')->withStatus(302);
+        return $response->withHeader('Location', $this->basePath . '/admin/accessories')->withStatus(302);
     }
 
     public function updateAccessory(Request $request, Response $response): Response
@@ -268,7 +268,7 @@ class AdminController
             R::store($acc);
         }
 
-        return $response->withHeader('Location', $basePath . '/admin/accessories')->withStatus(302);
+        return $response->withHeader('Location', $this->basePath . '/admin/accessories')->withStatus(302);
     }
 
     public function deleteAccessory(Request $request, Response $response): Response
@@ -277,7 +277,7 @@ class AdminController
         $acc  = R::load('plush_accessory', (int) ($data['id'] ?? 0));
         if ($acc->id) R::trash($acc);
 
-        return $response->withHeader('Location', $basePath . '/admin/accessories')->withStatus(302);
+        return $response->withHeader('Location', $this->basePath . '/admin/accessories')->withStatus(302);
     }
 
     public function users(Request $request, Response $response): Response

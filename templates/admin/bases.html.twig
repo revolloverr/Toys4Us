@@ -1,0 +1,105 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Plush Bases - Admin{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 fw-bold mb-0">Plush Bases</h2>
+    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">← Back to Admin</a>
+</div>
+
+<div class="row g-4">
+    {# ── Add Form ── #}
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3">Add Base</h5>
+                <form action="{{ base_path }}/admin/bases/store" method="POST">
+                    <div class="mb-2">
+                        <label class="form-label small">Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Species</label>
+                        <input type="text" name="species" class="form-control" placeholder="e.g. bear, cat, dog" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Color</label>
+                        <input type="text" name="color" class="form-control" placeholder="e.g. purple, pink, blue" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Image Path</label>
+                        <input type="text" name="image_path" class="form-control" placeholder="assets/bases/bear_purple.png" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Base Price ($)</label>
+                        <input type="number" name="base_price" class="form-control" step="0.01" min="0" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Sort Order</label>
+                        <input type="number" name="sort_order" class="form-control" value="0">
+                    </div>
+                    <button type="submit" class="btn btn-purple w-100 mt-2">Add Base</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {# ── Bases List with Preview ── #}
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Preview</th>
+                                <th>Name</th>
+                                <th>Species</th>
+                                <th>Color</th>
+                                <th>Price</th>
+                                <th>Active</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for base in bases %}
+                            <tr>
+                                <form action="{{ base_path }}/admin/bases/update" method="POST">
+                                    <input type="hidden" name="id" value="{{ base.id }}">
+                                    <td>{{ base.id }}</td>
+                                    <td>
+                                        <img src="{{ base_path }}/{{ base.image_path }}" alt="" style="width:36px;height:36px;object-fit:contain;">
+                                    </td>
+                                    <td><input type="text" name="name" value="{{ base.name }}" class="form-control form-control-sm" style="min-width:100px;"></td>
+                                    <td><input type="text" name="species" value="{{ base.species }}" class="form-control form-control-sm" style="min-width:80px;"></td>
+                                    <td><input type="text" name="color" value="{{ base.color }}" class="form-control form-control-sm" style="min-width:80px;"></td>
+                                    <td><input type="number" name="base_price" value="{{ base.base_price }}" class="form-control form-control-sm" step="0.01" style="width:70px;"></td>
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" name="is_active" class="form-check-input" value="1" {{ base.is_active ? 'checked' : '' }}>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <button type="submit" class="btn btn-purple btn-sm">Save</button>
+                                </form>
+                                <form action="{{ base_path }}/admin/bases/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this base?')">
+                                    <input type="hidden" name="id" value="{{ base.id }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                </form>
+                                        </div>
+                                    </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
