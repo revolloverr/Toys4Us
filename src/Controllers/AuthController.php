@@ -163,16 +163,22 @@ class AuthController
     // ── GET /totp/verify ───────────────────────────────────────────────────
     public function showTotpVerify(Request $request, Response $response): Response
     {
-        if (!isset($_SESSION['totp_user_id'])) {
+        $userId = $_SESSION['totp_user_id'] ?? null;
+        if (!$userId) {
             return $response
                 ->withHeader('Location', $this->basePath . '/login')
                 ->withStatus(302);
         }
 
+        // Check if the user already has TOTP enabled
+        $user = $this->userModel->load((int) $userId);
+        $hasTotp = $user && !empty($user->totp_secret);
+
         $html = $this->twig->render('totp-verify.html.twig', [
             'step'      => 'verify',
             'base_path' => $this->basePath,
             'app_lang'  => $_SESSION['lang'] ?? 'en',
+            'has_totp'  => $hasTotp,
         ]);
         $response->getBody()->write($html);
         return $response;
