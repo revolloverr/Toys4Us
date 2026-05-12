@@ -31,11 +31,16 @@ class ProductModel
         R::store($product);
     }
 
-    public function findFiltered(?int $categoryId, ?float $minPrice, ?float $maxPrice, ?float $minRating): array
+    public function findFiltered(?int $categoryId, ?float $minPrice, ?float $maxPrice, ?float $minRating, ?string $search = null): array
     {
         $conditions = ['1=1'];
         $bindings   = [];
 
+        if ($search) {
+            $conditions[] = '(name LIKE ? OR description LIKE ?)';
+            $bindings[]   = "%$search%";
+            $bindings[]   = "%$search%";
+        }
         if ($categoryId !== null) {
             $conditions[] = 'category_id = ?';
             $bindings[]   = $categoryId;

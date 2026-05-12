@@ -126,7 +126,18 @@ $app = AppFactory::create();
 $app->setBasePath($basePath);
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
-$app->addErrorMiddleware(true, true, true);
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+$errorMiddleware->setErrorHandler(
+    \Slim\Exception\HttpNotFoundException::class,
+    function ($request, $exception) use ($twig, $basePath) {
+        $response = new \Slim\Psr7\Response();
+        $html = $twig->render('errors/404.html.twig', [
+            'base_path' => $basePath,
+        ]);
+        $response->getBody()->write($html);
+        return $response->withStatus(404);
+    }
+);
 
 // ─── 6. MIDDLEWARE ────────────────────────────────────────────────────────────
 

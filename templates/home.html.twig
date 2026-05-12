@@ -16,6 +16,17 @@
     </div>
 </section>
 
+
+<!-- ─── Search ───────────────────────────────────────────────────────── -->
+<section class="mb-5">
+    <form method="GET" action="{{ base_path }}/products" class="d-flex gap-2 justify-content-center">
+        <input type="text" name="search" class="form-control form-control-lg"
+               placeholder="Search for toys..." style="max-width: 500px;"
+               value="{{ search ?? '' }}">
+        <button type="submit" class="btn btn-purple btn-lg px-4">🔍 Search</button>
+    </form>
+</section>
+
 <!-- ─── CATEGORIES ───────────────────────────────────────────────────────── -->
 <section class="mb-5">
     <h2 class="h4 fw-bold text-purple mb-4">{{ trans('home.categories_title') }}</h2>
@@ -24,7 +35,9 @@
             <a href="{{ base_path }}/build" class="text-decoration-none">
                 <div class="card border-0 shadow-sm text-center h-100 category-card">
                     <div class="card-body py-4">
-                        <div class="fs-1 mb-2">🧩</div>
+                        <div class="fs-1 mb-2">
+                            <img src="{{ base_path }}/assets/icons/buildAPlush.png" alt="Build Your Own" style="width:60px;height:60px;object-fit:contain;">
+                        </div>
                         <h6 class="fw-bold text-purple mb-1">{{ trans('category.build_your_own') }}</h6>
                         <small class="text-muted">{{ trans('category.build_your_own_desc') }}</small>
                     </div>
@@ -35,7 +48,9 @@
             <a href="{{ base_path }}/products?category=board-games" class="text-decoration-none">
                 <div class="card border-0 shadow-sm text-center h-100 category-card">
                     <div class="card-body py-4">
-                        <div class="fs-1 mb-2">🎲</div>
+                        <div class="fs-1 mb-2">
+                            <img src="{{ base_path }}/assets/icons/boardCategory.png" alt="Board Games" style="width:60px;height:60px;object-fit:contain;">
+                        </div>
                         <h6 class="fw-bold text-purple mb-1">{{ trans('category.board_games') }}</h6>
                         <small class="text-muted">{{ trans('category.board_games_desc') }}</small>
                     </div>
@@ -46,7 +61,9 @@
             <a href="{{ base_path }}/products?category=outdoor" class="text-decoration-none">
                 <div class="card border-0 shadow-sm text-center h-100 category-card">
                     <div class="card-body py-4">
-                        <div class="fs-1 mb-2">⚽</div>
+                        <div class="fs-1 mb-2">
+                            <img src="{{ base_path }}/assets/icons/outdoorCategory.png" alt="Outdoor" style="width:60px;height:60px;object-fit:contain;">
+                        </div>
                         <h6 class="fw-bold text-purple mb-1">{{ trans('category.outdoor') }}</h6>
                         <small class="text-muted">{{ trans('category.outdoor_desc') }}</small>
                     </div>
@@ -57,7 +74,9 @@
             <a href="{{ base_path }}/products?category=educational" class="text-decoration-none">
                 <div class="card border-0 shadow-sm text-center h-100 category-card">
                     <div class="card-body py-4">
-                        <div class="fs-1 mb-2">📚</div>
+                        <div class="fs-1 mb-2">
+                            <img src="{{ base_path }}/assets/icons/educationalCategory.png" alt="Educational" style="width:60px;height:60px;object-fit:contain;">
+                        </div>
                         <h6 class="fw-bold text-purple mb-1">{{ trans('category.educational') }}</h6>
                         <small class="text-muted">{{ trans('category.educational_desc') }}</small>
                     </div>
