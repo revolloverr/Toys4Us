@@ -15,12 +15,15 @@ class ProfileController
     private UserModel $userModel;
     private OtpService $otpService;
 
+    private OrderModel $orderModel;
+
     public function __construct(
         private Environment $twig,
         private string $basePath,
     ) {
         $this->userModel  = new UserModel();
         $this->otpService = new OtpService();
+        $this->orderModel = new OrderModel();
     }
 
     // GET /profile
@@ -190,9 +193,9 @@ class ProfileController
 
     private function getOrders(int $userId): array
     {
-        $orders = $this->userModel->getOrders($userId);
+        $orders = $this->orderModel->findByUser($userId);
         foreach ($orders as &$order) {
-            $order['items'] = $this->userModel->getOrderItems((int) $order['id']);
+            $order['items'] = $this->orderModel->getItems((int) $order['id']);
         }
         unset($order);
         return $orders;

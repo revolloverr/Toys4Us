@@ -6,6 +6,8 @@ namespace App\Controllers;
 
 use App\Models\PlushModel;
 use App\Models\ProductModel;
+use App\Models\OrderModel;
+
 use App\Services\FlashService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -20,14 +22,16 @@ class CheckoutController
 {
     private PlushModel $plushModel;
     private FlashService $flash;
+    private OrderModel $orderModel;
 
     public function __construct(
         private Environment $twig,
         private ProductModel $model,
         private string $basePath,
     ) {
-        $this->plushModel = new PlushModel();
-        $this->flash      = new FlashService();
+        $this->plushModel  = new PlushModel();
+        $this->flash       = new FlashService();
+        $this->orderModel  = new OrderModel();
     }
 
     public function showCart(Request $request, Response $response): Response
@@ -165,28 +169,14 @@ class CheckoutController
         }
 
         // Save order to DB if we have a session and a logged-in user
-        if ($stripeSession && !empty($_SESSION['user']['id']) && !empty($_SESSION['cart'])) {
-            $userId = (int) $_SESSION['user']['id'];
-            $cart   = $_SESSION['cart'];
-            $total  = array_sum(array_map(fn($i) => (float)$i['price'] * (int)($i['qty'] ?? 1), $cart));
+        $orderId = $this->orderModel->create($userId, $total, 'paid', $stripeSession->payment_intent);
 
-            R::exec(
-                'INSERT INTO `order` (user_id, total, status, stripe_payment_id) VALUES (?, ?, ?, ?)',
-                [$userId, $total, 'paid', $stripeSession->payment_intent]
-            );
-            $orderId = (int) R::getInsertID();
-
-            foreach ($cart as $item) {
-                $productId    = isset($item['type']) ? null : (int) $item['id'];
-                $customPlushId = ($item['type'] ?? '') === 'customplush' ? (int) $item['plush_id'] : null;
-                $qty          = (int) ($item['qty'] ?? 1);
-                $price        = (float) $item['price'];
-
-                R::exec(
-                    'INSERT INTO order_item (order_id, product_id, custom_plush_id, quantity, price) VALUES (?, ?, ?, ?, ?)',
-                    [$orderId, $productId, $customPlushId, $qty, $price]
-                );
-            }
+        foreach ($cart as $item) {
+            $productId     = isset($item['type']) ? null : (int) $item['id'];
+            $customPlushId = ($item['type'] ?? '') === 'customplush' ? (int) $item['plush_id'] : null;
+            $qty           = (int) ($item['qty'] ?? 1);
+            $price         = (float) $item['price'];
+            $this->orderModel->addItem($orderId, $productId, $customPlushId, $qty, $price);
         }
 
         // Clear the cart

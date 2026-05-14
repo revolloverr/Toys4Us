@@ -23,7 +23,7 @@ class UserModel
 
     public function create(string $name, string $email, string $password): void
     {
-        $user = R::dispense('user');
+        $user           = R::dispense('user');
         $user->name     = $name;
         $user->email    = $email;
         $user->password = password_hash($password, PASSWORD_BCRYPT);
@@ -49,26 +49,5 @@ class UserModel
     public function verifyPassword(string $password, string $hash): bool
     {
         return password_verify($password, $hash);
-    }
-
-    // Order Stuff
-
-    public function getOrders(int $userId): array
-    {
-        return R::getAll(
-            'SELECT * FROM `order` WHERE user_id = ? ORDER BY created_at DESC',
-            [$userId]
-        );
-    }
-
-    public function getOrderItems(int $orderId): array
-    {
-        return R::getAll(
-            'SELECT oi.*, p.name as product_name, p.image as product_image
-            FROM order_item oi
-            LEFT JOIN product p ON p.id = oi.product_id
-            WHERE oi.order_id = ?',
-            [$orderId]
-        );
     }
 }
