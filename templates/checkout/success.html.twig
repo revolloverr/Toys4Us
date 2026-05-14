@@ -1,21 +1,21 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}Order Confirmed{% endblock %}
+{% block title %}{{ trans('checkout.success_title') }}{% endblock %}
 
 {% block content %}
 <div class="container py-5 text-center" style="max-width: 520px;">
-    <h1 class="h3 fw-bold mb-2">Payment successful!</h1>
-    <p class="text-muted mb-4">Thanks for your order. We'll get your toys packed and shipped soon.</p>
+    <h1 class="h3 fw-bold mb-2">{{ trans('checkout.success_heading') }}</h1>
+    <p class="text-muted mb-4">{{ trans('checkout.success_message') }}</p>
 
     {% if stripe_session %}
     <div class="card border-0 shadow-sm mb-4 text-start">
         <div class="card-body">
-            <p class="mb-1 small text-muted">Order reference</p>
+            <p class="mb-1 small text-muted">{{ trans('checkout.order_reference') }}</p>
             <p class="fw-bold font-monospace mb-0">{{ stripe_session.payment_intent }}</p>
         </div>
     </div>
     {% endif %}
 
-    <a href="{{ base_path }}/products" class="btn btn-purple">Continue shopping</a>
+    <a href="{{ base_path }}/products" class="btn btn-purple">{{ trans('checkout.continue_shopping') }}</a>
 </div>
 {% endblock %}

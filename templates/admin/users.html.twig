@@ -1,12 +1,12 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}Users{% endblock %}
+{% block title %}{{ trans('admin.users_title') }}{% endblock %}
 
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 text-purple fw-bold mb-0">Users</h2>
-    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">← Back to Admin</a>
+    <h2 class="h4 text-purple fw-bold mb-0">{{ trans('admin.users_heading') }}</h2>
+    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">{{ trans('admin.back_to_admin') }}</a>
 </div>
 
 {# ── Search ───────────────────────────────────────────────────────────────── #}
@@ -14,11 +14,11 @@
     <div class="card-body">
         <form method="GET" action="{{ base_path }}/admin/users" class="d-flex gap-2">
             <input type="text" name="search" class="form-control"
-                   placeholder="Search by name or email..."
+                   placeholder="{{ trans('products.search_placeholder') }}"
                    value="{{ search ?? '' }}">
-            <button type="submit" class="btn btn-purple">Search</button>
+            <button type="submit" class="btn btn-purple">{{ trans('products.search_btn') }}</button>
             {% if search is defined and search %}
-                <a href="{{ base_path }}/admin/users" class="btn btn-outline-secondary">Clear</a>
+                <a href="{{ base_path }}/admin/users" class="btn btn-outline-secondary">{{ trans('products.filter_clear') }}</a>
             {% endif %}
         </form>
     </div>
@@ -31,11 +31,11 @@
             <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Actions</th>
+                        <th>{{ trans('admin.table_id') }}</th>
+                        <th>{{ trans('admin.table_name') }}</th>
+                        <th>{{ trans('admin.table_email') }}</th>
+                        <th>{{ trans('admin.table_role') }}</th>
+                        <th>{{ trans('admin.table_actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,16 +58,16 @@
                                 <td>
                                     <select name="role" class="form-select form-select-sm"
                                             {{ isCurrentUser ? 'disabled' : '' }}>
-                                        <option value="user" {{ user.role == 'user' ? 'selected' : '' }}>User</option>
-                                        <option value="admin" {{ user.role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                        <option value="user" {{ user.role == 'user' ? 'selected' : '' }}>{{ trans('profile.tab_account') }}</option>
+                                        <option value="admin" {{ user.role == 'admin' ? 'selected' : '' }}>{{ trans('admin.title') }}</option>
                                     </select>
                                 </td>
                                 <td>
                                     {% if isCurrentUser %}
-                                        <span class="badge bg-secondary">Current User</span>
+                                        <span class="badge bg-secondary">{{ trans('profile.title') }}</span>
                                     {% else %}
                                         <div class="d-flex gap-2">
-                                            <button type="submit" class="btn btn-purple btn-sm">Save</button>
+                                            <button type="submit" class="btn btn-purple btn-sm">{{ trans('admin.btn_save') }}</button>
                                         </div>
                                     {% endif %}
                                 </td>
@@ -79,9 +79,9 @@
                             <script>
                                 document.currentScript.closest('tr').querySelector('.d-flex').insertAdjacentHTML('beforeend', `
                                     <form action="{{ base_path }}/admin/users/delete" method="POST" class="m-0"
-                                          onsubmit="return confirm('Delete {{ user.name }}? This cannot be undone.')">
+                                          onsubmit="return confirm('{{ trans('admin.confirm_delete_user') }}')">
                                         <input type="hidden" name="id" value="{{ user.id }}">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">{{ trans('admin.btn_delete') }}</button>
                                     </form>
                                 `);
                             </script>

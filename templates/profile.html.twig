@@ -1,42 +1,42 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}My Profile{% endblock %}
+{% block title %}{{ trans('profile.title') }}{% endblock %}
 
 {% block content %}
 
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-7">
 
-        <h2 class="h4 text-purple fw-bold mb-4">My Profile</h2>
+        <h2 class="h4 text-purple fw-bold mb-4">{{ trans('profile.heading') }}</h2>
 
         {% if error is defined %}
             <div class="alert alert-danger py-2 small mb-3">{{ error }}</div>
         {% endif %}
 
         {% if app.request.query.get('updated') == '1' %}
-            <div class="alert alert-success py-2 small mb-3">Changes saved successfully.</div>
+            <div class="alert alert-success py-2 small mb-3">{{ trans('profile.updated_success') }}</div>
         {% endif %}
 
         {# ── Tabs ─────────────────────────────────────────────────────────── #}
         <ul class="nav nav-tabs mb-4" id="profileTabs">
             <li class="nav-item">
                 <a class="nav-link {{ active_tab is not defined or active_tab == 'account' ? 'active' : '' }}"
-                   href="#account" data-bs-toggle="tab">Account</a>
+                   href="#account" data-bs-toggle="tab">{{ trans('profile.tab_account') }}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ active_tab is defined and active_tab == 'security' ? 'active' : '' }}"
-                   href="#security" data-bs-toggle="tab">Security</a>
+                   href="#security" data-bs-toggle="tab">{{ trans('profile.tab_security') }}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#orders" data-bs-toggle="tab">
-                    Orders
+                    {{ trans('profile.tab_orders') }}
                     {% if orders|length > 0 %}
                     <span class="badge bg-purple ms-1">{{ orders|length }}</span>
                     {% endif %}
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#accessibility" data-bs-toggle="tab">Accessibility</a>
+                <a class="nav-link" href="#accessibility" data-bs-toggle="tab">{{ trans('profile.tab_accessibility') }}</a>
             </li>
         </ul>
 
@@ -46,32 +46,32 @@
             <div class="tab-pane fade {{ active_tab is not defined or active_tab == 'account' ? 'show active' : '' }}" id="account">
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">Account Details</h5>
+                        <h5 class="fw-bold mb-3">{{ trans('profile.account_details') }}</h5>
                         <form action="{{ base_path }}/profile/edit" method="POST">
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
-                                    <label class="form-label">First Name</label>
+                                    <label class="form-label">{{ trans('profile.first_name') }}</label>
                                     {% set nameParts = user.name|split(' ', 2) %}
                                     <input type="text" class="form-control" name="first_name"
                                            value="{{ nameParts[0] ?? '' }}" required>
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label">Last Name</label>
+                                    <label class="form-label">{{ trans('profile.last_name') }}</label>
                                     <input type="text" class="form-control" name="last_name"
                                            value="{{ nameParts[1] ?? '' }}" required>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Email</label>
+                                <label class="form-label">{{ trans('profile.email') }}</label>
                                 <input type="email" class="form-control" name="email"
                                        value="{{ user.email }}" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Phone <span class="text-muted small">(optional)</span></label>
+                                <label class="form-label">{{ trans('profile.phone') }} <span class="text-muted small">{{ trans('profile.phone_optional') }}</span></label>
                                 <input type="tel" class="form-control" name="phone"
-                                       value="{{ user.phone ?? '' }}" placeholder="+1 (514) 555-1234">
+                                       value="{{ user.phone ?? '' }}" placeholder="{{ trans('profile.phone_ph') }}">
                             </div>
-                            <button type="submit" class="btn btn-purple">Save Changes</button>
+                            <button type="submit" class="btn btn-purple">{{ trans('profile.save_changes') }}</button>
                         </form>
                     </div>
                 </div>
@@ -83,10 +83,10 @@
                 {# Change Password #}
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">Change Password</h5>
+                        <h5 class="fw-bold mb-3">{{ trans('profile.change_password') }}</h5>
                         <form action="{{ base_path }}/profile/change-password" method="POST">
                             <div class="mb-3">
-                                <label class="form-label">Current Password</label>
+                                <label class="form-label">{{ trans('profile.current_password') }}</label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" name="current_password"
                                            id="current_password" required>
@@ -97,7 +97,7 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">New Password</label>
+                                <label class="form-label">{{ trans('profile.new_password') }}</label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" name="new_password"
                                            id="new_password" required>
@@ -108,7 +108,7 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Confirm New Password</label>
+                                <label class="form-label">{{ trans('profile.confirm_password') }}</label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" name="confirm_password"
                                            id="confirm_password" required>
@@ -118,7 +118,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-purple">Update Password</button>
+                            <button type="submit" class="btn btn-purple">{{ trans('profile.update_password') }}</button>
                         </form>
                     </div>
                 </div>
@@ -128,18 +128,18 @@
                 {# ── Two-Factor Authentication (TOTP) ── #}
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">Two-Factor Authentication (TOTP)</h5>
+                        <h5 class="fw-bold mb-3">{{ trans('profile.totp_heading') }}</h5>
 
                         {% if user.totp_secret is not empty and totp_pending_setup is not defined %}
                             {# TOTP is already enabled #}
                             <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-success me-2">Enabled</span>
-                                <span class="text-muted small">Your account is protected with 2FA.</span>
+                                <span class="badge bg-success me-2">{{ trans('profile.totp_enabled') }}</span>
+                                <span class="text-muted small">{{ trans('profile.totp_enabled_desc') }}</span>
                             </div>
                             <form action="{{ base_path }}/profile/totp/disable" method="POST" class="d-inline">
                                 <button type="submit" class="btn btn-outline-danger btn-sm"
-                                        onclick="return confirm('Are you sure you want to disable two-factor authentication?')">
-                                    Disable 2FA
+                                        onclick="return confirm('{{ trans('profile.totp_disable_confirm') }}')">
+                                    {{ trans('profile.totp_disable') }}
                                 </button>
                             </form>
 
@@ -173,18 +173,17 @@
                             </form>
                             <div class="mt-2">
                                 <form action="{{ base_path }}/profile" method="GET" class="d-inline">
-                                    <button type="submit" class="btn btn-link btn-sm text-muted">Cancel</button>
+                                    <button type="submit" class="btn btn-link btn-sm text-muted">{{ trans('profile.totp_cancel') }}</button>
                                 </form>
                             </div>
 
                         {% else %}
                             {# TOTP not enabled — prompt to set up #}
                             <p class="text-muted small mb-3">
-                                Add an extra layer of security by enabling two-factor authentication (TOTP).
-                                Use an authenticator app like Google Authenticator or Authy.
+                                {{ trans('profile.totp_enable_prompt') }}
                             </p>
                             <form action="{{ base_path }}/profile/totp/setup" method="POST">
-                                <button type="submit" class="btn btn-purple btn-sm">Enable 2FA</button>
+                                <button type="submit" class="btn btn-purple btn-sm">{{ trans('profile.totp_enable_btn') }}</button>
                             </form>
                         {% endif %}
                     </div>
@@ -193,14 +192,13 @@
                 {# Delete Account #}
                 <div class="card border-danger shadow-sm">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold text-danger mb-2">Delete Account</h5>
+                        <h5 class="fw-bold text-danger mb-2">{{ trans('profile.delete_account') }}</h5>
                         <p class="text-muted small mb-3">
-                            Your account will be scheduled for deletion in 14 days.
-                            If you log back in before then, the deletion will be cancelled.
+                            {{ trans('profile.delete_desc') }}
                         </p>
                         <button type="button" class="btn btn-outline-danger"
                                 data-bs-toggle="modal" data-bs-target="#deleteModal">
-                            Delete My Account | Not working yet
+                            {{ trans('profile.delete_btn') }} | Not working yet
                         </button>
                     </div>
                 </div>
@@ -213,8 +211,8 @@
                     <div class="card shadow-sm border-0">
                         <div class="card-body p-4 text-center text-muted">
                             <i class="bi bi-bag-x fs-2 mb-2 d-block"></i>
-                            You haven't placed any orders yet.
-                            <a href="{{ base_path }}/products" class="d-block mt-2">Start shopping</a>
+                            {{ trans('profile.orders_empty') }}
+                            <a href="{{ base_path }}/products" class="d-block mt-2">{{ trans('profile.orders_start_shopping') }}</a>
                         </div>
                     </div>
                 {% else %}
@@ -223,7 +221,7 @@
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
-                                    <p class="fw-bold mb-0">Order #{{ order.id }}</p>
+                                    <p class="fw-bold mb-0">{{ trans('profile.order_ref', {'%id%': order.id}) }}</p>
                                     <p class="text-muted small mb-0">{{ order.created_at }}</p>
                                 </div>
                                 <div class="text-end">
@@ -231,7 +229,7 @@
                                         {% if order.status == 'paid' %}bg-success
                                         {% elseif order.status == 'pending' %}bg-warning text-dark
                                         {% else %}bg-secondary{% endif %}">
-                                        Status: {{ order.status|capitalize }}
+                                        {{ trans('profile.order_status_label') }} {{ order.status|capitalize }}
                                     </span>
                                     <p class="fw-bold text-purple mb-0 mt-1">${{ order.total }}</p>
                                 </div>
@@ -240,9 +238,9 @@
                                 <table class="table table-sm mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Item</th>
-                                            <th>Qty</th>
-                                            <th class="text-end">Price</th>
+                                            <th>{{ trans('profile.order_item') }}</th>
+                                            <th>{{ trans('profile.order_qty') }}</th>
+                                            <th class="text-end">{{ trans('profile.order_price') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -255,7 +253,7 @@
                                                     {% endif %}
                                                     {{ item.product_name }}
                                                 {% else %}
-                                                    <i class="bi bi-stars me-1 text-purple"></i>Custom Plush
+                                                    <i class="bi bi-stars me-1 text-purple"></i>{{ trans('profile.order_custom_plush') }}
                                                 {% endif %}
                                             </td>
                                             <td>{{ item.quantity }}</td>
@@ -275,21 +273,21 @@
             <div class="tab-pane fade" id="accessibility">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4">Accessibility Settings</h5>
+                        <h5 class="fw-bold mb-4">{{ trans('profile.accessibility_heading') }}</h5>
 
                         {# Theme #}
                         <div class="mb-4">
-                            <h6 class="fw-bold text-purple mb-2">Website Theme</h6>
+                            <h6 class="fw-bold text-purple mb-2">{{ trans('profile.a11y_theme') }}</h6>
                             <div class="d-flex gap-2 flex-wrap">
-                                <button class="btn btn-outline-secondary" onclick="setTheme('light')">☀️ Light</button>
-                                <button class="btn btn-outline-secondary" onclick="setTheme('dark')">🌙 Dark</button>
-                                <button class="btn btn-outline-secondary" onclick="setTheme('system')">💻 System</button>
+                                <button class="btn btn-outline-secondary" onclick="setTheme('light')">{{ trans('profile.a11y_light') }}</button>
+                                <button class="btn btn-outline-secondary" onclick="setTheme('dark')">{{ trans('profile.a11y_dark') }}</button>
+                                <button class="btn btn-outline-secondary" onclick="setTheme('system')">{{ trans('profile.a11y_system') }}</button>
                             </div>
                         </div>
 
                         {# Text Size #}
                         <div class="mb-4">
-                            <h6 class="fw-bold text-purple mb-2">Text Size</h6>
+                            <h6 class="fw-bold text-purple mb-2">{{ trans('profile.a11y_text_size') }}</h6>
                             <div class="d-flex align-items-center gap-3">
                                 <button class="btn btn-outline-secondary btn-sm" onclick="adjustFontSize(-1)">A−</button>
                                 <span id="font-size-label" class="text-muted small">100%</span>
@@ -300,36 +298,36 @@
 
                         {# High Contrast #}
                         <div class="mb-4">
-                            <h6 class="fw-bold text-purple mb-2">High Contrast Mode</h6>
+                            <h6 class="fw-bold text-purple mb-2">{{ trans('profile.a11y_high_contrast') }}</h6>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="high-contrast-toggle"
                                     onchange="toggleHighContrast(this.checked)">
-                                <label class="form-check-label" for="high-contrast-toggle">Enable high contrast</label>
+                                <label class="form-check-label" for="high-contrast-toggle">{{ trans('profile.a11y_high_contrast_label') }}</label>
                             </div>
                         </div>
 
                         {# Reduce Motion #}
                         <div class="mb-4">
-                            <h6 class="fw-bold text-purple mb-2">Reduce Motion</h6>
+                            <h6 class="fw-bold text-purple mb-2">{{ trans('profile.a11y_reduce_motion') }}</h6>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="reduce-motion-toggle"
                                     onchange="toggleReduceMotion(this.checked)">
-                                <label class="form-check-label" for="reduce-motion-toggle">Reduce animations and transitions</label>
+                                <label class="form-check-label" for="reduce-motion-toggle">{{ trans('profile.a11y_reduce_motion_label') }}</label>
                             </div>
                         </div>
 
                         {# Dyslexia Font #}
                         <div class="mb-4">
-                            <h6 class="fw-bold text-purple mb-2">Dyslexia-Friendly Font</h6>
+                            <h6 class="fw-bold text-purple mb-2">{{ trans('profile.a11y_dyslexia_font') }}</h6>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="dyslexia-toggle"
                                     onchange="toggleDyslexiaFont(this.checked)">
-                                <label class="form-check-label" for="dyslexia-toggle">Use OpenDyslexic font</label>
+                                <label class="form-check-label" for="dyslexia-toggle">{{ trans('profile.a11y_dyslexia_font_label') }}</label>
                             </div>
                         </div>
 
                         <button class="btn btn-outline-secondary btn-sm" onclick="resetAllAccessibility()">
-                            Reset All Settings
+                            {{ trans('profile.a11y_reset') }}
                         </button>
                     </div>
                 </div>

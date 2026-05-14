@@ -1,6 +1,6 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}Products{% endblock %}
+{% block title %}{{ trans('products.heading') }}{% endblock %}
 
 {% block content %}
 
@@ -18,9 +18,9 @@
         <div class="col">
             <form method="GET" action="{{ base_path }}/products" class="d-flex gap-2">
                 <input type="text" name="search" class="form-control"
-                    placeholder="Search products..."
+                    placeholder="{{ trans('products.search_placeholder') }}"
                     value="{{ filters.search ?? '' }}">
-            <button type="submit" class="btn btn-purple"><i class="bi bi-search me-1"></i>Search</button>
+            <button type="submit" class="btn btn-purple"><i class="bi bi-search me-1"></i>{{ trans('products.search_btn') }}</button>
             </form>
         </div>
     </div>
@@ -32,11 +32,11 @@
             {# Category #}
             <div class="card shadow-sm border-0 mb-3">
                 <div class="card-body">
-                    <h6 class="fw-bold text-purple mb-3">Category</h6>
+                    <h6 class="fw-bold text-purple mb-3">{{ trans('products.filter_category') }}</h6>
                     <div class="d-flex flex-column gap-2">
                         <a href="{{ base_path }}/products"
                            class="btn btn-sm {{ not app.request.query.get('category') ? 'btn-purple' : 'btn-outline-purple' }}">
-                            All
+                            {{ trans('products.filter_all') }}
                         </a>
                         {% for category in categories %}
                         <a href="{{ base_path }}/products?category={{ category.slug }}{% if filters.min_price is defined and filters.min_price %}&min_price={{ filters.min_price }}{% endif %}{% if filters.max_price is defined and filters.max_price %}&max_price={{ filters.max_price }}{% endif %}{% if filters.min_rating is defined and filters.min_rating %}&min_rating={{ filters.min_rating }}{% endif %}"
@@ -51,15 +51,15 @@
             {# Price Range #}
             <div class="card shadow-sm border-0 mb-3">
                 <div class="card-body">
-                    <h6 class="fw-bold text-purple mb-3">Price Range</h6>
+                    <h6 class="fw-bold text-purple mb-3">{{ trans('products.filter_price_range') }}</h6>
                     <div class="mb-2">
-                        <label class="form-label small text-muted">Min Price ($)</label>
+                        <label class="form-label small text-muted">{{ trans('products.filter_min_price') }}</label>
                         <input type="number" name="min_price" class="form-control form-control-sm"
                                placeholder="0" min="0" step="0.01"
                                value="{{ filters.min_price ?? '' }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small text-muted">Max Price ($)</label>
+                        <label class="form-label small text-muted">{{ trans('products.filter_max_price') }}</label>
                         <input type="number" name="max_price" class="form-control form-control-sm"
                                placeholder="Any" min="0" step="0.01"
                                value="{{ filters.max_price ?? '' }}">
@@ -76,7 +76,7 @@
             {# Rating #}
             <div class="card shadow-sm border-0 mb-3">
                 <div class="card-body">
-                    <h6 class="fw-bold text-purple mb-3">Minimum Rating</h6>
+                    <h6 class="fw-bold text-purple mb-3">{{ trans('products.filter_min_rating') }}</h6>
                     <div class="d-flex flex-column gap-2">
                         {% for stars in [1, 2, 3, 4, 5] %}
                         <div class="form-check">
@@ -84,7 +84,7 @@
                                    id="rating{{ stars }}" value="{{ stars }}"
                                    {{ filters.min_rating is defined and filters.min_rating == stars ? 'checked' : '' }}>
                             <label class="form-check-label" for="rating{{ stars }}">
-                                {% for i in 1..stars %}⭐{% endfor %} & up
+                                {% for i in 1..stars %}⭐{% endfor %} {{ trans('products.filter_rating_up') }}
                             </label>
                         </div>
                         {% endfor %}
@@ -92,14 +92,14 @@
                             <input class="form-check-input" type="radio" name="min_rating"
                                    id="ratingAny" value=""
                                    {{ filters.min_rating is not defined or not filters.min_rating ? 'checked' : '' }}>
-                            <label class="form-check-label" for="ratingAny">Any rating</label>
+                            <label class="form-check-label" for="ratingAny">{{ trans('products.filter_rating_any') }}</label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-purple w-100">Apply Filters</button>
-            <a href="{{ base_path }}/products" class="btn btn-outline-secondary w-100 mt-2">Clear Filters</a>
+            <button type="submit" class="btn btn-purple w-100">{{ trans('products.filter_apply') }}</button>
+            <a href="{{ base_path }}/products" class="btn btn-outline-secondary w-100 mt-2">{{ trans('products.filter_clear') }}</a>
 
         </form>
     </div>
@@ -109,16 +109,17 @@
 
         {# Results count #}
         <p class="text-muted small mb-3">
-            Showing {{ products|length }} product{{ products|length != 1 ? 's' : '' }}
+            {% set count = products|length %}
+            {{ count == 1 ? trans('products.showing_results', {'%count%': 1})|split('|')[0] : trans('products.showing_results', {'%count%': count})|split('|')[1] }}
             {% if filters.category is defined and filters.category %}
-                in <strong>{{ filters.category }}</strong>
+                {{ trans('products.results_in_category', {'%category%': filters.category})|raw }}
             {% endif %}
         </p>
 
         {% if products is empty %}
             <div class="text-center py-5">
-                <p class="text-muted fs-5">No products found matching your filters.</p>
-                <a href="{{ base_path }}/products" class="btn btn-purple mt-2">Clear Filters</a>
+                <p class="text-muted fs-5">{{ trans('products.no_results') }}</p>
+                <a href="{{ base_path }}/products" class="btn btn-purple mt-2">{{ trans('products.filter_clear') }}</a>
             </div>
         {% else %}
             <div class="row g-4">

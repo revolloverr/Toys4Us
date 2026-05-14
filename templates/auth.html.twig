@@ -1,6 +1,6 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}{{ step == 'register' ? 'Register' : 'Sign In' }}{% endblock %}
+{% block title %}{{ step == 'register' ? trans('auth.page_title_register') : trans('auth.page_title_login') }}{% endblock %}
 
 {% block content %}
 
@@ -15,23 +15,23 @@
         {% if step == 'login' %}
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
-                <h2 class="h4 text-purple fw-bold mb-3">Sign In</h2>
+                <h2 class="h4 text-purple fw-bold mb-3">{{ trans('auth.login_heading') }}</h2>
                 <form action="{{ base_path }}/login" method="POST">
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
+                        <label for="email" class="form-label">{{ trans('auth.email_label') }}</label>
                         <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
+                        <label for="password" class="form-label">{{ trans('auth.password_label') }}</label>
                         <div class="input-group">
-                            <input type="password" placeholder="Enter your password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                            <input type="password" placeholder="{{ trans('auth.password_ph') }}" class="form-control" id="password" name="password" required autocomplete="current-password">
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', this)"><i class="bi bi-eye"></i></button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-purple w-100">Sign In</button>
+                    <button type="submit" class="btn btn-purple w-100">{{ trans('auth.login_btn') }}</button>
                 </form>
                 <p class="text-center text-muted small mt-3">
-                    Don't have an account? <a href="{{ base_path }}/register">Register</a>
+                    {{ trans('auth.no_account') }} <a href="{{ base_path }}/register">{{ trans('auth.register_link') }}</a>
                 </p>
             </div>
         </div>
@@ -40,44 +40,44 @@
         {% elseif step == 'register' %}
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
-                <h2 class="h4 text-purple fw-bold mb-3">Create Account</h2>
+                <h2 class="h4 text-purple fw-bold mb-3">{{ trans('auth.register_heading') }}</h2>
                 <form action="{{ base_path }}/register" method="POST">
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <label for="first_name" class="form-label">First Name</label>
-                            <input type="text" class="form-control" placeholder="John" id="first_name" name="first_name" required autocomplete="given-name">
+                            <label for="first_name" class="form-label">{{ trans('auth.first_name') }}</label>
+                            <input type="text" class="form-control" placeholder="{{ trans('auth.first_name_ph') }}" id="first_name" name="first_name" required autocomplete="given-name">
                         </div>
                         <div class="col-6">
-                            <label for="last_name" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" placeholder="Doe" id="last_name" name="last_name" required autocomplete="family-name">
+                            <label for="last_name" class="form-label">{{ trans('auth.last_name') }}</label>
+                            <input type="text" class="form-control" placeholder="{{ trans('auth.last_name_ph') }}" id="last_name" name="last_name" required autocomplete="family-name">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="example@gmail.com" id="email" name="email" required autocomplete="email">
+                        <label for="email" class="form-label">{{ trans('auth.email_label') }}</label>
+                        <input type="email" class="form-control" placeholder="{{ trans('auth.email_ph') }}" id="email" name="email" required autocomplete="email">
                     </div>
                     <div class="mb-3">
-                        <label for="confirm_email" class="form-label">Confirm Email</label>
-                        <input type="email" class="form-control" placeholder="Confirm your email" id="confirm_email" name="confirm_email" required autocomplete="email">
+                        <label for="confirm_email" class="form-label">{{ trans('auth.confirm_email') }}</label>
+                        <input type="email" class="form-control" placeholder="{{ trans('auth.confirm_email_ph') }}" id="confirm_email" name="confirm_email" required autocomplete="email">
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
+                        <label for="password" class="form-label">{{ trans('auth.password_label') }}</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" placeholder="Enter password" id="password" name="password" required autocomplete="new-password">
+                            <input type="password" class="form-control" placeholder="{{ trans('auth.password_ph_register') }}" id="password" name="password" required autocomplete="new-password">
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', this)"><i class="bi bi-eye"></i></button>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <label for="confirm_password" class="form-label">{{ trans('auth.confirm_password') }}</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" placeholder="Confirm password" id="confirm_password" name="confirm_password" required>
+                            <input type="password" class="form-control" placeholder="{{ trans('auth.confirm_password_ph') }}" id="confirm_password" name="confirm_password" required>
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm_password', this)"><i class="bi bi-eye"></i></button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-purple w-100">Create Account</button>
+                    <button type="submit" class="btn btn-purple w-100">{{ trans('auth.register_btn') }}</button>
                 </form>
                 <p class="text-center text-muted small mt-3">
-                    Already have an account? <a href="{{ base_path }}/login">Sign In</a>
+                    {{ trans('auth.has_account') }} <a href="{{ base_path }}/login">{{ trans('auth.signin_link') }}</a>
                 </p>
             </div>
         </div>

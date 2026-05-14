@@ -89,7 +89,7 @@
                         {% if session.user is defined and session.user.role == 'admin' %}
                             <li class="nav-item">
                                 <a href="{{ base_path }}/admin" class="btn btn-warning btn-sm">
-                                    <i class="bi bi-gear me-1"></i>Admin
+                                    <i class="bi bi-gear me-1"></i>{{ trans('admin.title') }}
                                 </a>
                             </li>
                         {% endif %}  

@@ -1,12 +1,12 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}Products - Admin{% endblock %}
+{% block title %}{{ trans('admin.products_title') }}{% endblock %}
 
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 fw-bold mb-0">Products</h2>
-    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">← Back to Admin</a>
+    <h2 class="h4 fw-bold mb-0">{{ trans('admin.products_heading') }}</h2>
+    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">{{ trans('admin.back_to_admin') }}</a>
 </div>
 
 <div class="row g-4">
@@ -14,38 +14,38 @@
     <div class="col-12 col-lg-4">
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                <h5 class="fw-bold mb-3">Add Product</h5>
+                <h5 class="fw-bold mb-3">{{ trans('admin.add_product') }}</h5>
                 <form action="{{ base_path }}/admin/products/store" method="POST">
                     <div class="mb-2">
-                        <label class="form-label small">Name</label>
+                        <label class="form-label small">{{ trans('admin.form_name') }}</label>
                         <input type="text" name="name" class="form-control" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Description</label>
+                        <label class="form-label small">{{ trans('admin.form_description') }}</label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Price ($)</label>
+                        <label class="form-label small">{{ trans('admin.form_price') }}</label>
                         <input type="number" name="price" class="form-control" step="0.01" min="0" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Stock</label>
+                        <label class="form-label small">{{ trans('admin.form_stock') }}</label>
                         <input type="number" name="stock" class="form-control" min="0" value="0">
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Category</label>
+                        <label class="form-label small">{{ trans('admin.form_category') }}</label>
                         <select name="category_id" class="form-select">
-                            <option value="">None</option>
+                            <option value="">{{ trans('admin.value_none') }}</option>
                             {% for cat in categories %}
                             <option value="{{ cat.id }}">{{ cat.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Image URL</label>
+                        <label class="form-label small">{{ trans('admin.form_image_url') }}</label>
                         <input type="text" name="image" class="form-control" placeholder="https://...">
                     </div>
-                    <button type="submit" class="btn btn-purple w-100 mt-2">Add Product</button>
+                    <button type="submit" class="btn btn-purple w-100 mt-2">{{ trans('admin.btn_add') }}</button>
                 </form>
             </div>
         </div>
@@ -59,17 +59,17 @@
                     <table class="table table-sm align-middle">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Preview</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Image URL</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th>Rating</th>
-                                <th>Category</th>
-                                <th>Active</th>
-                                <th>Actions</th>
+                                <th>{{ trans('admin.table_id') }}</th>
+                                <th>{{ trans('admin.table_preview') }}</th>
+                                <th>{{ trans('admin.table_name') }}</th>
+                                <th>{{ trans('admin.table_description') }}</th>
+                                <th>{{ trans('admin.table_image_url') }}</th>
+                                <th>{{ trans('admin.table_price') }}</th>
+                                <th>{{ trans('admin.table_stock') }}</th>
+                                <th>{{ trans('admin.table_rating') }}</th>
+                                <th>{{ trans('admin.table_category') }}</th>
+                                <th>{{ trans('admin.table_active') }}</th>
+                                <th>{{ trans('admin.table_actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -82,7 +82,7 @@
                                         {% if product.image %}
                                         <img src="{{ product.image }}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:4px;">
                                         {% else %}
-                                        <span class="text-muted">—</span>
+                                        <span class="text-muted">{{ trans('admin.no_image') }}</span>
                                         {% endif %}
                                     </td>
                                     <td><input type="text" name="name" value="{{ product.name }}" class="form-control form-control-sm" style="min-width:110px;"></td>
@@ -93,7 +93,7 @@
                                     <td><input type="number" name="rating" value="{{ product.rating }}" class="form-control form-control-sm" step="0.1" min="0" max="5" style="width:65px;"></td>
                                     <td>
                                         <select name="category_id" class="form-select form-select-sm" style="min-width:110px;">
-                                            <option value="">None</option>
+                                            <option value="">{{ trans('admin.value_none') }}</option>
                                             {% for cat in categories %}
                                             <option value="{{ cat.id }}" {{ product.category_id == cat.id ? 'selected' : '' }}>{{ cat.name }}</option>
                                             {% endfor %}
@@ -106,11 +106,11 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1">
-                                            <button type="submit" class="btn btn-purple btn-sm">Save</button>
+                                            <button type="submit" class="btn btn-purple btn-sm">{{ trans('admin.btn_save') }}</button>
                                 </form>
-                                <form action="{{ base_path }}/admin/products/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?')">
+                                <form action="{{ base_path }}/admin/products/delete" method="POST" class="d-inline" onsubmit="return confirm('{{ trans('admin.confirm_delete_product') }}')">
                                     <input type="hidden" name="id" value="{{ product.id }}">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">{{ trans('admin.btn_delete') }}</button>
                                 </form>
                                         </div>
                                     </td>

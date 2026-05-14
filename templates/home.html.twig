@@ -21,9 +21,9 @@
 <section class="mb-5">
     <form method="GET" action="{{ base_path }}/products" class="d-flex gap-2 justify-content-center">
         <input type="text" name="search" class="form-control form-control-lg"
-               placeholder="Search for toys..." style="max-width: 500px;"
+               placeholder="{{ trans('home.search_placeholder') }}" style="max-width: 500px;"
                value="{{ search ?? '' }}">
-        <button type="submit" class="btn btn-purple btn-lg px-4"><i class="bi bi-search me-1"></i>Search</button>
+        <button type="submit" class="btn btn-purple btn-lg px-4"><i class="bi bi-search me-1"></i>{{ trans('home.search_btn') }}</button>
     </form>
 </section>
 

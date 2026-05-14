@@ -1,12 +1,12 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}Categories - Admin{% endblock %}
+{% block title %}{{ trans('admin.categories_title') }}{% endblock %}
 
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 fw-bold mb-0">Categories</h2>
-    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">← Back to Admin</a>
+    <h2 class="h4 fw-bold mb-0">{{ trans('admin.categories_heading') }}</h2>
+    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">{{ trans('admin.back_to_admin') }}</a>
 </div>
 
 <div class="row g-4">
@@ -14,17 +14,17 @@
     <div class="col-12 col-lg-4">
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                <h5 class="fw-bold mb-3">Add Category</h5>
+                <h5 class="fw-bold mb-3">{{ trans('admin.add_category') }}</h5>
                 <form action="{{ base_path }}/admin/categories/store" method="POST">
                     <div class="mb-2">
-                        <label class="form-label small">Name</label>
+                        <label class="form-label small">{{ trans('admin.form_name') }}</label>
                         <input type="text" name="name" class="form-control" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Image URL</label>
+                        <label class="form-label small">{{ trans('admin.form_image_url') }}</label>
                         <input type="text" name="image" class="form-control" placeholder="https://...">
                     </div>
-                    <button type="submit" class="btn btn-purple w-100 mt-2">Add Category</button>
+                    <button type="submit" class="btn btn-purple w-100 mt-2">{{ trans('admin.btn_add') }}</button>
                 </form>
             </div>
         </div>
@@ -38,11 +38,11 @@
                     <table class="table table-sm align-middle">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Slug</th>
-                                <th>Image</th>
-                                <th>Actions</th>
+                                <th>{{ trans('admin.table_id') }}</th>
+                                <th>{{ trans('admin.table_name') }}</th>
+                                <th>{{ trans('admin.table_slug') }}</th>
+                                <th>{{ trans('admin.table_image') }}</th>
+                                <th>{{ trans('admin.table_actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,11 +56,11 @@
                                     <td><input type="text" name="image" value="{{ cat.image }}" class="form-control form-control-sm" style="min-width:120px;" placeholder="https://..."></td>
                                     <td>
                                         <div class="d-flex gap-1">
-                                            <button type="submit" class="btn btn-purple btn-sm">Save</button>
+                                            <button type="submit" class="btn btn-purple btn-sm">{{ trans('admin.btn_save') }}</button>
                                 </form>
-                                <form action="{{ base_path }}/admin/categories/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this category?')">
+                                <form action="{{ base_path }}/admin/categories/delete" method="POST" class="d-inline" onsubmit="return confirm('{{ trans('admin.confirm_delete_category') }}')">
                                     <input type="hidden" name="id" value="{{ cat.id }}">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">{{ trans('admin.btn_delete') }}</button>
                                 </form>
                                         </div>
                                     </td>

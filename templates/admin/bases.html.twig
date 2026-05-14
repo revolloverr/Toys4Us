@@ -1,12 +1,12 @@
 {% extends "layout.html.twig" %}
 
-{% block title %}Plush Bases - Admin{% endblock %}
+{% block title %}{{ trans('admin.bases_title') }}{% endblock %}
 
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 fw-bold mb-0">Plush Bases</h2>
-    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">← Back to Admin</a>
+    <h2 class="h4 fw-bold mb-0">{{ trans('admin.bases_heading') }}</h2>
+    <a href="{{ base_path }}/admin" class="btn btn-outline-secondary btn-sm">{{ trans('admin.back_to_admin') }}</a>
 </div>
 
 <div class="row g-4">
@@ -14,33 +14,33 @@
     <div class="col-12 col-lg-4">
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                <h5 class="fw-bold mb-3">Add Base</h5>
+                <h5 class="fw-bold mb-3">{{ trans('admin.add_base') }}</h5>
                 <form action="{{ base_path }}/admin/bases/store" method="POST">
                     <div class="mb-2">
-                        <label class="form-label small">Name</label>
+                        <label class="form-label small">{{ trans('admin.form_name') }}</label>
                         <input type="text" name="name" class="form-control" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Species</label>
+                        <label class="form-label small">{{ trans('admin.form_species') }}</label>
                         <input type="text" name="species" class="form-control" placeholder="e.g. bear, cat, dog" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Color</label>
+                        <label class="form-label small">{{ trans('admin.form_color') }}</label>
                         <input type="text" name="color" class="form-control" placeholder="e.g. purple, pink, blue" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Image Path</label>
+                        <label class="form-label small">{{ trans('admin.form_image_path') }}</label>
                         <input type="text" name="image_path" class="form-control" placeholder="assets/bases/bear_purple.png" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Base Price ($)</label>
+                        <label class="form-label small">{{ trans('admin.form_base_price') }}</label>
                         <input type="number" name="base_price" class="form-control" step="0.01" min="0" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Sort Order</label>
+                        <label class="form-label small">{{ trans('admin.form_sort_order') }}</label>
                         <input type="number" name="sort_order" class="form-control" value="0">
                     </div>
-                    <button type="submit" class="btn btn-purple w-100 mt-2">Add Base</button>
+                    <button type="submit" class="btn btn-purple w-100 mt-2">{{ trans('admin.btn_add') }}</button>
                 </form>
             </div>
         </div>
@@ -54,14 +54,14 @@
                     <table class="table table-sm align-middle">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Preview</th>
-                                <th>Name</th>
-                                <th>Species</th>
-                                <th>Color</th>
-                                <th>Price</th>
-                                <th>Active</th>
-                                <th>Actions</th>
+                                <th>{{ trans('admin.table_id') }}</th>
+                                <th>{{ trans('admin.table_preview') }}</th>
+                                <th>{{ trans('admin.table_name') }}</th>
+                                <th>{{ trans('admin.table_species') }}</th>
+                                <th>{{ trans('admin.table_color') }}</th>
+                                <th>{{ trans('admin.table_price') }}</th>
+                                <th>{{ trans('admin.table_active') }}</th>
+                                <th>{{ trans('admin.table_actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,11 +84,11 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1">
-                                            <button type="submit" class="btn btn-purple btn-sm">Save</button>
+                                            <button type="submit" class="btn btn-purple btn-sm">{{ trans('admin.btn_save') }}</button>
                                             </form>
-                                            <form action="{{ base_path }}/admin/bases/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this base?')">
+                                            <form action="{{ base_path }}/admin/bases/delete" method="POST" class="d-inline" onsubmit="return confirm('{{ trans('admin.confirm_delete_base') }}')">
                                                 <input type="hidden" name="id" value="{{ base.id }}">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">{{ trans('admin.btn_delete') }}</button>
                                             </form>
                                         </div>
                                     </td>
