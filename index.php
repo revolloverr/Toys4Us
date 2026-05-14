@@ -237,6 +237,7 @@ $app->get('/cart',                [CheckoutController::class, 'showCart']);
 $app->post('/cart/add/{id}',      [CheckoutController::class, 'addToCart']);
 $app->post('/cart/remove/{key}',  [CheckoutController::class, 'removeFromCart']);
 $app->post('/cart/checkout',      [CheckoutController::class, 'checkout']);
+$app->get('/checkout/success', [CheckoutController::class, 'success']);
 
 // ─── 8. LANGUAGE ROUTE ────────────────────────────────────────────────────────
 
