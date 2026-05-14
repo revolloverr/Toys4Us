@@ -8,6 +8,14 @@ use RedBeanPHP\R;
 
 class UserModel
 {
+    public function findAll(string $search = ''): array
+    {
+        if ($search) {
+            return R::find('user', 'name LIKE ? OR email LIKE ? ORDER BY id DESC', ["%$search%", "%$search%"]);
+        }
+        return R::findAll('user', 'ORDER BY id DESC');
+    }
+
     public function findByEmail(string $email)
     {
         return R::findOne('user', 'email = ?', [$email]);

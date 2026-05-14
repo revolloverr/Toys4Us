@@ -18,9 +18,11 @@ use App\Middleware\AdminMiddleware;
 use App\Middleware\SecurityHeadersMiddleware;
 
 use App\Models\ProductModel;
+use App\Models\PlushModel;
+use App\Models\CategoryModel;
+use App\Models\UserModel;
+
 use App\Services\OtpService;
-
-
 
 use Dotenv\Dotenv;
 
@@ -39,7 +41,7 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 
-use App\Models\PlushModel;
+
 
 
 require __DIR__ . '/vendor/autoload.php';
@@ -83,6 +85,9 @@ R::freeze(true);
 
 $model = new ProductModel();
 $plushModel = new PlushModel();
+$categoryModel = new CategoryModel();
+$userModel = new UserModel();
+
 if (R::count('product') === 0) {
     $toys = [
         ['name' => 'LEGO Star Wars Set', 'description' => 'Build your own starship with 800+ pieces', 'price' => 59.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=LEGO'],
@@ -142,7 +147,14 @@ $container->set(ProfileController::class, fn() => new ProfileController($twig, $
 
 $container->set(PlushController::class, fn() => new PlushController($twig, $basePath));
 
-$container->set(AdminController::class, fn() => new AdminController($twig, $basePath, $plushModel));
+$container->set(AdminController::class, fn() => new AdminController(
+    $twig,
+    $basePath,
+    $plushModel,
+    $model,
+    $categoryModel,
+    $userModel,
+));
 
 // ─── 5. APPLICATION ───────────────────────────────────────────────────────────
 
