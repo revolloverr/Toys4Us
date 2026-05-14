@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Services\OtpService;
+use App\Services\FlashService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Twig\Environment;
@@ -24,11 +25,13 @@ class AuthController
 {
     private UserModel $userModel;
     private OtpService $otpService;
+    private FlashService $flash;
 
     public function __construct(private Environment $twig, private string $basePath)
     {
         $this->userModel  = new UserModel();
         $this->otpService = new OtpService();
+        $this->flash      = new FlashService();
     }
 
     // ── GET /login ──────────────────────────────────────────────────────────
@@ -63,13 +66,19 @@ class AuthController
         $password = trim($data['password'] ?? '');
 
         if (empty($email) || empty($password)) {
-            return $this->renderLogin($response, 'Email and password are required.');
+            $this->flash->error('flash.login_required');
+            return $response
+                ->withHeader('Location', $this->basePath . '/login')
+                ->withStatus(302);
         }
 
         $user = $this->userModel->findByEmail($email);
 
         if (!$user || !$this->userModel->verifyPassword($password, $user->password)) {
-            return $this->renderLogin($response, 'Invalid email or password.');
+            $this->flash->error('flash.login_invalid');
+            return $response
+                ->withHeader('Location', $this->basePath . '/login')
+                ->withStatus(302);
         }
 
         // Check soft delete
@@ -118,19 +127,31 @@ class AuthController
         $confirm   = trim($data['confirm_password'] ?? '');
 
         if (empty($name) || empty($email) || empty($password)) {
-            return $this->renderRegister($response, 'All fields are required.');
+            $this->flash->error('flash.register_fields_required');
+            return $response
+                ->withHeader('Location', $this->basePath . '/register')
+                ->withStatus(302);
         }
 
         if ($email !== $confirmEmail) {
-            return $this->renderRegister($response, 'Email addresses do not match.');
+            $this->flash->error('flash.register_email_mismatch');
+            return $response
+                ->withHeader('Location', $this->basePath . '/register')
+                ->withStatus(302);
         }
 
         if ($password !== $confirm) {
-            return $this->renderRegister($response, 'Passwords do not match.');
+            $this->flash->error('flash.register_password_mismatch');
+            return $response
+                ->withHeader('Location', $this->basePath . '/register')
+                ->withStatus(302);
         }
 
         if ($this->userModel->findByEmail($email)) {
-            return $this->renderRegister($response, 'An account with this email already exists.');
+            $this->flash->error('flash.register_email_exists');
+            return $response
+                ->withHeader('Location', $this->basePath . '/register')
+                ->withStatus(302);
         }
 
         $this->userModel->create($name, $email, $password);
@@ -145,6 +166,8 @@ class AuthController
         ];
         $_SESSION['authenticated'] = true;
 
+        $this->flash->success('flash.register_success');
+
         return $response
             ->withHeader('Location', $this->basePath . '/products')
             ->withStatus(302);
@@ -155,6 +178,9 @@ class AuthController
     {
         $_SESSION = [];
         session_destroy();
+        // Re-start session to set the flash message
+        session_start();
+        $this->flash->info('flash.logout_success');
         return $response
             ->withHeader('Location', $this->basePath . '/login')
             ->withStatus(302);
@@ -198,7 +224,10 @@ class AuthController
         $code  = trim($data['totp_code'] ?? '');
 
         if (empty($code) || !preg_match('/^\d{6}$/', $code)) {
-            return $this->renderTotpError($response, 'Please enter a valid 6-digit code.');
+            $this->flash->error('flash.totp_invalid');
+            return $response
+                ->withHeader('Location', $this->basePath . '/totp/verify')
+                ->withStatus(302);
         }
 
         $user = $this->userModel->load((int) $userId);
@@ -220,7 +249,10 @@ class AuthController
 
         // Verify the code
         if (!$this->otpService->verify($code, $secret)) {
-            return $this->renderTotpError($response, 'Invalid code. Please try again.');
+            $this->flash->error('flash.totp_invalid_code');
+            return $response
+                ->withHeader('Location', $this->basePath . '/totp/verify')
+                ->withStatus(302);
         }
 
         // If this was a new setup (pending secret), save it to the user
@@ -282,56 +314,5 @@ class AuthController
         return $response
             ->withHeader('Location', $this->basePath . '/products')
             ->withStatus(302);
-    }
-
-    // ── Private helpers ────────────────────────────────────────────────────
-
-    private function renderLogin(Response $response, string $error): Response
-    {
-        $html = $this->twig->render('auth.html.twig', [
-            'step'      => 'login',
-            'error'     => $error,
-            'base_path' => $this->basePath,
-            'app_lang'  => $_SESSION['lang'] ?? 'en',
-        ]);
-        $response->getBody()->write($html);
-        return $response;
-    }
-
-    private function renderRegister(Response $response, string $error): Response
-    {
-        $html = $this->twig->render('auth.html.twig', [
-            'step'      => 'register',
-            'error'     => $error,
-            'base_path' => $this->basePath,
-            'app_lang'  => $_SESSION['lang'] ?? 'en',
-        ]);
-        $response->getBody()->write($html);
-        return $response;
-    }
-
-    private function renderTotpError(Response $response, string $error): Response
-    {
-        $userId = $_SESSION['totp_user_id'] ?? null;
-        $qrCode = null;
-        $secret = null;
-
-        // If there's a pending setup, regenerate the QR code display
-        if (!empty($_SESSION['totp_pending_secret']) && $userId) {
-            $user   = $this->userModel->load((int) $userId);
-            $secret = $_SESSION['totp_pending_secret'];
-            $qrCode = $this->otpService->getQrCode((string) $userId, $secret);
-        }
-
-        $html = $this->twig->render('totp-verify.html.twig', [
-            'step'      => 'verify',
-            'error'     => $error,
-            'base_path' => $this->basePath,
-            'app_lang'  => $_SESSION['lang'] ?? 'en',
-            'qr_code'   => $qrCode,
-            'secret'    => $secret,
-        ]);
-        $response->getBody()->write($html);
-        return $response;
     }
 }

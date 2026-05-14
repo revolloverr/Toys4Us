@@ -109,6 +109,20 @@
         </div>
     </nav>
 
+    <!-- ─── FLASH MESSAGES ─────────────────────────────────────────────── -->
+    {% set flash = flash_messages() %}
+    {% if flash is not empty %}
+        <div class="container mt-3">
+            {% for msg in flash %}
+                <div class="alert alert-{{ msg.type == 'error' ? 'danger' : msg.type }} alert-dismissible fade show py-2 small mb-2" role="alert">
+                    <i class="bi bi-{{ msg.type == 'success' ? 'check-circle' : (msg.type == 'error' ? 'exclamation-triangle' : (msg.type == 'warning' ? 'exclamation-circle' : 'info-circle')) }} me-1"></i>
+                    {{ trans(msg.message) }}
+                    <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <!-- ─── MAIN CONTENT ────────────────────────────────────────────────── -->
     <main class="flex-grow-1">
         <div class="container py-4">

@@ -23,6 +23,7 @@ use App\Models\CategoryModel;
 use App\Models\UserModel;
 
 use App\Services\OtpService;
+use App\Services\FlashService;
 
 use Dotenv\Dotenv;
 
@@ -118,6 +119,10 @@ $twig->addGlobal('app_cart', $_SESSION['cart'] ?? []);
 
 
 $twig->addGlobal('base_path', $basePath);
+$twig->addFunction(new TwigFunction('flash_messages', function () {
+    $flash = new FlashService();
+    return $flash->getMessages();
+}));
 
 // ─── 3. I18N — symfony/translation ───────────────────────────────────────────
 

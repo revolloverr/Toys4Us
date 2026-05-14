@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Models\PlushModel;
 use App\Models\ProductModel;
+use App\Services\FlashService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Twig\Environment;
@@ -18,6 +19,7 @@ use Stripe\Checkout\Session as StripeSession;
 class CheckoutController
 {
     private PlushModel $plushModel;
+    private FlashService $flash;
 
     public function __construct(
         private Environment $twig,
@@ -25,6 +27,7 @@ class CheckoutController
         private string $basePath,
     ) {
         $this->plushModel = new PlushModel();
+        $this->flash      = new FlashService();
     }
 
     public function showCart(Request $request, Response $response): Response
@@ -67,8 +70,10 @@ class CheckoutController
             ];
         }
 
+        $this->flash->success('flash.product_added_to_cart');
+
         return $response
-            ->withHeader('Location', $this->basePath . '/cart')
+            ->withHeader('Location', $this->basePath . '/products')
             ->withStatus(302);
     }
 
@@ -78,6 +83,8 @@ class CheckoutController
         if ($key !== '' && isset($_SESSION['cart'][$key])) {
             unset($_SESSION['cart'][$key]);
         }
+
+        $this->flash->warning('flash.product_removed_from_cart');
 
         return $response
             ->withHeader('Location', $this->basePath . '/cart')
@@ -93,12 +100,14 @@ class CheckoutController
         $cart = $_SESSION['cart'] ?? [];
 
         if (empty($_SESSION['user'])) {
+            $this->flash->error('flash.login_to_checkout');
             return $response
                 ->withHeader('Location', $this->basePath . '/login')
                 ->withStatus(302);
         }
 
         if (empty($cart)) {
+            $this->flash->warning('flash.cart_empty');
             return $response
                 ->withHeader('Location', $this->basePath . '/cart')
                 ->withStatus(302);
