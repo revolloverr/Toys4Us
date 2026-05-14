@@ -21,7 +21,7 @@ class UserModel
         return R::findOne('user', 'email = ?', [$email]);
     }
 
-    public function create(string $name, string $email, string $password): void
+    public function create(?int $userId, float $total, string $status, ?string $stripePaymentId): int
     {
         $user           = R::dispense('user');
         $user->name     = $name;

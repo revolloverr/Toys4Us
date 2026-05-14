@@ -169,14 +169,20 @@ class CheckoutController
         }
 
         // Save order to DB if we have a session and a logged-in user
-        $orderId = $this->orderModel->create($userId, $total, 'paid', $stripeSession->payment_intent);
+        if ($stripeSession && !empty($_SESSION['user']['id']) && !empty($_SESSION['cart'])) {
+            $userId = (int) $_SESSION['user']['id'];
+            $cart   = $_SESSION['cart'];
+            $total  = array_sum(array_map(fn($i) => (float)$i['price'] * (int)($i['qty'] ?? 1), $cart));
 
-        foreach ($cart as $item) {
-            $productId     = isset($item['type']) ? null : (int) $item['id'];
-            $customPlushId = ($item['type'] ?? '') === 'customplush' ? (int) $item['plush_id'] : null;
-            $qty           = (int) ($item['qty'] ?? 1);
-            $price         = (float) $item['price'];
-            $this->orderModel->addItem($orderId, $productId, $customPlushId, $qty, $price);
+            $orderId = $this->orderModel->create($userId, $total, 'paid', $stripeSession->payment_intent);
+
+            foreach ($cart as $item) {
+                $productId     = isset($item['type']) ? null : (int) $item['id'];
+                $customPlushId = ($item['type'] ?? '') === 'customplush' ? (int) $item['plush_id'] : null;
+                $qty           = (int) ($item['qty'] ?? 1);
+                $price         = (float) $item['price'];
+                $this->orderModel->addItem($orderId, $productId, $customPlushId, $qty, $price);
+            }
         }
 
         // Clear the cart
