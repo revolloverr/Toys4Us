@@ -98,34 +98,24 @@ class PlushModel
 
     // ── CUSTOM PLUSH ──────────────────────────────────────────────────────────
 
-    public function saveCustomPlush(
-        ?int $userId,
-        int $baseId,
-        string $name,
-        array $accessoryIds,
-        float $totalPrice,
-        ?string $voicePath = null
-    ): int {
-        $plush                     = R::dispense('custom_plush');
-        $plush->user_id            = $userId;
-        $plush->base_id            = $baseId;
-        $plush->name               = $name;
-        $plush->total_price        = $totalPrice;
-        $plush->voice_message_path = $voicePath;
-        $id                        = R::store($plush);
-
-        R::exec('DELETE FROM custom_plush_accessory WHERE custom_plush_id = ?', [$id]);
+    public function saveCustomPlush(?int $userId, int $baseId, string $name, array $accessoryIds, float $totalPrice, ?string $voicePath = null): int
+    {
+        R::exec(
+            'INSERT INTO custom_plush (user_id, base_id, name, total_price, voice_message_path) VALUES (?, ?, ?, ?, ?)',
+            [$userId, $baseId, $name, $totalPrice, $voicePath]
+        );
+        $id = (int) R::getInsertID();
 
         foreach ($accessoryIds as $accId) {
             if ($accId > 0) {
-                $junction                    = R::dispense('custom_plush_accessory');
-                $junction->custom_plush_id   = $id;
-                $junction->accessory_id      = $accId;
-                R::store($junction);
+                R::exec(
+                    'INSERT INTO custom_plush_accessory (custom_plush_id, accessory_id) VALUES (?, ?)',
+                    [$id, $accId]
+                );
             }
         }
 
-        return (int) $id;
+        return $id;
     }
 
     public function getCustomPlushDetails(int $plushId): ?array
@@ -163,24 +153,21 @@ class PlushModel
         ];
     }
 
-    public function updateCustomPlush(int $plushId, int $baseId, string $name, array $accessoryIds, float $totalPrice): void 
+    public function updateCustomPlush(int $plushId, int $baseId, string $name, array $accessoryIds, float $totalPrice): void
     {
-        $plush = R::load('custom_plush', $plushId);
-        if (!$plush->id) return;
-
-        $plush->base_id     = $baseId;
-        $plush->name        = $name;
-        $plush->total_price = $totalPrice;
-        R::store($plush);
+        R::exec(
+            'UPDATE custom_plush SET base_id = ?, name = ?, total_price = ? WHERE id = ?',
+            [$baseId, $name, $totalPrice, $plushId]
+        );
 
         R::exec('DELETE FROM custom_plush_accessory WHERE custom_plush_id = ?', [$plushId]);
 
         foreach ($accessoryIds as $accId) {
             if ($accId > 0) {
-                $junction                  = R::dispense('custom_plush_accessory');
-                $junction->custom_plush_id = $plushId;
-                $junction->accessory_id    = $accId;
-                R::store($junction);
+                R::exec(
+                    'INSERT INTO custom_plush_accessory (custom_plush_id, accessory_id) VALUES (?, ?)',
+                    [$plushId, $accId]
+                );
             }
         }
     }
