@@ -66,6 +66,7 @@
                                 <th>Image URL</th>
                                 <th>Price</th>
                                 <th>Stock</th>
+                                <th>Rating</th>
                                 <th>Category</th>
                                 <th>Active</th>
                                 <th>Actions</th>
@@ -89,6 +90,7 @@
                                     <td><input type="text" name="image" value="{{ product.image }}" class="form-control form-control-sm" placeholder="https://..." style="min-width:130px;"></td>
                                     <td><input type="number" name="price" value="{{ product.price }}" class="form-control form-control-sm" step="0.01" style="width:75px;"></td>
                                     <td><input type="number" name="stock" value="{{ product.stock }}" class="form-control form-control-sm" min="0" style="width:65px;"></td>
+                                    <td><input type="number" name="rating" value="{{ product.rating }}" class="form-control form-control-sm" step="0.1" min="0" max="5" style="width:65px;"></td>
                                     <td>
                                         <select name="category_id" class="form-select form-select-sm" style="min-width:110px;">
                                             <option value="">None</option>

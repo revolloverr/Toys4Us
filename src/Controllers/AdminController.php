@@ -85,6 +85,7 @@ class AdminController
             $product->description = trim($data['description'] ?? '');
             $product->price       = (float) ($data['price'] ?? 0);
             $product->stock       = (int) ($data['stock'] ?? 0);
+            $product->rating      = (float) ($data['rating'] ?? 0);  // ← add this
             $product->category_id = (int) ($data['category_id'] ?? 0) ?: null;
             $product->image       = trim($data['image'] ?? '');
             $product->is_active   = isset($data['is_active']) ? 1 : 0;
