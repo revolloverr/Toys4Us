@@ -180,7 +180,7 @@ class AdminController
     {
         $html = $this->twig->render('admin/bases.html.twig', [
             'base_path'  => $this->basePath,
-            'bases' => R::findAll('plush_base', 'ORDER BY species, color'),
+            'bases'     => $this->plushModel->getBases(),
         ]);
         $response->getBody()->write($html);
         return $response;

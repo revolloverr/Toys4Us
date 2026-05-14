@@ -10,7 +10,7 @@ class PlushModel
 {
     public function getBases(): array
     {
-        return R::findAll('plush_base', 'is_active = 1 ORDER BY id, species, color');
+        return R::findAll('plush_base', 'is_active = 1 ORDER BY id DESC');
     }
 
     public function getBaseById(int $id): ?\RedBeanPHP\OODBBean
