@@ -9,12 +9,9 @@ use App\Models\ProductModel;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Twig\Environment;
+use Stripe\Stripe;
+use Stripe\Checkout\Session as StripeSession;
 
-/**
- * CheckoutController
- *
- * Handles the shopping cart / checkout flow for the toy store.
- */
 class CheckoutController
 {
     private PlushModel $plushModel;
@@ -27,15 +24,10 @@ class CheckoutController
         $this->plushModel = new PlushModel();
     }
 
-    /**
-     * GET /cart
-     * Show the shopping cart with plush previews.
-     */
     public function showCart(Request $request, Response $response): Response
     {
         $cart = $_SESSION['cart'] ?? [];
 
-        // Enrich custom plush items with base + accessory data for preview
         $enrichedCart = [];
         foreach ($cart as $key => $item) {
             if (($item['type'] ?? '') === 'custom_plush' && !empty($item['plush_id'])) {
@@ -48,20 +40,16 @@ class CheckoutController
         }
 
         $html = $this->twig->render('cart.html.twig', [
-            'cart'               => $enrichedCart,
-            'base_path'          => $this->basePath,
-            'app_lang'           => $_SESSION['lang'] ?? 'en',
-            'app_authenticated'  => $_SESSION['authenticated'] ?? false,
+            'cart'              => $enrichedCart,
+            'base_path'         => $this->basePath,
+            'app_lang'          => $_SESSION['lang'] ?? 'en',
+            'app_authenticated' => $_SESSION['authenticated'] ?? false,
         ]);
 
         $response->getBody()->write($html);
         return $response;
     }
 
-    /**
-     * POST /cart/add/{id}
-     * Add a product to the cart.
-     */
     public function addToCart(Request $request, Response $response, array $args): Response
     {
         $productId = (int) $args['id'];
@@ -81,10 +69,6 @@ class CheckoutController
             ->withStatus(302);
     }
 
-    /**
-     * POST /cart/remove/{key}
-     * Remove an item from the cart by its session key.
-     */
     public function removeFromCart(Request $request, Response $response, array $args): Response
     {
         $key = $args['key'] ?? '';
@@ -99,13 +83,79 @@ class CheckoutController
 
     /**
      * POST /cart/checkout
-     * Process the checkout (simulated).
+     * Build a Stripe Checkout session and redirect to it.
      */
     public function checkout(Request $request, Response $response): Response
     {
-        $_SESSION['cart'] = [];
+        $cart = $_SESSION['cart'] ?? [];
+
+        if (empty($cart)) {
+            return $response
+                ->withHeader('Location', $this->basePath . '/cart')
+                ->withStatus(302);
+        }
+
+        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+
+        $baseUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $this->basePath;
+
+        // Build line items from cart
+        $lineItems = [];
+        foreach ($cart as $item) {
+            $lineItems[] = [
+                'price_data' => [
+                    'currency'     => 'cad',
+                    'unit_amount'  => (int) round((float) $item['price'] * 100), // cents
+                    'product_data' => [
+                        'name' => $item['name'],
+                    ],
+                ],
+                'quantity' => (int) ($item['qty'] ?? 1),
+            ];
+        }
+
+        $session = StripeSession::create([
+            'payment_method_types' => ['card'],
+            'line_items'           => $lineItems,
+            'mode'                 => 'payment',
+            'success_url'          => $baseUrl . '/checkout/success?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'           => $baseUrl . '/cart',
+        ]);
+
         return $response
-            ->withHeader('Location', $this->basePath . '/products')
-            ->withStatus(302);
+            ->withHeader('Location', $session->url)
+            ->withStatus(303);
+    }
+
+    /**
+     * GET /checkout/success
+     * Stripe redirects here after successful payment.
+     */
+    public function success(Request $request, Response $response): Response
+    {
+        $params    = $request->getQueryParams();
+        $sessionId = $params['session_id'] ?? null;
+
+        // Clear the cart
+        $_SESSION['cart'] = [];
+
+        // verify the session with Stripe
+        $stripeSession = null;
+        if ($sessionId) {
+            Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+            try {
+                $stripeSession = StripeSession::retrieve($sessionId);
+            } catch (\Exception $e) {
+                // non-fatal, just won't show order details
+            }
+        }
+
+        $html = $this->twig->render('checkout/success.html.twig', [
+            'base_path'      => $this->basePath,
+            'stripe_session' => $stripeSession,
+        ]);
+
+        $response->getBody()->write($html);
+        return $response;
     }
 }

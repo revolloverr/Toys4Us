@@ -18,7 +18,7 @@ class ProductModel
 {
     public function findAll(): array
     {
-        return R::findAll('product', 'ORDER BY id DESC');
+        return R::findAll('product', 'ORDER BY id ASC');
     }
 
     public function create(string $name, string $description, float $price, string $image = ''): void

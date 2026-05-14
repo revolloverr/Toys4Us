@@ -14,8 +14,18 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: STRIPE_SECRET_KEY,STRIPE_PUBLISHABLE_KEY
           script: |
             cd /var/www/html/toys4us
             git pull origin main
             git reset --hard origin/main
             COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --no-interaction
+
+            # Write Stripe keys into .env (preserves existing vars, updates Stripe lines)
+            sed -i '/^STRIPE_SECRET_KEY=/d' .env
+            sed -i '/^STRIPE_PUBLISHABLE_KEY=/d' .env
+            echo "STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY" >> .env
+            echo "STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY" >> .env
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
