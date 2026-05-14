@@ -26,11 +26,10 @@ class CartModel
             $existing->quantity += $qty;
             R::store($existing);
         } else {
-            $item              = R::dispense('cart_item');
-            $item->user_id     = $userId;
-            $item->product_id  = $productId;
-            $item->quantity    = $qty;
-            R::store($item);
+            R::exec(
+                'INSERT INTO cart_item (user_id, product_id, quantity) VALUES (?, ?, ?)',
+                [$userId, $productId, $qty]
+            );
         }
     }
 
