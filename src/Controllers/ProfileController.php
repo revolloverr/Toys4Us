@@ -28,18 +28,11 @@ class ProfileController
     {
         $userId = (int) $_SESSION['user']['id'];
         $user   = $this->userModel->load($userId);
-        $orders = $this->userModel->getOrders($userId);
-
-        // Attach items to each order
-        foreach ($orders as &$order) {
-            $order['items'] = $this->userModel->getOrderItems((int) $order['id']);
-        }
-        unset($order);
 
         $html = $this->twig->render('profile.html.twig', [
             'base_path' => $this->basePath,
             'user'      => $user,
-            'orders'    => $orders,
+            'orders'    => $this->getOrders($userId),
         ]);
 
         $response->getBody()->write($html);
@@ -53,32 +46,24 @@ class ProfileController
             return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
         }
 
-        $data  = (array) $request->getParsedBody();
+        $data      = (array) $request->getParsedBody();
         $firstName = trim($data['first_name'] ?? '');
-        $lastName = trim($data['last_name'] ?? '');
-        $name = $firstName . ' ' . $lastName;
-        $email = trim($data['email'] ?? '');
-        $phone = trim($data['phone'] ?? '');
+        $lastName  = trim($data['last_name'] ?? '');
+        $name      = $firstName . ' ' . $lastName;
+        $email     = trim($data['email'] ?? '');
+        $phone     = trim($data['phone'] ?? '');
+
+        $user = $this->userModel->load((int) $_SESSION['user']['id']);
 
         if (empty($firstName) || empty($lastName) || empty($email)) {
-            $user = $this->userModel->load((int) $_SESSION['user']['id']);
-            $html = $this->twig->render('profile.html.twig', [
-                'base_path' => $this->basePath,
-                'app_lang'  => $_SESSION['lang'] ?? 'en',
-                'user'      => $user,
-                'error'     => 'First name, Last name and Email are required.',
-            ]);
-            $response->getBody()->write($html);
-            return $response;
+            return $this->renderWithError($response, $user, 'First name, Last name and Email are required.', 'account');
         }
 
-        $user        = $this->userModel->load((int) $_SESSION['user']['id']);
         $user->name  = $name;
         $user->email = $email;
         $user->phone = $phone;
         $this->userModel->save($user);
 
-        // Update session
         $_SESSION['user']['name']  = $name;
         $_SESSION['user']['email'] = $email;
 
@@ -92,21 +77,19 @@ class ProfileController
             return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
         }
 
-        $data        = (array) $request->getParsedBody();
-        $current     = trim($data['current_password'] ?? '');
-        $new         = trim($data['new_password'] ?? '');
-        $confirm     = trim($data['confirm_password'] ?? '');
+        $data    = (array) $request->getParsedBody();
+        $current = trim($data['current_password'] ?? '');
+        $new     = trim($data['new_password'] ?? '');
+        $confirm = trim($data['confirm_password'] ?? '');
 
         $user = $this->userModel->load((int) $_SESSION['user']['id']);
 
         if (!$this->userModel->verifyPassword($current, $user->password)) {
             return $this->renderWithError($response, $user, 'Current password is incorrect.', 'security');
         }
-
         if ($new !== $confirm) {
             return $this->renderWithError($response, $user, 'New passwords do not match.', 'security');
         }
-
         if (strlen($new) < 8) {
             return $this->renderWithError($response, $user, 'Password must be at least 8 characters.', 'security');
         }
@@ -140,20 +123,17 @@ class ProfileController
             return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
         }
 
-        $user = $this->userModel->load((int) $_SESSION['user']['id']);
-
-        // Generate a new secret
+        $user   = $this->userModel->load((int) $_SESSION['user']['id']);
         $secret = $this->otpService->generateSecret();
         $qrCode = $this->otpService->getQrCode((string) $user->id, $secret);
 
-        // Temporarily store the secret for verification
         $_SESSION['totp_new_secret'] = $secret;
 
-        // Show a verification step — they must enter a code to confirm
         $html = $this->twig->render('profile.html.twig', [
             'base_path'          => $this->basePath,
             'app_lang'           => $_SESSION['lang'] ?? 'en',
             'user'               => $user,
+            'orders'             => $this->getOrders((int) $user->id),
             'active_tab'         => 'security',
             'totp_qr_code'       => $qrCode,
             'totp_secret'        => $secret,
@@ -170,27 +150,23 @@ class ProfileController
             return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
         }
 
-        $data = (array) $request->getParsedBody();
-        $code = trim($data['totp_code'] ?? '');
+        $data          = (array) $request->getParsedBody();
+        $code          = trim($data['totp_code'] ?? '');
         $pendingSecret = $_SESSION['totp_new_secret'] ?? null;
+        $user          = $this->userModel->load((int) $_SESSION['user']['id']);
 
         if (empty($code) || !preg_match('/^\d{6}$/', $code)) {
-            return $this->renderWithError($response, $this->userModel->load((int) $_SESSION['user']['id']), 'Please enter a valid 6-digit code.', 'security');
+            return $this->renderWithError($response, $user, 'Please enter a valid 6-digit code.', 'security');
         }
-
         if (!$pendingSecret) {
-            return $this->renderWithError($response, $this->userModel->load((int) $_SESSION['user']['id']), 'Setup session expired. Please try again.', 'security');
+            return $this->renderWithError($response, $user, 'Setup session expired. Please try again.', 'security');
         }
-
         if (!$this->otpService->verify($code, $pendingSecret)) {
-            return $this->renderWithError($response, $this->userModel->load((int) $_SESSION['user']['id']), 'Invalid code. Please try again.', 'security');
+            return $this->renderWithError($response, $user, 'Invalid code. Please try again.', 'security');
         }
 
-        // Save the secret to the user
-        $user = $this->userModel->load((int) $_SESSION['user']['id']);
         $user->totp_secret = $pendingSecret;
         $this->userModel->save($user);
-
         unset($_SESSION['totp_new_secret']);
 
         return $response->withHeader('Location', $this->basePath . '/profile')->withStatus(302);
@@ -203,21 +179,34 @@ class ProfileController
             return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
         }
 
-        $user = $this->userModel->load((int) $_SESSION['user']['id']);
+        $user              = $this->userModel->load((int) $_SESSION['user']['id']);
         $user->totp_secret = null;
         $this->userModel->save($user);
 
         return $response->withHeader('Location', $this->basePath . '/profile')->withStatus(302);
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private function getOrders(int $userId): array
+    {
+        $orders = $this->userModel->getOrders($userId);
+        foreach ($orders as &$order) {
+            $order['items'] = $this->userModel->getOrderItems((int) $order['id']);
+        }
+        unset($order);
+        return $orders;
+    }
+
     private function renderWithError(Response $response, mixed $user, string $error, string $tab): Response
     {
         $html = $this->twig->render('profile.html.twig', [
-            'base_path'   => $this->basePath,
-            'app_lang'    => $_SESSION['lang'] ?? 'en',
-            'user'        => $user,
-            'error'       => $error,
-            'active_tab'  => $tab,
+            'base_path'  => $this->basePath,
+            'app_lang'   => $_SESSION['lang'] ?? 'en',
+            'user'       => $user,
+            'error'      => $error,
+            'active_tab' => $tab,
+            'orders'     => $this->getOrders((int) $user->id),
         ]);
         $response->getBody()->write($html);
         return $response;
