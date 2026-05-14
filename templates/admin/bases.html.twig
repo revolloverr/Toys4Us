@@ -85,11 +85,11 @@
                                     <td>
                                         <div class="d-flex gap-1">
                                             <button type="submit" class="btn btn-purple btn-sm">Save</button>
-                                </form>
-                                <form action="{{ base_path }}/admin/bases/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this base?')">
-                                    <input type="hidden" name="id" value="{{ base.id }}">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                                </form>
+                                            </form>
+                                            <form action="{{ base_path }}/admin/bases/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this base?')">
+                                                <input type="hidden" name="id" value="{{ base.id }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                            </form>
                                         </div>
                                     </td>
                             </tr>
