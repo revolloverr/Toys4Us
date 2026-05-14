@@ -190,16 +190,19 @@ class AdminController
 
     public function storeBase(Request $request, Response $response): Response
     {
-        $data             = (array) $request->getParsedBody();
-        $base             = R::dispense('plush_base');
-        $base->name       = trim($data['name'] ?? '');
-        $base->species    = trim($data['species'] ?? '');
-        $base->color      = trim($data['color'] ?? '');
-        $base->image_path = trim($data['image_path'] ?? '');
-        $base->base_price = (float) ($data['base_price'] ?? 0);
-        $base->sort_order = (int) ($data['sort_order'] ?? 0);
-        $base->is_active  = 1;
-        R::store($base);
+        $data = (array) $request->getParsedBody();
+
+        R::exec(
+            'INSERT INTO plush_base (name, species, color, image_path, base_price, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)',
+            [
+                trim($data['name'] ?? ''),
+                trim($data['species'] ?? ''),
+                trim($data['color'] ?? ''),
+                trim($data['image_path'] ?? ''),
+                (float) ($data['base_price'] ?? 0),
+                (int) ($data['sort_order'] ?? 0),
+            ]
+        );
 
         return $response->withHeader('Location', $this->basePath . '/admin/bases')->withStatus(302);
     }
@@ -245,14 +248,17 @@ class AdminController
 
     public function storeAccessory(Request $request, Response $response): Response
     {
-        $data             = (array) $request->getParsedBody();
-        $acc              = R::dispense('plush_accessory');
-        $acc->name        = trim($data['name'] ?? '');
-        $acc->category    = trim($data['category'] ?? '');
-        $acc->image_path  = trim($data['image_path'] ?? '');
-        $acc->price       = (float) ($data['price'] ?? 0);
-        $acc->is_active   = 1;
-        R::store($acc);
+        $data = (array) $request->getParsedBody();
+
+        R::exec(
+            'INSERT INTO plush_accessory (name, category, image_path, price, is_active) VALUES (?, ?, ?, ?, 1)',
+            [
+                trim($data['name'] ?? ''),
+                trim($data['category'] ?? ''),
+                trim($data['image_path'] ?? ''),
+                (float) ($data['price'] ?? 0),
+            ]
+        );
 
         return $response->withHeader('Location', $this->basePath . '/admin/accessories')->withStatus(302);
     }
