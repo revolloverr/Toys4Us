@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Models\OrderModel;
+
 use App\Models\UserModel;
 use App\Services\OtpService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -34,6 +36,7 @@ class ProfileController
 
         $html = $this->twig->render('profile.html.twig', [
             'base_path' => $this->basePath,
+            'app_lang'  => $_SESSION['lang'] ?? 'en',  // add this
             'user'      => $user,
             'orders'    => $this->getOrders($userId),
         ]);
