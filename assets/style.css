@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
 /* ── Theme: Toys4Us — Purple Toy Store ── */
 :root {
     --purple: #7c3aed;
@@ -16,41 +19,153 @@
     --gray-700: #3f3f46;
     --gray-800: #27272a;
     --gray-900: #18181b;
+
+    --bg-primary: #fafafa;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --text-primary: #27272a;
+    --text-secondary: #52525b;
+    --border-color: #e4e4e7;
+}
+
+/* ── Dark Mode Variables ── */
+[data-bs-theme="dark"] {
+    --bg-primary: #0f0f11;
+    --bg-secondary: #1a1a1f;
+    --bg-card: #1e1e24;
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --border-color: #3f3f46;
+    --purple-soft: #2d1f5e;
+    --purple-light: #4c2a9e;
+    --gray-50: #0f0f11;
+    --gray-100: #1a1a1f;
+    --gray-200: #27272a;
 }
 
 /* ── Reset & base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── High Contrast ── */
-.high-contrast {
-    filter: contrast(1.5);
-}
-
-/* ── Reduce Motion ── */
-.reduce-motion * {
-    animation: none !important;
-    transition: none !important;
-}
-
-/* ── Dyslexia Font ── */
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap');
-
-.dyslexia-font,
-.dyslexia-font * {
-    font-family: 'Lexend', sans-serif !important;
-    letter-spacing: 0.05em;
-    word-spacing: 0.1em;
-    line-height: 1.8;
-}
-
 body {
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--gray-50);
-    color: var(--gray-800);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
 }
 
-/* ── Bootstrap-style purple btn (since we can't modify bootstrap easily) ── */
+/* ── Dark mode body overrides ── */
+[data-bs-theme="dark"] body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .card {
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #27272a;
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: #27272a;
+    border-color: var(--purple);
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .table {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-bs-theme="dark"] .table > :not(caption) > * > * {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .modal-content {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover {
+    background-color: var(--gray-200);
+}
+
+[data-bs-theme="dark"] .nav-tabs {
+    border-color: var(--border-color);
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link {
+    color: var(--text-secondary);
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link.active {
+    background-color: var(--bg-card);
+    border-color: var(--border-color) var(--border-color) var(--bg-card);
+    color: var(--purple);
+}
+
+[data-bs-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+    background-color: var(--bg-secondary) !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--gray-200);
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .alert-danger {
+    background-color: #2d1515;
+    border-color: #5a1e1e;
+    color: #fca5a5;
+}
+
+[data-bs-theme="dark"] .alert-success {
+    background-color: #0f2a1a;
+    border-color: #166534;
+    color: #86efac;
+}
+
+[data-bs-theme="dark"] code {
+    background-color: var(--gray-200);
+    color: #c4b5fd;
+}
+
+[data-bs-theme="dark"] .input-group-text {
+    background-color: #27272a;
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* ── Bootstrap-style purple btn ── */
 .btn-purple {
     background-color: var(--purple) !important;
     border-color: var(--purple) !important;
@@ -86,9 +201,9 @@ header {
 
 /* ── Card overrides ── */
 .card {
-    background: var(--white);
+    background: var(--bg-card);
     border-radius: 8px;
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--border-color);
 }
 
 /* ── Language switcher ── */
@@ -100,7 +215,8 @@ header {
 }
 
 /* ── Form overrides ── */
-.form-control:focus {
+.form-control:focus,
+.form-select:focus {
     border-color: var(--purple);
     box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
 }
@@ -122,6 +238,10 @@ header {
 /* ── Footer ── */
 footer {
     color: var(--gray-400);
+}
+
+footer hr {
+    border-color: rgba(255,255,255,0.2);
 }
 
 /* ── Category cards ── */
@@ -168,9 +288,9 @@ code {
 .plush-preview {
     width: 72px;
     height: 72px;
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: var(--white);
+    background: var(--bg-secondary);
 }
 
 /* ── Badge overrides ── */
@@ -205,7 +325,26 @@ a {
     transition: color 0.15s;
 }
 
-/* ── Footer tweaks ── */
-footer hr {
-    border-color: rgba(255,255,255,0.2);
+/* ── High Contrast ── */
+.high-contrast {
+    filter: contrast(1.5);
+}
+
+html.high-contrast {
+    filter: contrast(1.5);
+}
+
+/* ── Reduce Motion ── */
+.reduce-motion * {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* ── Dyslexia Font ── */
+.dyslexia-font,
+.dyslexia-font * {
+    font-family: 'Lexend', sans-serif !important;
+    letter-spacing: 0.05em;
+    word-spacing: 0.1em;
+    line-height: 1.8;
 }

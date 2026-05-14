@@ -366,23 +366,15 @@ function copySecret() {
 
 // Accessibility stuff
 
-// ── Load saved preferences on page load ──────────────────────────────────
+// Sync toggle states to match current settings
 document.addEventListener('DOMContentLoaded', function() {
-    const fontSize  = parseInt(localStorage.getItem('fontSize') || '100');
-    const contrast  = localStorage.getItem('highContrast') === 'true';
-    const motion    = localStorage.getItem('reduceMotion') === 'true';
-    const dyslexia  = localStorage.getItem('dyslexiaFont') === 'true';
-    const theme     = localStorage.getItem('theme') || 'light';
-
-    applyFontSize(fontSize);
-    if (contrast)  applyHighContrast(true);
-    if (motion)    applyReduceMotion(true);
-    if (dyslexia)  applyDyslexiaFont(true);
-    applyTheme(theme);
-
-    document.getElementById('high-contrast-toggle').checked  = contrast;
-    document.getElementById('reduce-motion-toggle').checked  = motion;
-    document.getElementById('dyslexia-toggle').checked       = dyslexia;
+    document.getElementById('high-contrast-toggle').checked = localStorage.getItem('highContrast') === 'true';
+    document.getElementById('reduce-motion-toggle').checked = localStorage.getItem('reduceMotion') === 'true';
+    document.getElementById('dyslexia-toggle').checked      = localStorage.getItem('dyslexiaFont') === 'true';
+    
+    const fontSize = parseInt(localStorage.getItem('fontSize') || '100');
+    const label = document.getElementById('font-size-label');
+    if (label) label.textContent = fontSize + '%';
 });
 
 // ── Theme ─────────────────────────────────────────────────────────────────
@@ -431,9 +423,9 @@ function toggleHighContrast(enabled) {
 
 function applyHighContrast(enabled) {
     if (enabled) {
-        document.body.classList.add('high-contrast');
+        document.documentElement.classList.add('high-contrast');
     } else {
-        document.body.classList.remove('high-contrast');
+        document.documentElement.classList.remove('high-contrast');
     }
 }
 
