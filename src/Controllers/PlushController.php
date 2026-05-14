@@ -70,7 +70,7 @@ public function save(Request $request, Response $response): Response
         $plushName    = trim($data['plush_name'] ?? 'My Plush');
         $accessoryIds = array_map('intval', (array) ($data['accessory_ids'] ?? []));
         $editPlushId  = (int) ($data['edit_plush_id'] ?? 0);
-        $userId       = $_SESSION['user']['id'] ?? null;
+        $userId = isset($_SESSION['user']['id']) ? (int) $_SESSION['user']['id'] : null;
 
         // Calculate total price
         $base = $this->plushModel->getBaseById($baseId);
