@@ -9,6 +9,9 @@ use App\Models\ProductModel;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Twig\Environment;
+
+use RedBeanPHP\R;
+
 use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
 
@@ -113,7 +116,7 @@ class CheckoutController
                     'currency'     => 'cad',
                     'unit_amount'  => (int) round((float) $item['price'] * 100), // cents
                     'product_data' => [
-                        'name' => $item['name'],
+                    'name' => $item['name'],
                     ],
                 ],
                 'quantity' => (int) ($item['qty'] ?? 1),
@@ -142,19 +145,43 @@ class CheckoutController
         $params    = $request->getQueryParams();
         $sessionId = $params['session_id'] ?? null;
 
-        // Clear the cart
-        $_SESSION['cart'] = [];
-
-        // verify the session with Stripe
         $stripeSession = null;
         if ($sessionId) {
             Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
             try {
                 $stripeSession = StripeSession::retrieve($sessionId);
             } catch (\Exception $e) {
-                // non-fatal, just won't show order details
+                // non-fatal
             }
         }
+
+        // Save order to DB if we have a session and a logged-in user
+        if ($stripeSession && !empty($_SESSION['user']['id']) && !empty($_SESSION['cart'])) {
+            $userId = (int) $_SESSION['user']['id'];
+            $cart   = $_SESSION['cart'];
+            $total  = array_sum(array_map(fn($i) => (float)$i['price'] * (int)($i['qty'] ?? 1), $cart));
+
+            R::exec(
+                'INSERT INTO `order` (user_id, total, status, stripe_payment_id) VALUES (?, ?, ?, ?)',
+                [$userId, $total, 'paid', $stripeSession->payment_intent]
+            );
+            $orderId = (int) R::getInsertID();
+
+            foreach ($cart as $item) {
+                $productId    = isset($item['type']) ? null : (int) $item['id'];
+                $customPlushId = ($item['type'] ?? '') === 'customplush' ? (int) $item['plush_id'] : null;
+                $qty          = (int) ($item['qty'] ?? 1);
+                $price        = (float) $item['price'];
+
+                R::exec(
+                    'INSERT INTO order_item (order_id, product_id, custom_plush_id, quantity, price) VALUES (?, ?, ?, ?, ?)',
+                    [$orderId, $productId, $customPlushId, $qty, $price]
+                );
+            }
+        }
+
+        // Clear the cart
+        $_SESSION['cart'] = [];
 
         $html = $this->twig->render('checkout/success.html.twig', [
             'base_path'      => $this->basePath,

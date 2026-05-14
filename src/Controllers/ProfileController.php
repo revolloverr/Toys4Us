@@ -26,17 +26,22 @@ class ProfileController
     // GET /profile
     public function index(Request $request, Response $response): Response
     {
-        if (!isset($_SESSION['user'])) {
-            return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
-        }
+        $userId = (int) $_SESSION['user']['id'];
+        $user   = $this->userModel->load($userId);
+        $orders = $this->userModel->getOrders($userId);
 
-        $user = $this->userModel->load((int) $_SESSION['user']['id']);
+        // Attach items to each order
+        foreach ($orders as &$order) {
+            $order['items'] = $this->userModel->getOrderItems((int) $order['id']);
+        }
+        unset($order);
 
         $html = $this->twig->render('profile.html.twig', [
             'base_path' => $this->basePath,
-            'app_lang'  => $_SESSION['lang'] ?? 'en',
             'user'      => $user,
+            'orders'    => $orders,
         ]);
+
         $response->getBody()->write($html);
         return $response;
     }

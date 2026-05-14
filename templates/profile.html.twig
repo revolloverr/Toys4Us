@@ -27,6 +27,14 @@
                 <a class="nav-link {{ active_tab is defined and active_tab == 'security' ? 'active' : '' }}"
                    href="#security" data-bs-toggle="tab">Security</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#orders" data-bs-toggle="tab">
+                    Orders
+                    {% if orders|length > 0 %}
+                    <span class="badge bg-purple ms-1">{{ orders|length }}</span>
+                    {% endif %}
+                </a>
+            </li>
         </ul>
 
         <div class="tab-content">
@@ -110,6 +118,70 @@
                             <button type="submit" class="btn btn-purple">Update Password</button>
                         </form>
                     </div>
+                </div>
+
+                {# ── Orders Tab ──────────────────────────────────────────────── #}
+                <div class="tab-pane fade" id="orders">
+                    {% if orders is empty %}
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body p-4 text-center text-muted">
+                                <i class="bi bi-bag-x fs-2 mb-2 d-block"></i>
+                                You haven't placed any orders yet.
+                                <a href="{{ base_path }}/products" class="d-block mt-2">Start shopping</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for order in orders %}
+                        <div class="card shadow-sm border-0 mb-3">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <p class="fw-bold mb-0">Order #{{ order.id }}</p>
+                                        <p class="text-muted small mb-0">{{ order.created_at }}</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge 
+                                            {% if order.status == 'paid' %}bg-success
+                                            {% elseif order.status == 'pending' %}bg-warning text-dark
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ order.status|capitalize }}
+                                        </span>
+                                        <p class="fw-bold text-purple mb-0 mt-1">${{ order.total }}</p>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Item</th>
+                                                <th>Qty</th>
+                                                <th class="text-end">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in order.items %}
+                                            <tr>
+                                                <td>
+                                                    {% if item.product_name %}
+                                                        {% if item.product_image %}
+                                                        <img src="{{ item.product_image }}" style="width:28px;height:28px;object-fit:cover;border-radius:4px;" class="me-2">
+                                                        {% endif %}
+                                                        {{ item.product_name }}
+                                                    {% else %}
+                                                        <i class="bi bi-stars me-1 text-purple"></i>Custom Plush
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ item.quantity }}</td>
+                                                <td class="text-end">${{ item.price }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
 
                 {# ── Two-Factor Authentication (TOTP) ── #}
