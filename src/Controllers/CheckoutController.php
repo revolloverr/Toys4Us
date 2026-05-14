@@ -89,7 +89,7 @@ class CheckoutController
     {
         $cart = $_SESSION['cart'] ?? [];
 
-        if (empty($_SESSION['user_id'])) {
+        if (empty($_SESSION['user'])) {
             return $response
                 ->withHeader('Location', $this->basePath . '/login')
                 ->withStatus(302);
