@@ -35,6 +35,9 @@
                     {% endif %}
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#accessibility" data-bs-toggle="tab">Accessibility</a>
+            </li>
         </ul>
 
         <div class="tab-content">
@@ -228,7 +231,7 @@
                                         {% if order.status == 'paid' %}bg-success
                                         {% elseif order.status == 'pending' %}bg-warning text-dark
                                         {% else %}bg-secondary{% endif %}">
-                                        {{ order.status|capitalize }}
+                                        Status: {{ order.status|capitalize }}
                                     </span>
                                     <p class="fw-bold text-purple mb-0 mt-1">${{ order.total }}</p>
                                 </div>
@@ -267,6 +270,70 @@
                     {% endfor %}
                 {% endif %}
             </div>
+
+            {# ── Accessibility Tab ── #}
+            <div class="tab-pane fade" id="accessibility">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Accessibility Settings</h5>
+
+                        {# Theme #}
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-purple mb-2">Website Theme</h6>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button class="btn btn-outline-secondary" onclick="setTheme('light')">☀️ Light</button>
+                                <button class="btn btn-outline-secondary" onclick="setTheme('dark')">🌙 Dark</button>
+                                <button class="btn btn-outline-secondary" onclick="setTheme('system')">💻 System</button>
+                            </div>
+                        </div>
+
+                        {# Text Size #}
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-purple mb-2">Text Size</h6>
+                            <div class="d-flex align-items-center gap-3">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="adjustFontSize(-1)">A−</button>
+                                <span id="font-size-label" class="text-muted small">100%</span>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="adjustFontSize(1)">A+</button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="resetFontSize()">Reset</button>
+                            </div>
+                        </div>
+
+                        {# High Contrast #}
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-purple mb-2">High Contrast Mode</h6>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="high-contrast-toggle"
+                                    onchange="toggleHighContrast(this.checked)">
+                                <label class="form-check-label" for="high-contrast-toggle">Enable high contrast</label>
+                            </div>
+                        </div>
+
+                        {# Reduce Motion #}
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-purple mb-2">Reduce Motion</h6>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="reduce-motion-toggle"
+                                    onchange="toggleReduceMotion(this.checked)">
+                                <label class="form-check-label" for="reduce-motion-toggle">Reduce animations and transitions</label>
+                            </div>
+                        </div>
+
+                        {# Dyslexia Font #}
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-purple mb-2">Dyslexia-Friendly Font</h6>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dyslexia-toggle"
+                                    onchange="toggleDyslexiaFont(this.checked)">
+                                <label class="form-check-label" for="dyslexia-toggle">Use OpenDyslexic font</label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-outline-secondary btn-sm" onclick="resetAllAccessibility()">
+                            Reset All Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -295,6 +362,126 @@ function copySecret() {
         icon.classList.replace('bi-clipboard', 'bi-check-lg');
         setTimeout(() => icon.classList.replace('bi-check-lg', 'bi-clipboard'), 1500);
     });
+}
+
+// Accessibility stuff
+
+// ── Load saved preferences on page load ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    const fontSize  = parseInt(localStorage.getItem('fontSize') || '100');
+    const contrast  = localStorage.getItem('highContrast') === 'true';
+    const motion    = localStorage.getItem('reduceMotion') === 'true';
+    const dyslexia  = localStorage.getItem('dyslexiaFont') === 'true';
+    const theme     = localStorage.getItem('theme') || 'light';
+
+    applyFontSize(fontSize);
+    if (contrast)  applyHighContrast(true);
+    if (motion)    applyReduceMotion(true);
+    if (dyslexia)  applyDyslexiaFont(true);
+    applyTheme(theme);
+
+    document.getElementById('high-contrast-toggle').checked  = contrast;
+    document.getElementById('reduce-motion-toggle').checked  = motion;
+    document.getElementById('dyslexia-toggle').checked       = dyslexia;
+});
+
+// ── Theme ─────────────────────────────────────────────────────────────────
+function setTheme(theme) {
+    localStorage.setItem('theme', theme);
+    applyTheme(theme);
+}
+
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+    } else if (theme === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');
+    } else {
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+    }
+}
+
+// ── Font Size ─────────────────────────────────────────────────────────────
+let currentFontSize = parseInt(localStorage.getItem('fontSize') || '100');
+
+function adjustFontSize(delta) {
+    currentFontSize = Math.min(150, Math.max(75, currentFontSize + delta * 10));
+    localStorage.setItem('fontSize', currentFontSize);
+    applyFontSize(currentFontSize);
+}
+
+function applyFontSize(size) {
+    document.documentElement.style.fontSize = size + '%';
+    const label = document.getElementById('font-size-label');
+    if (label) label.textContent = size + '%';
+    currentFontSize = size;
+}
+
+function resetFontSize() {
+    applyFontSize(100);
+    localStorage.setItem('fontSize', '100');
+}
+
+// ── High Contrast ─────────────────────────────────────────────────────────
+function toggleHighContrast(enabled) {
+    localStorage.setItem('highContrast', enabled);
+    applyHighContrast(enabled);
+}
+
+function applyHighContrast(enabled) {
+    if (enabled) {
+        document.body.classList.add('high-contrast');
+    } else {
+        document.body.classList.remove('high-contrast');
+    }
+}
+
+// ── Reduce Motion ─────────────────────────────────────────────────────────
+function toggleReduceMotion(enabled) {
+    localStorage.setItem('reduceMotion', enabled);
+    applyReduceMotion(enabled);
+}
+
+function applyReduceMotion(enabled) {
+    if (enabled) {
+        document.body.classList.add('reduce-motion');
+    } else {
+        document.body.classList.remove('reduce-motion');
+    }
+}
+
+// ── Dyslexia Font ─────────────────────────────────────────────────────────
+function toggleDyslexiaFont(enabled) {
+    localStorage.setItem('dyslexiaFont', enabled);
+    applyDyslexiaFont(enabled);
+}
+
+function applyDyslexiaFont(enabled) {
+    if (enabled) {
+        document.body.classList.add('dyslexia-font');
+    } else {
+        document.body.classList.remove('dyslexia-font');
+    }
+}
+
+// ── Reset All ─────────────────────────────────────────────────────────────
+function resetAllAccessibility() {
+    localStorage.removeItem('fontSize');
+    localStorage.removeItem('highContrast');
+    localStorage.removeItem('reduceMotion');
+    localStorage.removeItem('dyslexiaFont');
+    localStorage.removeItem('theme');
+
+    applyFontSize(100);
+    applyHighContrast(false);
+    applyReduceMotion(false);
+    applyDyslexiaFont(false);
+    applyTheme('light');
+
+    document.getElementById('high-contrast-toggle').checked = false;
+    document.getElementById('reduce-motion-toggle').checked = false;
+    document.getElementById('dyslexia-toggle').checked      = false;
 }
 </script>
 
