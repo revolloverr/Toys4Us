@@ -19,12 +19,17 @@
 
 <!-- ─── Search ───────────────────────────────────────────────────────── -->
 <section class="mb-5">
-    <form method="GET" action="{{ base_path }}/products" class="d-flex gap-2 justify-content-center">
-        <input type="text" name="search" class="form-control form-control-lg"
-               placeholder="{{ trans('home.search_placeholder') }}" style="max-width: 500px;"
-               value="{{ search ?? '' }}">
-        <button type="submit" class="btn btn-purple btn-lg px-4"><i class="bi bi-search me-1"></i>{{ trans('home.search_btn') }}</button>
-    </form>
+    <div class="d-flex gap-2 justify-content-center position-relative">
+        <div class="position-relative" style="max-width: 500px; flex-grow:1;">
+            <input type="text" id="home-search-input" class="form-control form-control-lg"
+                   placeholder="{{ trans('home.search_placeholder') }}"
+                   value="{{ search ?? '' }}"
+                   autocomplete="off">
+            <div id="home-search-results" class="position-absolute w-100 shadow-sm rounded"
+                 style="z-index:1000; display:none; max-height:400px; overflow-y:auto; background:#fff; border:1px solid #ddd;"></div>
+        </div>
+        <a href="{{ base_path }}/products" class="btn btn-purple btn-lg px-4"><i class="bi bi-search me-1"></i>{{ trans('home.search_btn') }}</a>
+    </div>
 </section>
 
 <!-- ─── CATEGORIES ───────────────────────────────────────────────────────── -->
@@ -109,5 +114,60 @@
         {% endfor %}
     </div>
 </section>
+
+<script>
+const basePath = "{{ base_path }}";
+const homeSearchInput = document.getElementById('home-search-input');
+const homeResultsBox = document.getElementById('home-search-results');
+const homeNoResults = "{{ trans('products.no_results')|e('js') }}";
+const homeViewText = "{{ trans('products.view')|e('js') }}";
+let homeDebounce = null;
+
+if (homeSearchInput) {
+    homeSearchInput.addEventListener('input', function() {
+        clearTimeout(homeDebounce);
+        const q = this.value.trim();
+        if (q.length < 2) {
+            homeResultsBox.style.display = 'none';
+            return;
+        }
+        homeDebounce = setTimeout(() => {
+            fetch(basePath + '/products/search-json?q=' + encodeURIComponent(q))
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        homeResultsBox.innerHTML = '<div class="p-3 text-muted small text-center">' + homeNoResults + '</div>';
+                        homeResultsBox.style.display = 'block';
+                        return;
+                    }
+                    let html = '';
+                    data.slice(0, 6).forEach(p => {
+                        html += '<a href="' + basePath + '/products/' + p.id + '" class="d-flex align-items-center gap-2 p-2 text-decoration-none border-bottom">';
+                        if (p.image) html += '<img src="' + p.image + '" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:4px;">';
+                        html += '<div class="flex-grow-1"><div class="fw-bold small text-dark">' + p.name + '</div>';
+                        html += '<div class="text-muted" style="font-size:0.75rem;">$' + p.price.toFixed(2) + '</div></div>';
+                        html += '<span class="btn btn-purple btn-sm">' + homeViewText + '</span></a>';
+                    });
+                    homeResultsBox.innerHTML = html;
+                    homeResultsBox.style.display = 'block';
+                })
+                .catch(() => { homeResultsBox.style.display = 'none'; });
+        }, 300);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#home-search-input') && !e.target.closest('#home-search-results')) {
+            homeResultsBox.style.display = 'none';
+        }
+    });
+
+    homeSearchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            window.location.href = basePath + '/products?search=' + encodeURIComponent(this.value);
+        }
+    });
+}
+</script>
 
 {% endblock %}

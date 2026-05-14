@@ -241,8 +241,9 @@ $app->get('/about', function (Request $request, Response $response) use ($twig, 
 });
 
 // Public product routes (no auth required to browse)
-$app->get('/products',            [ProductsController::class, 'index']);
-$app->get('/products/{id}',       [ProductsController::class, 'show']);
+$app->get('/products',                     [ProductsController::class, 'index']);
+$app->get('/products/search-json',         [ProductsController::class, 'searchJson']);
+$app->get('/products/{id}',                [ProductsController::class, 'show']);
 
 // Cart routes (no auth required to add to cart)
 $app->get('/cart',                [CheckoutController::class, 'showCart']);

@@ -71,6 +71,36 @@ class ProductsController
     }
 
     /**
+     * GET /products/search-json
+     * AJAX live search — returns JSON.
+     */
+    public function searchJson(Request $request, Response $response): Response
+    {
+        $params = $request->getQueryParams();
+        $search = isset($params['q']) && $params['q'] !== '' ? $params['q'] : '';
+
+        $products = [];
+        if ($search !== '') {
+            $rows = $this->model->findFiltered(null, null, null, null, $search);
+            foreach ($rows as $p) {
+                $products[] = [
+                    'id'          => (int) $p->id,
+                    'name'        => $p->name,
+                    'description' => $p->description,
+                    'price'       => (float) $p->price,
+                    'image'       => $p->image ?? '',
+                    'rating'      => (float) ($p->rating ?? 0),
+                    'slug'        => $p->slug ?? '',
+                ];
+            }
+        }
+
+        $payload = json_encode($products, JSON_UNESCAPED_UNICODE);
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
      * GET /products/{id}
      * Show a single product detail page.
      */

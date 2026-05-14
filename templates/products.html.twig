@@ -16,11 +16,21 @@
     {# ── Search ───────────────────────────────────────────────────── #}
     <div class="row mb-3">
         <div class="col">
-            <form method="GET" action="{{ base_path }}/products" class="d-flex gap-2">
-                <input type="text" name="search" class="form-control"
-                    placeholder="{{ trans('products.search_placeholder') }}"
-                    value="{{ filters.search ?? '' }}">
-            <button type="submit" class="btn btn-purple"><i class="bi bi-search me-1"></i>{{ trans('products.search_btn') }}</button>
+            <div class="d-flex gap-2">
+                <div class="position-relative flex-grow-1">
+                    <input type="text" id="live-search-input" class="form-control"
+                        placeholder="{{ trans('products.search_placeholder') }}"
+                        value="{{ filters.search ?? '' }}"
+                        autocomplete="off">
+                    <div id="live-search-results" class="position-absolute w-100 shadow-sm rounded"
+                         style="z-index:1000; display:none; max-height:400px; overflow-y:auto; background:#fff; border:1px solid #ddd;"></div>
+                </div>
+                <button type="submit" class="btn btn-purple" onclick="document.getElementById('live-search-input').form.submit()">
+                    <i class="bi bi-search me-1"></i>{{ trans('products.search_btn') }}
+                </button>
+            </div>
+            <form method="GET" action="{{ base_path }}/products" id="search-form" class="d-none">
+                <input type="hidden" name="search" id="search-hidden">
             </form>
         </div>
     </div>
@@ -116,6 +126,7 @@
             {% endif %}
         </p>
 
+        <div id="product-grid">
         {% if products is empty %}
             <div class="text-center py-5">
                 <p class="text-muted fs-5">{{ trans('products.no_results') }}</p>
@@ -151,8 +162,82 @@
                 {% endfor %}
             </div>
         {% endif %}
+        </div>
     </div>
 
 </div>
+
+<script>
+const basePath = "{{ base_path }}";
+const searchInput = document.getElementById('live-search-input');
+const resultsBox = document.getElementById('live-search-results');
+const searchNoResults = "{{ trans('products.no_results')|e('js') }}";
+const searchViewText = "{{ trans('products.view')|e('js') }}";
+const searchBtnText = "{{ trans('products.search_btn')|e('js') }}";
+const searchHeading = "{{ trans('products.heading')|e('js') }}";
+let debounceTimer = null;
+
+searchInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const q = this.value.trim();
+    if (q.length < 2) {
+        resultsBox.style.display = 'none';
+        return;
+    }
+    debounceTimer = setTimeout(() => performLiveSearch(q), 300);
+});
+
+function performLiveSearch(q) {
+    fetch(basePath + '/products/search-json?q=' + encodeURIComponent(q))
+        .then(res => res.json())
+        .then(data => {
+            if (!data || data.length === 0) {
+                resultsBox.innerHTML = '<div class="p-3 text-muted small text-center">' + searchNoResults + '</div>';
+                resultsBox.style.display = 'block';
+                return;
+            }
+            let html = '';
+            data.slice(0, 8).forEach(p => {
+                html += '<a href="' + basePath + '/products/' + p.id + '" class="d-flex align-items-center gap-2 p-2 text-decoration-none border-bottom" style="cursor:pointer;">';
+                if (p.image) {
+                    html += '<img src="' + p.image + '" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:4px;">';
+                }
+                html += '<div class="flex-grow-1"><div class="fw-bold small text-dark">' + escapeHtml(p.name) + '</div>';
+                html += '<div class="text-muted" style="font-size:0.75rem;">$' + p.price.toFixed(2) + '</div></div>';
+                html += '<span class="btn btn-purple btn-sm">' + searchViewText + '</span></a>';
+            });
+            if (data.length > 8) {
+                html += '<div class="p-2 text-center"><a href="' + basePath + '/products?search=' + encodeURIComponent(q) + '" class="small text-purple">' + searchBtnText + ' ' + data.length + ' ' + searchHeading + '</a></div>';
+            }
+            resultsBox.innerHTML = html;
+            resultsBox.style.display = 'block';
+        })
+        .catch(() => {
+            resultsBox.style.display = 'none';
+        });
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Close dropdown on click outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#live-search-input') && !e.target.closest('#live-search-results')) {
+        resultsBox.style.display = 'none';
+    }
+});
+
+// Submit on Enter
+searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('search-hidden').value = this.value;
+        document.getElementById('search-form').submit();
+    }
+});
+</script>
 
 {% endblock %}
