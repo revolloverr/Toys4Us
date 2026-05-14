@@ -30,7 +30,7 @@ class CheckoutController
 
         $enrichedCart = [];
         foreach ($cart as $key => $item) {
-            if (($item['type'] ?? '') === 'custom_plush' && !empty($item['plush_id'])) {
+            if (($item['type'] ?? '') === 'customplush' && !empty($item['plush_id'])) {
                 $plushDetails = $this->plushModel->getCustomPlushDetails((int) $item['plush_id']);
                 if ($plushDetails) {
                     $item['plush_details'] = $plushDetails;

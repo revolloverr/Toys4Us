@@ -99,7 +99,7 @@ public function save(Request $request, Response $response): Response
             // Update cart entry in session
             $cartKey = 'plush_' . $plushId;
             $_SESSION['cart'][$cartKey] = [
-                'type'     => 'custom_plush',
+                'type'     => 'customplush',
                 'plush_id' => $plushId,
                 'name'     => $plushName,
                 'price'    => $totalPrice,
@@ -117,7 +117,7 @@ public function save(Request $request, Response $response): Response
 
             $cartKey = 'plush_' . $plushId;
             $_SESSION['cart'][$cartKey] = [
-                'type'     => 'custom_plush',
+                'type'     => 'customplush',
                 'plush_id' => $plushId,
                 'name'     => $plushName,
                 'price'    => $totalPrice,

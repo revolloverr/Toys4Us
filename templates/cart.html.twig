@@ -38,7 +38,7 @@
                         {% for key, item in cart %}
                             <tr>
                                 <td>
-                                    {% if item.type is defined and item.type == 'custom_plush' and item.plush_details is defined %}
+                                    {% if item.type is defined and item.type == 'customplush' and item.plush_details is defined %}
                                         {# ── Custom plush preview ── #}
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="position-relative" style="width:80px; height:80px; flex-shrink:0;">
@@ -79,7 +79,7 @@
                                     ${{ (item.price * (item.qty is defined ? item.qty : 1))|number_format(2) }}
                                 </td>
                                 <td class="text-end">
-                                    {% if item.type is defined and item.type == 'custom_plush' %}
+                                    {% if item.type is defined and item.type == 'customplush' %}
                                         <a href="{{ base_path }}/build/{{ item.plush_id }}"
                                            class="btn btn-sm btn-outline-purple me-1">
                                             <i class="bi bi-pencil"></i> Edit

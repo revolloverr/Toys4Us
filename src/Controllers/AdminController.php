@@ -34,8 +34,8 @@ class AdminController
             'counts'    => [
                 'products'    => R::count('product'),
                 'categories'  => $this->categoryModel->count(),
-                'bases'       => R::count('plush_base'),
-                'accessories' => R::count('plush_accessory'),
+                'bases'       => R::count('plushbase'),
+                'accessories' => R::count('plushaccessory'),
                 'orders'      => R::count('order'),
                 'users'       => R::count('user'),
             ],

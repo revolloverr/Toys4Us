@@ -61,10 +61,10 @@ R::setup(
 R::freeze(true);
 
 
-// Ensure custom_plush table exists (for Build a Plush feature)
+// Ensure customplush table exists (for Build a Plush feature)
 $tables = R::inspect();
-if (!in_array('custom_plush', $tables)) {
-    R::exec('CREATE TABLE custom_plush (
+if (!in_array('customplush', $tables)) {
+    R::exec('CREATE TABLE customplush (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT DEFAULT NULL,
         base_id INT NOT NULL,
@@ -74,10 +74,10 @@ if (!in_array('custom_plush', $tables)) {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
-if (!in_array('custom_plush_accessory', $tables)) {
-    R::exec('CREATE TABLE custom_plush_accessory (
+if (!in_array('customplushaccessory', $tables)) {
+    R::exec('CREATE TABLE customplushaccessory (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        custom_plush_id INT NOT NULL,
+        customplush_id INT NOT NULL,
         accessory_id INT NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
