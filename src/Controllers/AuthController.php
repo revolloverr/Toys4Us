@@ -10,6 +10,7 @@ use App\Services\FlashService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Twig\Environment;
+use App\Models\CartModel;
 
 /**
  * AuthController
@@ -26,12 +27,14 @@ class AuthController
     private UserModel $userModel;
     private OtpService $otpService;
     private FlashService $flash;
+    private CartModel $cartModel;
 
     public function __construct(private Environment $twig, private string $basePath)
     {
         $this->userModel  = new UserModel();
         $this->otpService = new OtpService();
         $this->flash      = new FlashService();
+        $this->cartModel  = new CartModel();
     }
 
     // ── GET /login ──────────────────────────────────────────────────────────
@@ -165,7 +168,7 @@ class AuthController
             'role'  => $user->role,
         ];
         $_SESSION['authenticated'] = true;
-
+        $this->mergeAndLoadCart((int) $user->id);
         $this->flash->success('flash.register_success');
 
         return $response
@@ -274,7 +277,7 @@ class AuthController
             'role'  => $user->role,
         ];
         $_SESSION['authenticated'] = true;
-
+        $this->mergeAndLoadCart((int) $user->id);
         return $response
             ->withHeader('Location', $this->basePath . '/products')
             ->withStatus(302);
@@ -310,9 +313,20 @@ class AuthController
             'role'  => $user->role,
         ];
         $_SESSION['authenticated'] = true;
-
+        $this->mergeAndLoadCart((int) $user->id);
         return $response
             ->withHeader('Location', $this->basePath . '/products')
             ->withStatus(302);
+    }
+
+    private function mergeAndLoadCart(int $userId): void
+    {
+        // Merge session cart into DB
+        if (!empty($_SESSION['cart'])) {
+            $this->cartModel->mergeSessionCart($userId, $_SESSION['cart']);
+        }
+
+        // Load full DB cart into session
+        $_SESSION['cart'] = $this->cartModel->toSessionFormat($userId);
     }
 }

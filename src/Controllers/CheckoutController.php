@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Models\PlushModel;
 use App\Models\ProductModel;
 use App\Models\OrderModel;
+use App\Models\CartModel;
 
 use App\Services\FlashService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -23,15 +24,17 @@ class CheckoutController
     private PlushModel $plushModel;
     private FlashService $flash;
     private OrderModel $orderModel;
+    private CartModel $cartModel;
 
     public function __construct(
-        private Environment $twig,
-        private ProductModel $model,
-        private string $basePath,
+    private Environment $twig,
+    private ProductModel $model,
+    private string $basePath,
     ) {
         $this->plushModel  = new PlushModel();
         $this->flash       = new FlashService();
         $this->orderModel  = new OrderModel();
+        $this->cartModel   = new CartModel();
     }
 
     public function showCart(Request $request, Response $response): Response
@@ -72,27 +75,30 @@ class CheckoutController
                 'price' => $product->price,
                 'qty'   => ($_SESSION['cart'][$productId]['qty'] ?? 0) + 1,
             ];
+
+            // Persist to DB if logged in
+            if (!empty($_SESSION['user']['id'])) {
+                $this->cartModel->addItem((int) $_SESSION['user']['id'], $productId);
+            }
         }
 
         $this->flash->success('flash.product_added_to_cart');
-
-        return $response
-            ->withHeader('Location', $this->basePath . '/products')
-            ->withStatus(302);
+        return $response->withHeader('Location', $this->basePath . '/products')->withStatus(302);
     }
 
     public function removeFromCart(Request $request, Response $response, array $args): Response
     {
         $key = $args['key'] ?? '';
         if ($key !== '' && isset($_SESSION['cart'][$key])) {
+            // Remove from DB if logged in
+            if (!empty($_SESSION['user']['id']) && is_numeric($key)) {
+                $this->cartModel->removeItem((int) $_SESSION['user']['id'], (int) $key);
+            }
             unset($_SESSION['cart'][$key]);
         }
 
         $this->flash->warning('flash.product_removed_from_cart');
-
-        return $response
-            ->withHeader('Location', $this->basePath . '/cart')
-            ->withStatus(302);
+        return $response->withHeader('Location', $this->basePath . '/cart')->withStatus(302);
     }
 
     /**
