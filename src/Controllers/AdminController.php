@@ -14,6 +14,7 @@ class AdminController
     public function __construct(
         private Environment $twig,
         private string $basePath,
+        private PlushModel $plushModel,
     ) {}
 
     // GET /admin
