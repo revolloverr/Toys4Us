@@ -63,8 +63,70 @@ class PlushController
     }
 
     // POST /build
-    public function save(Request $request, Response $response): Response
+public function save(Request $request, Response $response): Response
     {
-        throw new \Slim\Exception\HttpNotFoundException($request);
+        $data         = (array) $request->getParsedBody();
+        $baseId       = (int) ($data['base_id'] ?? 0);
+        $plushName    = trim($data['plush_name'] ?? 'My Plush');
+        $accessoryIds = array_map('intval', (array) ($data['accessory_ids'] ?? []));
+        $editPlushId  = (int) ($data['edit_plush_id'] ?? 0);
+        $userId       = $_SESSION['user']['id'] ?? null;
+
+        // Calculate total price
+        $base = $this->plushModel->getBaseById($baseId);
+        if (!$base) {
+            return $response
+                ->withHeader('Location', $this->basePath . '/build')
+                ->withStatus(302);
+        }
+
+        $totalPrice = (float) $base->base_price;
+        foreach ($accessoryIds as $accId) {
+            if ($accId > 0) {
+                $acc = $this->plushModel->getAccessoryById($accId);
+                if ($acc) {
+                    $totalPrice += (float) $acc->price;
+                }
+            }
+        }
+
+        // Save or update the custom plush
+        if ($editPlushId > 0) {
+            // Updating existing — remove old cart entry and replace
+            $plushId = $editPlushId;
+            $this->plushModel->updateCustomPlush($plushId, $baseId, $plushName, $accessoryIds, $totalPrice);
+
+            // Update cart entry in session
+            $cartKey = 'plush_' . $plushId;
+            $_SESSION['cart'][$cartKey] = [
+                'type'     => 'custom_plush',
+                'plush_id' => $plushId,
+                'name'     => $plushName,
+                'price'    => $totalPrice,
+                'qty'      => 1,
+            ];
+        } else {
+            // New plush
+            $plushId = $this->plushModel->saveCustomPlush(
+                $userId,
+                $baseId,
+                $plushName,
+                $accessoryIds,
+                $totalPrice,
+            );
+
+            $cartKey = 'plush_' . $plushId;
+            $_SESSION['cart'][$cartKey] = [
+                'type'     => 'custom_plush',
+                'plush_id' => $plushId,
+                'name'     => $plushName,
+                'price'    => $totalPrice,
+                'qty'      => 1,
+            ];
+        }
+
+        return $response
+            ->withHeader('Location', $this->basePath . '/cart')
+            ->withStatus(302);
     }
 }

@@ -162,4 +162,26 @@ class PlushModel
             'accessory_ids' => array_column($accessoryRows, 'id'),
         ];
     }
+
+    public function updateCustomPlush(int $plushId, int $baseId, string $name, array $accessoryIds, float $totalPrice): void 
+    {
+        $plush = R::load('custom_plush', $plushId);
+        if (!$plush->id) return;
+
+        $plush->base_id     = $baseId;
+        $plush->name        = $name;
+        $plush->total_price = $totalPrice;
+        R::store($plush);
+
+        R::exec('DELETE FROM custom_plush_accessory WHERE custom_plush_id = ?', [$plushId]);
+
+        foreach ($accessoryIds as $accId) {
+            if ($accId > 0) {
+                $junction                  = R::dispense('custom_plush_accessory');
+                $junction->custom_plush_id = $plushId;
+                $junction->accessory_id    = $accId;
+                R::store($junction);
+            }
+        }
+    }
 }
