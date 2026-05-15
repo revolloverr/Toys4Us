@@ -122,7 +122,7 @@
             {% set count = products|length %}
             {{ count == 1 ? trans('products.showing_results', {'%count%': 1})|split('|')[0] : trans('products.showing_results', {'%count%': count})|split('|')[1] }}
             {% if filters.category is defined and filters.category %}
-                {{ trans('products.results_in_category', {'%category%': filters.category})|raw }}
+                {{ trans('products.results_in_category', {'%category%': filters.category}) }}
             {% endif %}
         </p>
 

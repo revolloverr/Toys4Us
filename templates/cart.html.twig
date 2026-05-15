@@ -75,16 +75,16 @@
                                 </td>
                                  <td class="text-center">
                                      <div class="d-flex align-items-center justify-content-center gap-1">
-                                         <button type="button" class="btn btn-sm btn-outline-secondary px-2 py-0 qty-btn"
-                                                 data-action="decrement" data-key="{{ key }}"
-                                                 {% if (item.qty is defined ? item.qty : 1) <= 1 %}disabled{% endif %}>
-                                             <i class="bi bi-dash"></i>
-                                         </button>
-                                         <span class="fw-bold mx-1 qty-display" style="min-width:1.5rem;" data-key="{{ key }}">{{ item.qty is defined ? item.qty : 1 }}</span>
-                                         <button type="button" class="btn btn-sm btn-outline-secondary px-2 py-0 qty-btn"
-                                                 data-action="increment" data-key="{{ key }}">
-                                             <i class="bi bi-plus"></i>
-                                         </button>
+                                          <button type="button" class="btn btn-sm btn-outline-secondary px-2 py-0 qty-btn"
+                                                  data-action="decrement" data-key="{{ key|e('html_attr') }}"
+                                                  {% if (item.qty is defined ? item.qty : 1) <= 1 %}disabled{% endif %}>
+                                              <i class="bi bi-dash"></i>
+                                          </button>
+                                          <span class="fw-bold mx-1 qty-display" style="min-width:1.5rem;" data-key="{{ key|e('html_attr') }}">{{ item.qty is defined ? item.qty : 1 }}</span>
+                                          <button type="button" class="btn btn-sm btn-outline-secondary px-2 py-0 qty-btn"
+                                                  data-action="increment" data-key="{{ key|e('html_attr') }}">
+                                              <i class="bi bi-plus"></i>
+                                          </button>
                                      </div>
                                  </td>
                                 <td class="text-end">${{ item.price|number_format(2) }}</td>
