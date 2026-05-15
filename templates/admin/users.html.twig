@@ -59,7 +59,7 @@
                                     <select name="role" class="form-select form-select-sm"
                                             {{ isCurrentUser ? 'disabled' : '' }}>
                                         <option value="user" {{ user.role == 'user' ? 'selected' : '' }}>{{ trans('profile.tab_account') }}</option>
-                                        <option value="admin" {{ user.role == 'admin' ? 'selected' : '' }}>{{ trans('admin.title') }}</option>
+                                        <option value="admin" {{ user.role == 'admin' ? 'selected' : '' }}>{{ trans('admin.role') }}</option>
                                     </select>
                                 </td>
                                 <td>

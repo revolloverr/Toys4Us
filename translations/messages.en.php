@@ -244,6 +244,7 @@ return [
 
     // ── Admin panel ───────────────────────────────────────────────────────────
     'admin.title'                   => 'Admin Panel',
+    'admin.role'                   => 'Admin',
     'admin.back_to_admin'           => '← Back to Admin',
     'admin.success_message'         => 'Action completed successfully.',
     'admin.tab_dashboard'           => 'Dashboard',

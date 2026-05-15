@@ -224,6 +224,7 @@ return [
 
     // ── Admin panel ───────────────────────────────────────────────────────────
     'admin.title'                   => 'Panneau d\'administration',
+    'admin.role'                   => 'Admin',
     'admin.back_to_admin'           => '← Retour à l\'administration',
     'admin.success_message'         => 'Action effectuée avec succès.',
     'admin.tab_dashboard'           => 'Tableau de bord',
