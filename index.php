@@ -185,6 +185,7 @@ $container->set(AdminController::class, fn() => new AdminController(
     $model,
     $categoryModel,
     $userModel,
+    new \App\Models\OrderModel(),
 ));
 
 // ─── 5. APPLICATION ───────────────────────────────────────────────────────────
