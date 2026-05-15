@@ -123,7 +123,12 @@ if (R::count('product') === 0) {
         ['name' => 'Puzzle 1000pc', 'description' => 'Beautiful landscape jigsaw puzzle', 'price' => 14.99, 'image' => 'https://placehold.co/300x200/7c3aed/ffffff?text=Puzzle'],
     ];
     foreach ($toys as $toy) {
-        $model->create($toy['name'], $toy['description'], $toy['price'], $toy['image']);
+        $model->create([
+            'name'        => $toy['name'],
+            'description' => $toy['description'],
+            'price'       => $toy['price'],
+            'image'       => $toy['image'],
+        ]);
     }
 }
 

@@ -64,14 +64,14 @@ class AdminController
     public function storeProduct(Request $request, Response $response): Response
     {
         $data = (array) $request->getParsedBody();
-        $this->productModel->create(
-            trim($data['name'] ?? ''),
-            trim($data['description'] ?? ''),
-            (float) ($data['price'] ?? 0),
-            trim($data['image'] ?? ''),
-            (int) ($data['stock'] ?? 0),
-            (int) ($data['category_id'] ?? 0) ?: null,
-        );
+        $this->productModel->create([
+            'name'        => trim($data['name'] ?? ''),
+            'description' => trim($data['description'] ?? ''),
+            'price'       => (float) ($data['price'] ?? 0),
+            'image'       => trim($data['image'] ?? ''),
+            'stock'       => (int) ($data['stock'] ?? 0),
+            'category_id' => (int) ($data['category_id'] ?? 0) ?: null,
+        ]);
 
         return $response
             ->withHeader('Location', $this->basePath . '/admin/products')
@@ -102,11 +102,8 @@ class AdminController
 
     public function deleteProduct(Request $request, Response $response): Response
     {
-        $data    = (array) $request->getParsedBody();
-        $product = $this->productModel->load((int) ($data['id'] ?? 0));
-        if ($product->id) {
-            $this->productModel->delete($product);
-        }
+        $data = (array) $request->getParsedBody();
+        $this->productModel->delete((int) ($data['id'] ?? 0));
 
         return $response
             ->withHeader('Location', $this->basePath . '/admin/products')
