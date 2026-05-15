@@ -384,4 +384,7 @@ return [
     'flash.login_to_checkout'          => 'Please sign in to checkout.',
     'flash.plush_saved'               => 'Custom plush saved!',
     'flash.plush_updated'             => 'Custom plush updated.',
+
+
+    'users.search_placeholder'        => 'Search for users',
 ];

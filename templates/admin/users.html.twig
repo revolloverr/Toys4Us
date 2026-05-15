@@ -14,7 +14,7 @@
     <div class="card-body">
         <form method="GET" action="{{ base_path }}/admin/users" class="d-flex gap-2">
             <input type="text" name="search" class="form-control"
-                   placeholder="{{ trans('products.search_placeholder') }}"
+                   placeholder="{{ trans('users.search_placeholder') }}"
                    value="{{ search ?? '' }}">
             <button type="submit" class="btn btn-purple">{{ trans('products.search_btn') }}</button>
             {% if search is defined and search %}

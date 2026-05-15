@@ -360,4 +360,6 @@ return [
     'flash.login_to_checkout'          => 'Veuillez vous connecter pour commander.',
     'flash.plush_saved'               => 'Peluche personnalisée sauvegardée !',
     'flash.plush_updated'             => 'Peluche personnalisée mise à jour.',
+
+    'users.search_placeholder'        => 'Rechercher des utilisateurs',
 ];
