@@ -300,8 +300,21 @@ return [
     'admin.table_email'             => 'Courriel',
     'admin.table_role'              => 'Rôle',
     'admin.table_phone'             => 'Téléphone',
-    'admin.table_status'            => 'Statut',
+'admin.table_status'            => 'Statut',
     'admin.value_none'              => 'Aucun',
+
+    // Admin - Orders
+    'admin.orders_title'           => 'Commandes - Admin',
+    'admin.orders_heading'        => 'Commandes clients',
+    'admin.orders_desc'           => 'Gérer les commandes des clients et leurs statuts',
+    'admin.orders_empty'          => 'Aucune commande trouvée.',
+    'admin.orders_unknown_user'  => 'Utilisateur inconnu',
+    'admin.table_customer'       => 'Client',
+    'admin.table_created_at'     => 'Créé le',
+    'admin.table_total'          => 'Total',
+    'admin.table_items'          => 'Articles',
+    'admin.table_actions'        => 'Actions',
+
 
     // ── Error pages ──────────────────────────────────────────────────────────
     'error.404_title'               => '404 - Page non trouvée',

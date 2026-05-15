@@ -320,8 +320,22 @@ return [
     'admin.table_email'             => 'Email',
     'admin.table_role'              => 'Role',
     'admin.table_phone'             => 'Phone',
-    'admin.table_status'            => 'Status',
+'admin.table_status'            => 'Status',
     'admin.value_none'              => 'None',
+
+    // Admin - Orders
+    'admin.orders_title'            => 'Orders - Admin',
+    'admin.orders_heading'         => 'Customer Orders',
+    'admin.orders_desc'            => 'Manage customer orders and statuses',
+    'admin.orders_empty'           => 'No orders found.',
+    'admin.orders_unknown_user'   => 'Unknown user',
+    'admin.table_customer'         => 'Customer',
+    'admin.table_created_at'       => 'Created at',
+    'admin.table_status'           => 'Status',
+    'admin.table_total'            => 'Total',
+    'admin.table_items'            => 'Items',
+    'admin.table_actions'          => 'Actions',
+
 
     // ── Error pages ──────────────────────────────────────────────────────────
     'error.404_title'               => '404 - Page Not Found',
