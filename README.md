@@ -33,7 +33,7 @@ Toys4Us is an e-commerce website where you can buy toys, build your own customiz
 | Front-end | Bootstrap 5 + Bootstrap Icons (CDN), plain JavaScript |
 
 ## Setup
-Follow the instructions in [Toys4Us - self-host instructions.md](Toys4Us - self-host instructions.md) to self host our project.
+Follow the instructions in [Toys4Us - self-host instructions.md](<Toys4Us - self-host instructions.md>) to self host our project.
 
 ## Routes Overview
 
@@ -208,7 +208,7 @@ Toys4Us/
 | Setting Maintenance Mode (from Linux Server) | `touch [Files Directory]/var/maintenance.flag` 
 
 ## Database Structure
-Viewable inside [Toys4Us - Database.md](Toys4Us - Database.md)
+Viewable inside [Toys4Us - Database.md](<Toys4Us - Database.md>)
 
 ## Authors
 > Karim Fahd (6294503)
