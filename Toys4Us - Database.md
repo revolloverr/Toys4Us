@@ -168,7 +168,7 @@ Individual line items belonging to an order.
 
 ### `review`
 User reviews for products.
-
+We wanted to implement this, but we had no time. This is a future feature to be implemented. We still have it in the database in case we need it later.
 | Column | Type | Notes |
 |--------|------|-------|
 | `id` | int | Primary key, auto increment |
