@@ -5,18 +5,22 @@
 {% block content %}
 <div class="row mb-4">
     <div class="col">
-        <h2 class="h4 text-purple fw-bold">{{ trans('checkout.shipping_heading') ?? 'Shipping details' }}</h2>
-        <p class="text-muted">{{ trans('checkout.shipping_sub') ?? 'Choose a saved address or enter a new one.' }}</p>
+        {% set _title = trans('checkout.shipping_heading')|default('Shipping details') %}
+        {% set _sub = trans('checkout.shipping_sub')|default('Choose a saved address or enter a new one.') %}
+        <h2 class="h4 text-purple fw-bold">{{ _title }}</h2>
+        <p class="text-muted">{{ _sub }}</p>
     </div>
 </div>
 
 <form method="POST" action="{{ base_path }}/checkout/shipping" id="shipping-form" class="mb-4">
     <div class="card shadow-sm border-0 mb-3">
         <div class="card-body">
-            <h6 class="fw-bold text-purple mb-3">{{ trans('checkout.saved_addresses') ?? 'Saved addresses' }}</h6>
+            {% set _saved = trans('checkout.saved_addresses')|default('Saved addresses') %}
+            <h6 class="fw-bold text-purple mb-3">{{ _saved }}</h6>
 
             {% if addresses is empty %}
-                <p class="text-muted small mb-3">{{ trans('checkout.no_addresses') ?? 'No saved addresses.' }}</p>
+                {% set _noaddr = trans('checkout.no_addresses')|default('No saved addresses.') %}
+                <p class="text-muted small mb-3">{{ _noaddr }}</p>
             {% else %}
                 <div class="list-group mb-3">
                     {% for address in addresses %}
@@ -31,7 +35,8 @@
                     <label class="list-group-item list-group-item-action d-flex align-items-start gap-2">
                         <input class="form-check-input mt-1" type="radio" name="address_id" value="0">
                         <div>
-                            <div class="fw-bold">{{ trans('checkout.use_new_address') ?? 'Use a new address' }}</div>
+                        {% set _usenew = trans('checkout.use_new_address')|default('Use a new address') %}
+                        <div class="fw-bold">{{ _usenew }}</div>
                         </div>
                     </label>
                 </div>
@@ -39,32 +44,38 @@
 
             <div id="new-address-fields" style="display:none;">
                 <div class="row g-2 mb-2">
+                    {% set _label_name = trans('checkout.name_label')|default('Full name') %}
+                    {% set _label_address = trans('checkout.address_label')|default('Address') %}
+                    {% set _label_city = trans('checkout.city_label')|default('City') %}
+                    {% set _label_province = trans('checkout.province_label')|default('Province') %}
+                    {% set _label_postal = trans('checkout.postal_label')|default('Postal code') %}
                     <div class="col-12">
-                        <label class="form-label small">{{ trans('checkout.name_label') ?? 'Full name' }}</label>
+                        <label class="form-label small">{{ _label_name }}</label>
                         <input type="text" name="name" class="form-control" maxlength="100" value="">
                     </div>
                     <div class="col-12">
-                        <label class="form-label small">{{ trans('checkout.address_label') ?? 'Address' }}</label>
+                        <label class="form-label small">{{ _label_address }}</label>
                         <input type="text" name="address" class="form-control" maxlength="255" value="">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small">{{ trans('checkout.city_label') ?? 'City' }}</label>
+                        <label class="form-label small">{{ _label_city }}</label>
                         <input type="text" name="city" class="form-control" maxlength="100" value="">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small">{{ trans('checkout.province_label') ?? 'Province' }}</label>
+                        <label class="form-label small">{{ _label_province }}</label>
                         <input type="text" name="province" class="form-control" maxlength="100" value="">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small">{{ trans('checkout.postal_label') ?? 'Postal code' }}</label>
+                        <label class="form-label small">{{ _label_postal }}</label>
                         <input type="text" name="postal_code" class="form-control" maxlength="20" value="">
                     </div>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between">
                 <a href="{{ base_path }}/cart" class="btn btn-outline-secondary">{{ trans('cart.continue_shopping') }}</a>
-                <button type="submit" class="btn btn-purple">{{ trans('checkout.continue_to_payment') ?? 'Continue to payment' }}</button>
+                {% set _cont = trans('checkout.continue_to_payment')|default('Continue to payment') %}
+                <button type="submit" class="btn btn-purple">{{ _cont }}</button>
             </div>
         </div>
     </div>

@@ -125,6 +125,26 @@ return [
     'checkout.order_reference' => 'Order reference',
     'checkout.continue_shopping' => 'Continue shopping',
 
+    // ── Checkout: shipping & payment ─────────────────────────────────────────
+    'checkout.shipping_title'   => 'Shipping',
+    'checkout.shipping_heading' => 'Shipping details',
+    'checkout.shipping_sub'     => 'Choose a saved address or enter a new one.',
+    'checkout.saved_addresses'  => 'Saved addresses',
+    'checkout.no_addresses'     => 'No saved addresses.',
+    'checkout.use_new_address'  => 'Use a new address',
+    'checkout.name_label'       => 'Full name',
+    'checkout.address_label'    => 'Address',
+    'checkout.city_label'       => 'City',
+    'checkout.province_label'   => 'Province',
+    'checkout.postal_label'     => 'Postal code',
+    'checkout.continue_to_payment' => 'Continue to payment',
+    'checkout.change_address'   => 'Change address',
+    'checkout.order_summary'    => 'Order summary',
+    'checkout.total'            => 'Total',
+    'checkout.pay_button'       => 'Pay with card',
+    'checkout.help'             => 'Need help?',
+    'checkout.help_text'        => 'Contact support if you have questions about shipping or payment.',
+
     // ── Auth / Login / Register ───────────────────────────────────────────────
     'auth.page_title_login'    => 'Sign In',
     'auth.page_title_register' => 'Register',

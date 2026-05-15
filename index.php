@@ -157,7 +157,9 @@ $translator->addResource('array', require __DIR__ . '/translations/messages.fr.p
 
 $twig->addFunction(new TwigFunction('trans', function (string $key, array $params = []) use ($translator) {
     $locale = $_SESSION['lang'] ?? 'en';
-    return $translator->trans($key, $params, null, $locale);
+    $translated = $translator->trans($key, $params, null, $locale);
+    // If translator returns the key unchanged, treat as missing and return null so templates can use ?? fallback
+    return $translated === $key ? null : $translated;
 }));
 
 // ─── 4. DEPENDENCY INJECTION CONTAINER ───────────────────────────────────────
