@@ -20,10 +20,6 @@
                         <label class="form-label small">{{ trans('admin.form_name') }}</label>
                         <input type="text" name="name" class="form-control" required>
                     </div>
-                    <div class="mb-2">
-                        <label class="form-label small">{{ trans('admin.form_image_url') }}</label>
-                        <input type="text" name="image" class="form-control" placeholder="https://...">
-                    </div>
                     <button type="submit" class="btn btn-purple w-100 mt-2">{{ trans('admin.btn_add') }}</button>
                 </form>
             </div>
@@ -41,7 +37,6 @@
                                 <th>{{ trans('admin.table_id') }}</th>
                                 <th>{{ trans('admin.table_name') }}</th>
                                 <th>{{ trans('admin.table_slug') }}</th>
-                                <th>{{ trans('admin.table_image') }}</th>
                                 <th>{{ trans('admin.table_actions') }}</th>
                             </tr>
                         </thead>
@@ -53,7 +48,6 @@
                                     <td>{{ cat.id }}</td>
                                     <td><input type="text" name="name" value="{{ cat.name }}" class="form-control form-control-sm" style="min-width:120px;"></td>
                                     <td><code>{{ cat.slug }}</code></td>
-                                    <td><input type="text" name="image" value="{{ cat.image }}" class="form-control form-control-sm" style="min-width:120px;" placeholder="https://..."></td>
                                     <td>
                                         <div class="d-flex gap-1">
                                             <button type="submit" class="btn btn-purple btn-sm">{{ trans('admin.btn_save') }}</button>

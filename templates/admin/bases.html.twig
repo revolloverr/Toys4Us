@@ -56,6 +56,7 @@
                             <tr>
                                 <th>{{ trans('admin.table_id') }}</th>
                                 <th>{{ trans('admin.table_preview') }}</th>
+                                <th>{{ trans('admin.table_image') }}</th>
                                 <th>{{ trans('admin.table_name') }}</th>
                                 <th>{{ trans('admin.table_species') }}</th>
                                 <th>{{ trans('admin.table_color') }}</th>
@@ -73,6 +74,7 @@
                                     <td>
                                         <img src="{{ base_path }}/{{ base.image_path }}" alt="" style="width:36px;height:36px;object-fit:contain;">
                                     </td>
+                                    <td><input type="text" name="image_path" value="{{ base.image_path }}" class="form-control form-control-sm" style="min-width:120px;" placeholder="assets/bases/xyz.png"></td>
                                     <td><input type="text" name="name" value="{{ base.name }}" class="form-control form-control-sm" style="min-width:100px;"></td>
                                     <td><input type="text" name="species" value="{{ base.species }}" class="form-control form-control-sm" style="min-width:80px;"></td>
                                     <td><input type="text" name="color" value="{{ base.color }}" class="form-control form-control-sm" style="min-width:80px;"></td>
