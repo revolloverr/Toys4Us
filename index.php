@@ -62,8 +62,9 @@ R::setup(
 R::freeze(true);
 
 
-// Ensure customplush table exists (for Build a Plush feature)
+# Ensure required tables exist (custom plush + addresses)
 $tables = R::inspect();
+
 if (!in_array('customplush', $tables)) {
     R::exec('CREATE TABLE customplush (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -75,6 +76,7 @@ if (!in_array('customplush', $tables)) {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
+
 if (!in_array('customplushaccessory', $tables)) {
     R::exec('CREATE TABLE customplushaccessory (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -82,6 +84,28 @@ if (!in_array('customplushaccessory', $tables)) {
         accessory_id INT NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
+
+// Address table for saved shipping addresses
+if (!in_array('address', $tables)) {
+    R::exec('CREATE TABLE address (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        address VARCHAR(255) NOT NULL,
+        city VARCHAR(100) NOT NULL,
+        province VARCHAR(100) NOT NULL,
+        postal_code VARCHAR(20) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+}
+
+// Add address_id column to order table if it doesn't exist (MySQL 8+ supports IF NOT EXISTS)
+try {
+    R::exec('ALTER TABLE `order` ADD COLUMN IF NOT EXISTS address_id INT DEFAULT NULL');
+} catch (Exception $e) {
+    // ignore if ALTER fails on older MySQL versions
+}
+
 R::freeze(true);
 
 $model = new ProductModel();
@@ -257,13 +281,19 @@ $app->get('/products',                     [ProductsController::class, 'index'])
 $app->get('/products/search-json',         [ProductsController::class, 'searchJson']);
 $app->get('/products/{id}',                [ProductsController::class, 'show']);
 
-// Cart routes (no auth required to add to cart)
+# Cart routes (no auth required to add to cart)
 $app->get('/cart',                [CheckoutController::class, 'showCart']);
 $app->post('/cart/add/{id}',      [CheckoutController::class, 'addToCart']);
 $app->post('/cart/remove/{key}',  [CheckoutController::class, 'removeFromCart']);
 $app->post('/cart/update/{key}',  [CheckoutController::class, 'updateQty']);
 $app->post('/cart/checkout',      [CheckoutController::class, 'checkout']);
-$app->get('/checkout/success', [CheckoutController::class, 'success']);
+$app->get('/checkout/success',    [CheckoutController::class, 'success']);
+
+// Checkout: shipping + payment
+$app->get('/checkout/shipping',   [CheckoutController::class, 'showShipping']);
+$app->post('/checkout/shipping',  [CheckoutController::class, 'processShipping']);
+$app->get('/checkout/payment',    [CheckoutController::class, 'showPayment']);
+$app->post('/checkout/payment',   [CheckoutController::class, 'processPayment']);
 
 // ─── 8. LANGUAGE ROUTE ────────────────────────────────────────────────────────
 
@@ -297,6 +327,8 @@ $app->get('/profile',                  [ProfileController::class, 'index']);
 $app->post('/profile/edit',            [ProfileController::class, 'update']);
 $app->post('/profile/change-password', [ProfileController::class, 'changePassword']);
 $app->post('/profile/delete',          [ProfileController::class, 'delete']);
+$app->post('/profile/address/add',     [ProfileController::class, 'addAddress']);
+$app->post('/profile/address/delete',  [ProfileController::class, 'deleteAddress']);
 
 // TOTP 2FA management in profile
 $app->post('/profile/totp/setup',      [ProfileController::class, 'setupTotp']);

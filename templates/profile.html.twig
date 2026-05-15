@@ -75,6 +75,59 @@
                         </form>
                     </div>
                 </div>
+
+                {# ── Saved Addresses ───────────────────────────────────────────── #}
+                <div class="card shadow-sm border-0 mt-3">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">{{ trans('profile.saved_addresses') ?? 'Saved addresses' }}</h5>
+
+                        {% if addresses is empty %}
+                            <p class="text-muted small mb-3">{{ trans('profile.no_addresses') ?? 'No saved addresses.' }}</p>
+                        {% else %}
+                            <div class="list-group mb-3">
+                                {% for addr in addresses %}
+                                    <div class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="fw-bold">{{ addr.name|e }}</div>
+                                            <div class="text-muted small">{{ addr.address|e }}, {{ addr.city|e }}, {{ addr.province|e }} {{ addr.postal_code|e }}</div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <form action="{{ base_path }}/profile/address/delete" method="POST" class="m-0 p-0">
+                                                <input type="hidden" name="address_id" value="{{ addr.id|e('html_attr') }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('{{ trans('profile.delete_address_confirm') ?? 'Delete this address?' }}')">
+                                                    {{ trans('profile.delete_address') ?? 'Delete' }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <h6 class="fw-bold text-purple mb-2">{{ trans('profile.add_address') ?? 'Add new address' }}</h6>
+                        <form action="{{ base_path }}/profile/address/add" method="POST" class="row g-2">
+                            <div class="col-12">
+                                <input type="text" name="name" class="form-control" placeholder="{{ trans('checkout.name_label') ?? 'Full name' }}" required>
+                            </div>
+                            <div class="col-12">
+                                <input type="text" name="address" class="form-control" placeholder="{{ trans('checkout.address_label') ?? 'Address' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="city" class="form-control" placeholder="{{ trans('checkout.city_label') ?? 'City' }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" name="province" class="form-control" placeholder="{{ trans('checkout.province_label') ?? 'Province' }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" name="postal_code" class="form-control" placeholder="{{ trans('checkout.postal_label') ?? 'Postal code' }}" required>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-outline-purple">{{ trans('profile.add_address_btn') ?? 'Save address' }}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             </div>
 
             {# ── Security Tab ─────────────────────────────────────────────── #}

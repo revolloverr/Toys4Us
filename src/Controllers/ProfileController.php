@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\OrderModel;
+use App\Models\AddressModel;
 
 use App\Models\UserModel;
 use App\Services\OtpService;
@@ -18,6 +19,7 @@ class ProfileController
     private OtpService $otpService;
 
     private OrderModel $orderModel;
+    private AddressModel $addressModel;
 
     public function __construct(
         private Environment $twig,
@@ -26,6 +28,7 @@ class ProfileController
         $this->userModel  = new UserModel();
         $this->otpService = new OtpService();
         $this->orderModel = new OrderModel();
+        $this->addressModel = new AddressModel();
     }
 
     // GET /profile
@@ -36,9 +39,10 @@ class ProfileController
 
         $html = $this->twig->render('profile.html.twig', [
             'base_path' => $this->basePath,
-            'app_lang'  => $_SESSION['lang'] ?? 'en',  // add this
+            'app_lang'  => $_SESSION['lang'] ?? 'en',
             'user'      => $user,
             'orders'    => $this->getOrders($userId),
+            'addresses' => $this->addressModel->findByUser($userId),
         ]);
 
         $response->getBody()->write($html);
@@ -193,6 +197,50 @@ class ProfileController
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    // POST /profile/address/delete
+    public function deleteAddress(Request $request, Response $response): Response
+    {
+        if (!isset($_SESSION['user'])) {
+            return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
+        }
+
+        $data = (array) $request->getParsedBody();
+        $id   = (int) ($data['address_id'] ?? 0);
+        $userId = (int) $_SESSION['user']['id'];
+
+        if ($id > 0) {
+            $address = $this->addressModel->findByIdAndUser($id, $userId);
+            if ($address) {
+                $this->addressModel->delete($id);
+            }
+        }
+
+        return $response->withHeader('Location', $this->basePath . '/profile')->withStatus(302);
+    }
+
+    public function addAddress(Request $request, Response $response): Response
+    {
+        if (!isset($_SESSION['user'])) {
+            return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
+        }
+
+        $data = (array) $request->getParsedBody();
+        $name = trim($data['name'] ?? '');
+        $address = trim($data['address'] ?? '');
+        $city = trim($data['city'] ?? '');
+        $province = trim($data['province'] ?? '');
+        $postal = trim($data['postal_code'] ?? '');
+
+        if (empty($name) || empty($address) || empty($city) || empty($province) || empty($postal)) {
+            return $response->withHeader('Location', $this->basePath . '/profile')->withStatus(302);
+        }
+
+        $userId = (int) $_SESSION['user']['id'];
+        $this->addressModel->create($userId, $name, $address, $city, $province, $postal);
+
+        return $response->withHeader('Location', $this->basePath . '/profile')->withStatus(302);
+    }
 
     private function getOrders(int $userId): array
     {

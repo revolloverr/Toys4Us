@@ -1,0 +1,62 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}{{ trans('checkout.payment_title') ?? 'Payment' }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="h4 text-purple fw-bold">{{ trans('checkout.payment_heading') ?? 'Payment' }}</h2>
+        <p class="text-muted">{{ trans('checkout.payment_sub') ?? 'Review your order and complete payment.' }}</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-md-7">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                <h6 class="fw-bold text-purple mb-2">{{ trans('checkout.shipping_to') ?? 'Shipping to' }}</h6>
+                <div class="mb-3">
+                    <div class="fw-bold">{{ address.name|e }}</div>
+                    <div class="text-muted small">{{ address.address|e }}, {{ address.city|e }}, {{ address.province|e }} {{ address.postal_code|e }}</div>
+                </div>
+                <a href="{{ base_path }}/checkout/shipping" class="btn btn-outline-secondary btn-sm">{{ trans('checkout.change_address') ?? 'Change address' }}</a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="fw-bold text-purple mb-2">{{ trans('checkout.order_summary') ?? 'Order summary' }}</h6>
+                <div class="list-group mb-3">
+                    {% for item in cart %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">{{ item.name|e }}</div>
+                                <div class="text-muted small">x{{ item.qty is defined ? item.qty : 1 }}</div>
+                            </div>
+                            <div class="fw-bold">${{ (item.price * (item.qty is defined ? item.qty : 1))|number_format(2) }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="text-muted">{{ trans('checkout.total') ?? 'Total' }}</div>
+                    <div class="fw-bold text-purple">${{ total|number_format(2) }}</div>
+                </div>
+
+                <form action="{{ base_path }}/checkout/payment" method="POST">
+                    <button type="submit" class="btn btn-purple w-100">{{ trans('checkout.pay_button') ?? 'Pay with card' }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="fw-bold text-purple mb-2">{{ trans('checkout.help') ?? 'Need help?' }}</h6>
+                <p class="text-muted small">{{ trans('checkout.help_text') ?? 'Contact support if you have questions about shipping or payment.' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

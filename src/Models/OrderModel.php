@@ -8,11 +8,11 @@ use RedBeanPHP\R;
 
 class OrderModel
 {
-    public function create(int $userId, float $total, string $status, ?string $stripePaymentId): int
+    public function create(int $userId, float $total, string $status, ?string $stripePaymentId, ?int $addressId = null): int
     {
         R::exec(
-            'INSERT INTO `order` (user_id, total, status, stripe_payment_id) VALUES (?, ?, ?, ?)',
-            [$userId, $total, $status, $stripePaymentId]
+            'INSERT INTO `order` (user_id, total, status, stripe_payment_id, address_id) VALUES (?, ?, ?, ?, ?)',
+            [$userId, $total, $status, $stripePaymentId, $addressId]
         );
         return (int) R::getInsertID();
     }
