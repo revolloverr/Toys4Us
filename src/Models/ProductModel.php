@@ -43,7 +43,6 @@ class ProductModel
         $product->image       = $data['image'] ?? '';
         $product->stock       = (int) ($data['stock'] ?? 0);
         $product->rating      = (float) ($data['rating'] ?? 0);
-        $product->slug        = $data['slug'] ?? '';
         $product->category_id = $data['category_id'] ?? null;
         $product->is_active   = 1;
 
@@ -85,10 +84,6 @@ class ProductModel
 
         if (isset($data['rating'])) {
             $product->rating = (float) $data['rating'];
-        }
-
-        if (isset($data['slug'])) {
-            $product->slug = $data['slug'];
         }
 
         if (isset($data['category_id'])) {
