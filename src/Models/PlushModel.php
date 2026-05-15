@@ -34,8 +34,8 @@ class PlushModel
     public function createBase(string $name, string $species, string $color, string $imagePath, float $price, int $sortOrder = 0): void
     {
         R::exec(
-            'INSERT INTO plushbase (name, species, color, image_path, base_price, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)',
-            [$name, $species, $color, $imagePath, $price, $sortOrder]
+            'INSERT INTO plushbase (name, species, color, image_path, base_price, is_active) VALUES (?, ?, ?, ?, ?, 1)',
+            [$name, $species, $color, $imagePath, $price]
         );
     }
 
