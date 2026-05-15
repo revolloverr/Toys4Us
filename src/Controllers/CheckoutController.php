@@ -212,27 +212,28 @@ class CheckoutController
         $userId = (int) $_SESSION['user']['id'];
 
         // If "new address" selected, create it
-        if ($addressId === 0) {
-            $name = trim($data['name'] ?? '');
-            $address = trim($data['address'] ?? '');
-            $city = trim($data['city'] ?? '');
-            $province = trim($data['province'] ?? '');
-            $postalCode = trim($data['postal_code'] ?? '');
-
-            if (empty($name) || empty($address) || empty($city) || empty($province) || empty($postalCode)) {
-                $this->flash->error('flash.shipping_address_required');
-                return $response->withHeader('Location', $this->basePath . '/checkout/shipping')->withStatus(302);
+            if ($addressId === 0) {
+                $name = trim($data['name'] ?? '');
+                $address = trim($data['address'] ?? '');
+                $city = trim($data['city'] ?? '');
+                $province = trim($data['province'] ?? '');
+                $postalCode = trim($data['postal_code'] ?? '');
+    
+                if (empty($name) || empty($address) || empty($city) || empty($province) || empty($postalCode)) {
+                    $this->flash->error('flash.shipping_address_required');
+                    return $response->withHeader('Location', $this->basePath . '/checkout/shipping')->withStatus(302);
+                }
+    
+                $addressId = $this->addressModel->create($userId, $name, $address, $city, $province, $postalCode);
+                $this->flash->success('flash.address_saved');
+            } else {
+                // Verify the address belongs to the user
+                $address = $this->addressModel->findByIdAndUser($addressId, $userId);
+                if (!$address) {
+                    $this->flash->error('flash.invalid_address');
+                    return $response->withHeader('Location', $this->basePath . '/checkout/shipping')->withStatus(302);
+                }
             }
-
-            $addressId = $this->addressModel->create($userId, $name, $address, $city, $province, $postalCode);
-        } else {
-            // Verify the address belongs to the user
-            $address = $this->addressModel->findByIdAndUser($addressId, $userId);
-            if (!$address) {
-                $this->flash->error('flash.invalid_address');
-                return $response->withHeader('Location', $this->basePath . '/checkout/shipping')->withStatus(302);
-            }
-        }
 
         // Store selected address in session for checkout
         $_SESSION['checkout_address_id'] = $addressId;
