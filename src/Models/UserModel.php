@@ -21,6 +21,11 @@ class UserModel
         return R::findOne('user', 'email = ?', [$email]);
     }
 
+    public function findAllByRole(string $role): array
+    {
+        return R::find('user', 'role = ?', [$role]);
+    }
+
     public function create(?int $userId, float $total, string $status, ?string $stripePaymentId): int
     {
         $user           = R::dispense('user');

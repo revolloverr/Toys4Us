@@ -117,9 +117,31 @@ class ProfileController
             return $response->withHeader('Location', $this->basePath . '/login')->withStatus(302);
         }
 
-        $user             = $this->userModel->load((int) $_SESSION['user']['id']);
-        $user->deleted_at = date('Y-m-d H:i:s', strtotime('+14 days'));
-        $this->userModel->save($user);
+        $data    = (array) $request->getParsedBody();
+        $password = trim($data['password'] ?? '');
+
+        $user = $this->userModel->load((int) $_SESSION['user']['id']);
+
+        // Verify password
+        if (empty($password) || !$this->userModel->verifyPassword($password, $user->password)) {
+            return $this->renderWithError($response, $user, 'Password is incorrect.', 'security');
+        }
+
+        // If user is admin, check there is at least one other admin
+        if ($user->role === 'admin') {
+            $admins = $this->userModel->findAllByRole('admin');
+            if (count($admins) <= 1) {
+                return $this->renderWithError(
+                    $response,
+                    $user,
+                    'You cannot delete your account because you are the only administrator.',
+                    'security'
+                );
+            }
+        }
+
+        // Permanently delete the user
+        $this->userModel->delete($user);
 
         session_destroy();
 

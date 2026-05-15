@@ -251,7 +251,7 @@
                         </p>
                         <button type="button" class="btn btn-outline-danger"
                                 data-bs-toggle="modal" data-bs-target="#deleteModal">
-                            {{ trans('profile.delete_btn') }} | Not working yet
+                            {{ trans('profile.delete_btn') }}
                         </button>
                     </div>
                 </div>
@@ -388,6 +388,36 @@
             </div>
         </div>
 
+    </div>
+</div>
+
+{# ── Delete Account Confirmation Modal ── #}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title text-danger fw-bold" id="deleteModalLabel">{{ trans('profile.delete_account') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ base_path }}/profile/delete" method="POST">
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">{{ trans('profile.delete_confirm_desc') ?? 'This action is permanent and cannot be undone. All your data will be deleted immediately.' }}</p>
+                    <div class="mb-3">
+                        <label for="delete_password" class="form-label">{{ trans('profile.delete_confirm_password') ?? 'Enter your password to confirm' }}</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="password" id="delete_password" required placeholder="{{ trans('profile.delete_password_ph') ?? 'Your password' }}">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('delete_password', this)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ trans('profile.delete_cancel') ?? 'Cancel' }}</button>
+                    <button type="submit" class="btn btn-danger">{{ trans('profile.delete_confirm_btn') ?? 'Delete My Account' }}</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
