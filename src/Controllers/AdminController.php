@@ -12,6 +12,7 @@ use App\Models\PlushModel;
 use App\Models\ProductModel;
 use App\Models\CategoryModel;
 use App\Models\UserModel;
+use App\Models\OrderModel;
 
 class AdminController
 {
@@ -22,6 +23,7 @@ class AdminController
         private ProductModel  $productModel,
         private CategoryModel $categoryModel,
         private UserModel     $userModel,
+        private OrderModel    $orderModel,
     ) {}
 
     // ── DASHBOARD ─────────────────────────────────────────────────────────────
@@ -320,4 +322,53 @@ class AdminController
             ->withHeader('Location', $this->basePath . '/admin/users')
             ->withStatus(302);
     }
+
+    // ── ORDERS ────────────────────────────────────────────────────────────────
+
+    public function orders(Request $request, Response $response): Response
+    {
+        $orders = $this->orderModel->findAll();
+
+        foreach ($orders as &$order) {
+            $order['items'] = $this->orderModel->getItems((int) $order['id']);
+
+            // best-effort customer info (orders table only stores user_id)
+            if (!empty($order['user_id'])) {
+                $u = $this->userModel->load((int) $order['user_id']);
+                if ($u && !empty($u->name)) {
+                    $order['user_name'] = $u->name;
+                }
+                if ($u && !empty($u->email)) {
+                    $order['user_email'] = $u->email;
+                }
+            }
+        }
+        unset($order);
+
+        $html = $this->twig->render('admin/orders.html.twig', [
+            'base_path' => $this->basePath,
+            'orders'    => $orders,
+        ]);
+
+        $response->getBody()->write($html);
+        return $response;
+    }
+
+    public function updateOrderStatus(Request $request, Response $response): Response
+    {
+        $data = (array) $request->getParsedBody();
+
+        $orderId = (int) ($data['order_id'] ?? 0);
+        $status  = strtolower(trim((string) ($data['status'] ?? '')));
+
+        $allowed = ['pending', 'paid', 'shipped', 'cancelled'];
+        if ($orderId > 0 && in_array($status, $allowed, true)) {
+            $this->orderModel->updateStatus($orderId, $status);
+        }
+
+        return $response
+            ->withHeader('Location', $this->basePath . '/admin/orders?success=1')
+            ->withStatus(302);
+    }
 }
+

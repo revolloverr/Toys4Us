@@ -231,7 +231,25 @@
 
                                 </a>
                             </div>
-                            
+
+                            <div class="col-12 col-md-6">
+                                <a href="{{ base_path }}/admin/orders"
+                                    class="card border text-decoration-none h-100">
+
+                                    <div class="card-body text-center py-4">
+                                        <div class="fs-1 mb-2"><i class="bi bi-receipt"></i></div>
+
+                                        <h5 class="fw-bold text-purple">
+                                            {{ trans('admin.dashboard_orders') }}
+                                        </h5>
+
+                                        <p class="text-muted small mb-0">
+                                            {{ trans('admin.orders_desc') ?? 'Manage customer orders and statuses' }}
+                                        </p>
+                                    </div>
+
+                                </a>
+                            </div>
 
                         </div>
 

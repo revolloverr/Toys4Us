@@ -370,6 +370,10 @@ $app->group('/admin', function ($group) {
     $group->post('/users/update',      [AdminController::class, 'updateUser']);
     $group->post('/users/delete',      [AdminController::class, 'deleteUser']);
 
+    // Orders
+    $group->get('/orders', [AdminController::class, 'orders']);
+    $group->post('/orders/update-status', [AdminController::class, 'updateOrderStatus']);
+
 })->add(new AdminMiddleware());
 
 // ─── 11. RUN ──────────────────────────────────────────────────────────────────
