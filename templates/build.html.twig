@@ -134,8 +134,9 @@
 
                 <h6 class="fw-bold text-purple mb-2 mt-3">{{ trans('build.voice_message') }}</h6>
                 <div class="input-group mb-2">
-                    <input type="text" id="tts-text" class="form-control"
-                           placeholder="{{ trans('build.voice_placeholder') }}" maxlength="200">
+                    <input type="text" id="tts-text" name="voice_message" class="form-control"
+                           placeholder="{{ trans('build.voice_placeholder') }}" maxlength="200"
+                           value="{{ edit_plush.voice_message ?? '' }}">
                     <button class="btn btn-outline-purple" type="button" onclick="previewTTS()">
                         <i class="bi bi-volume-up me-1"></i>{{ trans('build.voice_preview') }}
                     </button>
