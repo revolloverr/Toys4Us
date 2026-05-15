@@ -31,7 +31,7 @@ class PlushModel
         return R::getAll('SELECT * FROM plushbase WHERE is_active = 1 ORDER BY id');
     }
 
-    public function createBase(string $name, string $species, string $color, string $imagePath, float $price, int $sortOrder): void
+    public function createBase(string $name, string $species, string $color, string $imagePath, float $price, int $sortOrder = 0): void
     {
         R::exec(
             'INSERT INTO plushbase (name, species, color, image_path, base_price, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)',
