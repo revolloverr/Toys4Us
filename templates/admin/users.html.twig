@@ -43,16 +43,16 @@
                         {% set isCurrentUser = session.user.id == user.id %}
                         <tr>
                             <form action="{{ base_path }}/admin/users/update" method="POST">
-                                <input type="hidden" name="id" value="{{ user.id }}">
+                                <input type="hidden" name="id" value="{{ user.id|e('html_attr') }}">
                                 <td>{{ user.id }}</td>
                                 <td>
                                     <input type="text" name="name" class="form-control form-control-sm"
-                                           value="{{ user.name }}" required
+                                           value="{{ user.name|e('html_attr') }}" required
                                            {{ isCurrentUser ? 'disabled' : '' }}>
                                 </td>
                                 <td>
                                     <input type="email" name="email" class="form-control form-control-sm"
-                                           value="{{ user.email }}" required
+                                           value="{{ user.email|e('html_attr') }}" required
                                            {{ isCurrentUser ? 'disabled' : '' }}>
                                 </td>
                                 <td>
@@ -68,24 +68,18 @@
                                     {% else %}
                                         <div class="d-flex gap-2">
                                             <button type="submit" class="btn btn-purple btn-sm">{{ trans('admin.btn_save') }}</button>
+                                            </form>
+                                            <form action="{{ base_path }}/admin/users/delete" method="POST" class="m-0"
+                                                onsubmit="return confirm('{{ trans('admin.confirm_delete_user') }}')">
+                                                <input type="hidden" name="id" value="{{ user.id|e('html_attr') }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">{{ trans('admin.btn_delete') }}</button>
+                                            </form>
                                         </div>
                                     {% endif %}
                                 </td>
                             </form>
 
-                            {# Delete form — separate from update form #}
-                            {% if not isCurrentUser %}
-                            <td style="display:none"></td>
-                            <script>
-                                document.currentScript.closest('tr').querySelector('.d-flex').insertAdjacentHTML('beforeend', `
-                                    <form action="{{ base_path }}/admin/users/delete" method="POST" class="m-0"
-                                          onsubmit="return confirm('{{ trans('admin.confirm_delete_user') }}')">
-                                        <input type="hidden" name="id" value="{{ user.id }}">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">{{ trans('admin.btn_delete') }}</button>
-                                    </form>
-                                `);
-                            </script>
-                            {% endif %}
+                            
                         </tr>
                     {% endfor %}
                 </tbody>

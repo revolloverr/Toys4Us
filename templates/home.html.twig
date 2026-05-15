@@ -144,7 +144,7 @@ if (homeSearchInput) {
                     data.slice(0, 6).forEach(p => {
                         html += '<a href="' + basePath + '/products/' + p.id + '" class="d-flex align-items-center gap-2 p-2 text-decoration-none border-bottom">';
                         if (p.image) html += '<img src="' + p.image + '" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:4px;">';
-                        html += '<div class="flex-grow-1"><div class="fw-bold small text-dark">' + p.name + '</div>';
+                        html += '<div class="flex-grow-1"><div class="fw-bold small text-dark">' + escapeHtml(p.name) + '</div>';
                         html += '<div class="text-muted" style="font-size:0.75rem;">$' + p.price.toFixed(2) + '</div></div>';
                         html += '<span class="btn btn-purple btn-sm">' + homeViewText + '</span></a>';
                     });
@@ -167,6 +167,12 @@ if (homeSearchInput) {
             window.location.href = basePath + '/products?search=' + encodeURIComponent(this.value);
         }
     });
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 }
 </script>
 

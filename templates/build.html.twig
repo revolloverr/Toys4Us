@@ -179,10 +179,10 @@ const bases = [
     {% for base in bases %}
     {
         id:      {{ base.id }},
-        name:    "{{ base.name }}",
-        species: "{{ base.species }}",
-        color:   "{{ base.color }}",
-        image:   "{{ base_path }}/{{ base.image_path }}",
+        name:    "{{ base.name|e('js') }}",
+        species: "{{ base.species|e('js') }}",
+        color:   "{{ base.color|e('js') }}",
+        image:   "{{ base_path }}/{{ base.image_path|e('js') }}",
         price:   {{ base.base_price }}
     }{{ not loop.last ? ',' : '' }}
     {% endfor %}
@@ -192,19 +192,19 @@ const accessories = {
     facewear: [
         { id: 0, name: 'None', image: '', price: 0 },
         {% for acc in accessories.facewear %}
-        { id: {{ acc.id }}, name: "{{ acc.name }}", image: "{{ base_path }}/{{ acc.image_path }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
+        { id: {{ acc.id }}, name: "{{ acc.name|e('js') }}", image: "{{ base_path }}/{{ acc.image_path|e('js') }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
         {% endfor %}
     ],
     bodywear: [
         { id: 0, name: 'None', image: '', price: 0 },
         {% for acc in accessories.bodywear %}
-        { id: {{ acc.id }}, name: "{{ acc.name }}", image: "{{ base_path }}/{{ acc.image_path }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
+        { id: {{ acc.id }}, name: "{{ acc.name|e('js') }}", image: "{{ base_path }}/{{ acc.image_path|e('js') }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
         {% endfor %}
     ],
     shoes: [
         { id: 0, name: 'None', image: '', price: 0 },
         {% for acc in accessories.shoes %}
-        { id: {{ acc.id }}, name: "{{ acc.name }}", image: "{{ base_path }}/{{ acc.image_path }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
+        { id: {{ acc.id }}, name: "{{ acc.name|e('js') }}", image: "{{ base_path }}/{{ acc.image_path|e('js') }}", price: {{ acc.price }} }{{ not loop.last ? ',' : '' }}
         {% endfor %}
     ]
 };
@@ -227,12 +227,12 @@ const accIndex   = { facewear: 0, bodywear: 0, shoes: 0 };
 {# ── Set edit indices from server data ── #}
 {% if edit_plush_id is defined and edit_plush_id > 0 %}
 // Set species index
-speciesIndex = speciesList.indexOf("{{ edit_plush.base_species }}");
+speciesIndex = speciesList.indexOf("{{ edit_plush.base_species|e('js') }}");
 if (speciesIndex < 0) speciesIndex = 0;
 // Set color index
 const initialColors = bases.filter(b => b.species === speciesList[speciesIndex]);
 for (let i = 0; i < initialColors.length; i++) {
-    if (initialColors[i].color === "{{ edit_plush.base_color }}") {
+    if (initialColors[i].color === "{{ edit_plush.base_color|e('js') }}") {
         colorIndex = i;
         break;
     }
