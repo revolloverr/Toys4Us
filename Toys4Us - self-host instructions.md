@@ -56,13 +56,13 @@ STRIPE_PUBLISHABLE_KEY= [Insert Publishable Key]
 The database tables will be created automatically.
 
 ## Step 4: Changing `index.php`
-In `index.php` make sure to change the `$basePath` from:
+In [index.php](index.php) make sure to change the `$basePath` from:
 ```
 $basePath  =  '';
 ```
 to:
 ```
-$basePath  =  '/Toys4Us';
+$basePath  =  '/Toys4Us'; // the name of the root file
 ```
 ## Step 5: Running the Project
 - Make sure Apache and MySQL are running in XAMPP/WAMPOON
