@@ -49,6 +49,10 @@ class PlushController
                 ->withStatus(302);
         }
 
+        // Restore voice message text from session cart
+        $cartKey = 'plush_' . $plushId;
+        $plush['voice_message'] = $_SESSION['cart'][$cartKey]['voice_message'] ?? $plush['voice_message'] ?? '';
+
         $html = $this->twig->render('build.html.twig', [
             'base_path'      => $this->basePath,
             'app_lang'       => $_SESSION['lang'] ?? 'en',
