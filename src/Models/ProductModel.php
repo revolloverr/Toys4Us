@@ -10,33 +10,122 @@ use RedBeanPHP\R;
  * ProductModel
  *
  * Data access layer for the products (toys) resource.
- * All RedBeanPHP R:: calls are contained here.
- * This is the Model layer of MVC.
  */
 
 class ProductModel
 {
-    public function findAll(): array
+    /**
+     * Get all products
+     */
+    public function getAll(): array
     {
         return R::findAll('product', 'ORDER BY id ASC');
     }
 
-    public function create(string $name, string $description, float $price, string $image = '', int $stock = 0, ?int $categoryId = null): void
+    /**
+     * Alias for compatibility
+     */
+    public function findAll(): array
     {
-        $product              = R::dispense('product');
-        $product->name        = $name;
-        $product->description = $description;
-        $product->price       = $price;
-        $product->image       = $image;
-        $product->stock       = $stock;
-        $product->category_id = $categoryId;
-        $product->is_active   = 1;
-        $product->rating      = 0;
-        R::store($product);
+        return $this->getAll();
     }
 
-    public function findFiltered(?int $categoryId, ?float $minPrice, ?float $maxPrice, ?float $minRating, ?string $search = null): array
+    /**
+     * Create product
+     */
+    public function create(array $data): mixed
     {
+        $product = R::dispense('product');
+
+        $product->name        = $data['name'] ?? '';
+        $product->description = $data['description'] ?? '';
+        $product->price       = (float) ($data['price'] ?? 0);
+        $product->image       = $data['image'] ?? '';
+        $product->stock       = (int) ($data['stock'] ?? 0);
+        $product->rating      = (float) ($data['rating'] ?? 0);
+        $product->slug        = $data['slug'] ?? '';
+        $product->category_id = $data['category_id'] ?? null;
+        $product->is_active   = 1;
+
+        R::store($product);
+
+        return $product;
+    }
+
+    /**
+     * Update product
+     */
+    public function update(int $id, array $data): mixed
+    {
+        $product = R::load('product', $id);
+
+        if (!$product || !$product->id) {
+            return null;
+        }
+
+        if (isset($data['name'])) {
+            $product->name = $data['name'];
+        }
+
+        if (isset($data['description'])) {
+            $product->description = $data['description'];
+        }
+
+        if (isset($data['price'])) {
+            $product->price = (float) $data['price'];
+        }
+
+        if (isset($data['image'])) {
+            $product->image = $data['image'];
+        }
+
+        if (isset($data['stock'])) {
+            $product->stock = (int) $data['stock'];
+        }
+
+        if (isset($data['rating'])) {
+            $product->rating = (float) $data['rating'];
+        }
+
+        if (isset($data['slug'])) {
+            $product->slug = $data['slug'];
+        }
+
+        if (isset($data['category_id'])) {
+            $product->category_id = $data['category_id'];
+        }
+
+        R::store($product);
+
+        return $product;
+    }
+
+    /**
+     * Delete product by ID
+     */
+    public function delete(int $id): bool
+    {
+        $product = R::load('product', $id);
+
+        if (!$product || !$product->id) {
+            return false;
+        }
+
+        R::trash($product);
+
+        return true;
+    }
+
+    /**
+     * Filtered search
+     */
+    public function findFiltered(
+        ?int $categoryId,
+        ?float $minPrice,
+        ?float $maxPrice,
+        ?float $minRating,
+        ?string $search = null
+    ): array {
         $conditions = ['1=1'];
         $bindings   = [];
 
@@ -45,39 +134,45 @@ class ProductModel
             $bindings[]   = "%$search%";
             $bindings[]   = "%$search%";
         }
+
         if ($categoryId !== null) {
             $conditions[] = 'category_id = ?';
             $bindings[]   = $categoryId;
         }
+
         if ($minPrice !== null) {
             $conditions[] = 'price >= ?';
             $bindings[]   = $minPrice;
         }
+
         if ($maxPrice !== null) {
             $conditions[] = 'price <= ?';
             $bindings[]   = $maxPrice;
         }
+
         if ($minRating !== null) {
             $conditions[] = 'rating >= ?';
             $bindings[]   = $minRating;
         }
 
         $sql = implode(' AND ', $conditions) . ' ORDER BY id ASC';
+
         return R::find('product', $sql, $bindings);
     }
 
+    /**
+     * Load one product
+     */
     public function load(int $id): mixed
     {
         return R::load('product', $id);
     }
 
+    /**
+     * Save bean
+     */
     public function save(mixed $bean): void
     {
         R::store($bean);
-    }
-
-    public function delete(mixed $bean): void
-    {
-        R::trash($bean);
     }
 }

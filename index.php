@@ -213,6 +213,13 @@ $app->add(new MaintenanceMiddleware(
 ));
 $app->add(new SecurityHeadersMiddleware());
 
+// REST API Routes
+$app->get('/api/products', [ProductsController::class, 'apiIndex']);
+$app->get('/api/products/{id}', [ProductsController::class, 'apiGet']);
+$app->post('/api/products', [ProductsController::class, 'apiCreate']);
+$app->put('/api/products/{id}', [ProductsController::class, 'apiUpdate']);
+$app->delete('/api/products/{id}', [ProductsController::class, 'apiDelete']);
+
 // ─── 7. HTML ROUTES ───────────────────────────────────────────────────────────
 
 // Home page

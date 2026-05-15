@@ -13,13 +13,6 @@ use Twig\Environment;
  * ProductsController
  *
  * Handles all HTTP actions related to Products (toys).
- * Each public method maps to one route defined in index.php.
- *
- * This is the Controller layer of MVC:
- *   - It receives the HTTP Request
- *   - Delegates data work to the Model (ProductModel)
- *   - Passes data to the View (Twig templates)
- *   - Returns an HTTP Response
  */
 class ProductsController
 {
@@ -42,14 +35,16 @@ class ProductsController
         $minRating    = isset($params['min_rating']) && $params['min_rating'] !== '' ? (float) $params['min_rating'] : null;
         $search       = isset($params['search']) && $params['search'] !== '' ? $params['search'] : null;
 
-        // Resolve category slug to ID FIRST
         $categoryId = null;
+
         if ($categorySlug) {
             $cat = \RedBeanPHP\R::findOne('category', 'slug = ?', [$categorySlug]);
-            if ($cat) $categoryId = (int) $cat->id;
+
+            if ($cat) {
+                $categoryId = (int) $cat->id;
+            }
         }
 
-        
         $products   = $this->model->findFiltered($categoryId, $minPrice, $maxPrice, $minRating, $search);
         $categories = \RedBeanPHP\R::findAll('category');
 
@@ -66,7 +61,9 @@ class ProductsController
                 'search'     => $search,
             ],
         ]);
+
         $response->getBody()->write($html);
+
         return $response;
     }
 
@@ -80,8 +77,10 @@ class ProductsController
         $search = isset($params['q']) && $params['q'] !== '' ? $params['q'] : '';
 
         $products = [];
+
         if ($search !== '') {
             $rows = $this->model->findFiltered(null, null, null, null, $search);
+
             foreach ($rows as $p) {
                 $products[] = [
                     'id'          => (int) $p->id,
@@ -96,7 +95,9 @@ class ProductsController
         }
 
         $payload = json_encode($products, JSON_UNESCAPED_UNICODE);
+
         $response->getBody()->write($payload);
+
         return $response->withHeader('Content-Type', 'application/json');
     }
 
@@ -109,10 +110,10 @@ class ProductsController
         $product = $this->model->load((int) $args['id']);
 
         $html = $this->twig->render('product.html.twig', [
-            'product'            => $product,
-            'base_path'          => $this->basePath,
-            'app_lang'           => $_SESSION['lang'] ?? 'en',
-            'app_authenticated'  => $_SESSION['authenticated'] ?? false,
+            'product'           => $product,
+            'base_path'         => $this->basePath,
+            'app_lang'          => $_SESSION['lang'] ?? 'en',
+            'app_authenticated' => $_SESSION['authenticated'] ?? false,
         ]);
 
         $response->getBody()->write($html);
@@ -120,6 +121,196 @@ class ProductsController
         return $response;
     }
 
+    /**
+     * =========================
+     * REST API METHODS
+     * =========================
+     */
 
-    
+    /**
+     * GET /api/products
+     */
+    public function apiIndex(Request $request, Response $response): Response
+    {
+        $products = $this->model->getAll();
+
+        $productsArray = [];
+
+        foreach ($products as $product) {
+            $productsArray[] = [
+                'id'          => (int) $product->id,
+                'name'        => $product->name,
+                'description' => $product->description,
+                'price'       => (float) $product->price,
+                'image'       => $product->image ?? '',
+                'rating'      => (float) ($product->rating ?? 0),
+                'slug'        => $product->slug ?? '',
+                'stock'       => (int) ($product->stock ?? 0),
+            ];
+        }
+
+        $response = $response->withHeader('Content-Type', 'application/json');
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'products' => $productsArray
+        ]));
+
+        return $response;
+    }
+
+    /**
+     * GET /api/products/{id}
+     */
+    public function apiGet(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) $args['id'];
+
+        $product = $this->model->load($id);
+
+        if (!$product || !$product->id) {
+            $response = $response->withStatus(404);
+
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Product not found'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $response = $response->withHeader('Content-Type', 'application/json');
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'product' => [
+                'id'          => (int) $product->id,
+                'name'        => $product->name,
+                'description' => $product->description,
+                'price'       => (float) $product->price,
+                'image'       => $product->image ?? '',
+                'rating'      => (float) ($product->rating ?? 0),
+                'slug'        => $product->slug ?? '',
+                'stock'       => (int) ($product->stock ?? 0),
+            ]
+        ]));
+
+        return $response;
+    }
+
+    /**
+     * POST /api/products
+     */
+    public function apiCreate(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+
+        if (
+            !isset($data['name']) ||
+            !isset($data['description']) ||
+            !isset($data['price'])
+        ) {
+            $response = $response->withStatus(400);
+
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Missing required fields: name, description, price'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $product = $this->model->create($data);
+
+        $response = $response
+            ->withStatus(201)
+            ->withHeader('Content-Type', 'application/json');
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'product' => [
+                'id'          => (int) $product->id,
+                'name'        => $product->name,
+                'description' => $product->description,
+                'price'       => (float) $product->price,
+                'image'       => $product->image ?? '',
+                'rating'      => (float) ($product->rating ?? 0),
+                'slug'        => $product->slug ?? '',
+                'stock'       => (int) ($product->stock ?? 0),
+            ]
+        ]));
+
+        return $response;
+    }
+
+    /**
+     * PUT /api/products/{id}
+     */
+    public function apiUpdate(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) $args['id'];
+
+        $data = $request->getParsedBody();
+
+        $product = $this->model->update($id, $data);
+
+        if (!$product || !$product->id) {
+            $response = $response->withStatus(404);
+
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Product not found'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $response = $response->withHeader('Content-Type', 'application/json');
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'product' => [
+                'id'          => (int) $product->id,
+                'name'        => $product->name,
+                'description' => $product->description,
+                'price'       => (float) $product->price,
+                'image'       => $product->image ?? '',
+                'rating'      => (float) ($product->rating ?? 0),
+                'slug'        => $product->slug ?? '',
+                'stock'       => (int) ($product->stock ?? 0),
+            ]
+        ]));
+
+        return $response;
+    }
+
+    /**
+     * DELETE /api/products/{id}
+     */
+    public function apiDelete(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) $args['id'];
+
+        $success = $this->model->delete($id);
+
+        if (!$success) {
+            $response = $response->withStatus(404);
+
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Product not found'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $response = $response->withHeader('Content-Type', 'application/json');
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'message' => 'Product deleted successfully'
+        ]));
+
+        return $response;
+    }
 }
