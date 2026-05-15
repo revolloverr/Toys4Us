@@ -280,7 +280,8 @@
                                 <div class="text-end">
                                     <span class="badge 
                                         {% if order.status == 'paid' %}bg-success
-                                        {% elseif order.status == 'pending' %}bg-warning text-dark
+                                        {% elseif order.status == 'shipped' %}bg-primary
+                                        {% elseif order.status == 'pending' or order.status == 'cancelled' %}bg-warning text-dark
                                         {% else %}bg-secondary{% endif %}">
                                         {{ trans('profile.order_status_label') }} {{ order.status|capitalize }}
                                     </span>
