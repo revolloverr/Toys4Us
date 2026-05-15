@@ -101,6 +101,29 @@ class CheckoutController
         return $response->withHeader('Location', $this->basePath . '/cart')->withStatus(302);
     }
 
+    // POST /cart/update/{key}
+    public function updateQty(Request $request, Response $response, array $args): Response
+    {
+        $key  = $args['key'] ?? '';
+        $data = (array) $request->getParsedBody();
+        $qty  = max(1, (int) ($data['qty'] ?? 1));
+
+        if ($key !== '' && isset($_SESSION['cart'][$key])) {
+            $_SESSION['cart'][$key]['qty'] = $qty;
+
+            // Keep DB in sync for regular products (numeric keys)
+            if (!empty($_SESSION['user']['id']) && is_numeric($key)) {
+                $existing = \RedBeanPHP\R::findOne('cart_item', 'user_id = ? AND product_id = ?', [(int) $_SESSION['user']['id'], (int) $key]);
+                if ($existing) {
+                    $existing->quantity = $qty;
+                    \RedBeanPHP\R::store($existing);
+                }
+            }
+        }
+
+        return $response->withHeader('Location', $this->basePath . '/cart')->withStatus(302);
+    }
+
     /**
      * POST /cart/checkout
      * Build a Stripe Checkout session and redirect to it.

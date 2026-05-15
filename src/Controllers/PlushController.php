@@ -70,6 +70,7 @@ public function save(Request $request, Response $response): Response
         $plushName    = trim($data['plush_name'] ?? 'My Plush');
         $accessoryIds = array_map('intval', (array) ($data['accessory_ids'] ?? []));
         $editPlushId  = (int) ($data['edit_plush_id'] ?? 0);
+        $voiceMessage = trim($data['voice_message'] ?? '');
         $userId = isset($_SESSION['user']['id']) ? (int) $_SESSION['user']['id'] : null;
 
         // Calculate total price
@@ -94,16 +95,17 @@ public function save(Request $request, Response $response): Response
         if ($editPlushId > 0) {
             // Updating existing — remove old cart entry and replace
             $plushId = $editPlushId;
-            $this->plushModel->updateCustomPlush($plushId, $baseId, $plushName, $accessoryIds, $totalPrice);
+            $this->plushModel->updateCustomPlush($plushId, $baseId, $plushName, $accessoryIds, $totalPrice, $voiceMessage ?: null);
 
             // Update cart entry in session
             $cartKey = 'plush_' . $plushId;
             $_SESSION['cart'][$cartKey] = [
-                'type'     => 'customplush',
-                'plush_id' => $plushId,
-                'name'     => $plushName,
-                'price'    => $totalPrice,
-                'qty'      => 1,
+                'type'          => 'customplush',
+                'plush_id'      => $plushId,
+                'name'          => $plushName,
+                'price'         => $totalPrice,
+                'qty'           => $_SESSION['cart'][$cartKey]['qty'] ?? 1,
+                'voice_message' => $voiceMessage,
             ];
         } else {
             // New plush
@@ -113,15 +115,17 @@ public function save(Request $request, Response $response): Response
                 $plushName,
                 $accessoryIds,
                 $totalPrice,
+                $voiceMessage ?: null,
             );
 
             $cartKey = 'plush_' . $plushId;
             $_SESSION['cart'][$cartKey] = [
-                'type'     => 'customplush',
-                'plush_id' => $plushId,
-                'name'     => $plushName,
-                'price'    => $totalPrice,
-                'qty'      => 1,
+                'type'          => 'customplush',
+                'plush_id'      => $plushId,
+                'name'          => $plushName,
+                'price'         => $totalPrice,
+                'qty'           => 1,
+                'voice_message' => $voiceMessage,
             ];
         }
 

@@ -150,14 +150,15 @@ class PlushModel
             'total_price'   => (float) $plush->total_price,
             'accessories'   => $accessories,
             'accessory_ids' => array_column($accessoryRows, 'id'),
+            'voice_message' => $plush->voice_message_path ?? '',
         ];
     }
 
-    public function updateCustomPlush(int $plushId, int $baseId, string $name, array $accessoryIds, float $totalPrice): void
+    public function updateCustomPlush(int $plushId, int $baseId, string $name, array $accessoryIds, float $totalPrice, ?string $voiceMessage = null): void
     {
         R::exec(
-            'UPDATE customplush SET base_id = ?, name = ?, total_price = ? WHERE id = ?',
-            [$baseId, $name, $totalPrice, $plushId]
+            'UPDATE customplush SET base_id = ?, name = ?, total_price = ?, voice_message_path = ? WHERE id = ?',
+            [$baseId, $name, $totalPrice, $voiceMessage, $plushId]
         );
 
         R::exec('DELETE FROM customplushaccessory WHERE customplush_id = ?', [$plushId]);
