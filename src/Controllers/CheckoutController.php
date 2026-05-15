@@ -121,6 +121,37 @@ class CheckoutController
             }
         }
 
+        // Check if this is an AJAX request
+        $isAjax = $request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest' ||
+                  $request->getHeaderLine('Content-Type') === 'application/json' ||
+                  !empty($data['ajax']);
+
+        if ($isAjax) {
+            // Return JSON response for AJAX requests
+            $cart = $_SESSION['cart'] ?? [];
+            $itemTotal = 0;
+            $grandTotal = 0;
+
+            if (isset($cart[$key])) {
+                $item = $cart[$key];
+                $itemTotal = (float) $item['price'] * (int) ($item['qty'] ?? 1);
+            }
+
+            foreach ($cart as $cartItem) {
+                $grandTotal += (float) $cartItem['price'] * (int) ($cartItem['qty'] ?? 1);
+            }
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'qty' => $qty,
+                'itemTotal' => number_format($itemTotal, 2),
+                'grandTotal' => number_format($grandTotal, 2),
+                'key' => $key
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
         return $response->withHeader('Location', $this->basePath . '/cart')->withStatus(302);
     }
 
