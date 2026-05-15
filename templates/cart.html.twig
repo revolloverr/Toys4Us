@@ -70,7 +70,13 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        {{ item.name }}
+                                        <div class="d-flex align-items-center gap-3">
+                                            {% if item.image is defined and item.image %}
+                                                <img src="{{ item.image|e('html_attr') }}" alt="{{ item.name }}"
+                                                    style="width:60px;height:60px;object-fit:contain;">
+                                            {% endif %}
+                                            <span>{{ item.name }}</span>
+                                        </div>
                                     {% endif %}
                                 </td>
                                  <td class="text-center">
