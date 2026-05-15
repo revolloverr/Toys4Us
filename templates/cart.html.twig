@@ -76,7 +76,8 @@
                                 <td class="text-center">
                                     <div class="d-flex align-items-center justify-content-center gap-1">
                                         <form action="{{ base_path }}/cart/update/{{ key }}" method="POST" class="d-inline">
-                                            <input type="hidden" name="qty" value="{{ [1, (item.qty is defined ? item.qty : 1) - 1]|max }}">
+                                            {% set decremented = (item.qty is defined ? item.qty : 1) - 1 %}
+                                            <input type="hidden" name="qty" value="{{ decremented > 1 ? decremented : 1 }}">
                                             <button type="submit" class="btn btn-sm btn-outline-secondary px-2 py-0"
                                                     {% if (item.qty is defined ? item.qty : 1) <= 1 %}disabled{% endif %}>
                                                 <i class="bi bi-dash"></i>
