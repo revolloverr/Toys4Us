@@ -76,6 +76,7 @@ class CheckoutController
                 'id'    => $product->id,
                 'name'  => $product->name,
                 'price' => $product->price,
+                'image' => $product->image,  // ← add this
                 'qty'   => ($_SESSION['cart'][$productId]['qty'] ?? 0) + 1,
             ];
 
