@@ -26,14 +26,14 @@ class UserModel
         return R::find('user', 'role = ?', [$role]);
     }
 
-    public function create(?int $userId, float $total, string $status, ?string $stripePaymentId): int
+    public function create(string $name, string $email, string $password): int
     {
         $user           = R::dispense('user');
         $user->name     = $name;
         $user->email    = $email;
         $user->password = password_hash($password, PASSWORD_BCRYPT);
         $user->role     = 'user';
-        R::store($user);
+        return (int) R::store($user);
     }
 
     public function load(int $id): mixed
