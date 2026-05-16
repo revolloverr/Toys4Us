@@ -142,6 +142,10 @@ return [
     'checkout.order_summary'    => 'Order summary',
     'checkout.total'            => 'Total',
     'checkout.pay_button'       => 'Pay with card',
+    'checkout.payment_title'    => 'Payment',
+    'checkout.payment_heading'  => 'Payment',
+    'checkout.payment_sub'      => 'Review your order and complete payment.',
+    'checkout.shipping_to'      => 'Shipping to',
     'checkout.help'             => 'Need help?',
     'checkout.help_text'        => 'Contact support if you have questions about shipping or payment.',
 
